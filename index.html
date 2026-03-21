@@ -972,7 +972,13 @@ async function send(payload){
 
 async function flushPending(){
   var p=getPending(),f=[];
-  for(var r of p){try{await send(r);}catch(e){f.push(r);}}
+  for(var r of p){
+    // Solo enviar registros válidos con tipo y monto
+    if(!r.tipo||(r.tipo!=='gasto'&&r.tipo!=='ingreso')||!r.monto||r.monto<=0){
+      continue; // descartar registro inválido
+    }
+    try{await send(r);}catch(e){f.push(r);}
+  }
   savePending(f);
 }
 

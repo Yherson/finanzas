@@ -437,7 +437,7 @@ async function fetchData(){
         subcategoria:r.c[4]?(r.c[4].v||''):'',
         descripcion:r.c[5]?(r.c[5].v||''):'',
         fecha:fRaw,mes:mes,
-        timestamp:r.c[7]?(r.c[7].v||''):''
+        timestamp:r.c[7]?(r.c[7].f&&String(r.c[7].f).includes('T')?r.c[7].f:(r.c[7].v||r.c[7].f||'')):'' 
       };
     }).filter(function(r){return r.tipo==='gasto'||r.tipo==='ingreso';});
     setSyncState('live','Sincronizado');
@@ -874,13 +874,13 @@ async function guardarEdicion(){
   if(!editRec)return;
   var est=document.getElementById('editEstado');est.textContent='Guardando...';est.style.color='var(--muted)';
   try{
-    var p={action:'actualizar',timestamp:editRec.timestamp,tipo:document.getElementById('editTipo').value,monto:parseFloat(document.getElementById('editMonto').value)||0,categoria:document.getElementById('editCat').value.trim(),subcategoria:document.getElementById('editSubcat').value.trim(),descripcion:document.getElementById('editDesc').value.trim(),fecha:document.getElementById('editFecha').value};
+    var p={action:'actualizar',timestamp:String(editRec.timestamp).trim(),tipo:document.getElementById('editTipo').value,monto:parseFloat(document.getElementById('editMonto').value)||0,categoria:document.getElementById('editCat').value.trim(),subcategoria:document.getElementById('editSubcat').value.trim(),descripcion:document.getElementById('editDesc').value.trim(),fecha:document.getElementById('editFecha').value};
     await sendAct(p);
     var idx=allRows.findIndex(function(x){return x.timestamp===editRec.timestamp;});
     if(idx>=0){Object.assign(allRows[idx],{tipo:p.tipo,monto:p.monto,categoria:p.categoria,subcategoria:p.subcategoria,descripcion:p.descripcion,fecha:p.fecha});}
     est.style.color='var(--green-tx)';est.textContent='Guardado en Sheet';
     setTimeout(function(){hideEditModal();renderVista();},1200);
-  }catch(err){est.style.color='var(--red-tx)';est.textContent='Error: '+err.message;}
+  }catch(err){est.style.color='var(--red-tx)';est.textContent='Error: '+err.message;console.error('Server error:',err.message);}
 }
 function pedirConfirmDelete(){document.getElementById('confirmOv').classList.add('show');}
 async function ejecutarDelete(){
@@ -888,11 +888,13 @@ async function ejecutarDelete(){
   if(!editRec)return;
   var est=document.getElementById('editEstado');est.textContent='Eliminando...';
   try{
-    await sendAct({action:'eliminar',timestamp:editRec.timestamp});
+    var tsEnviar = String(editRec.timestamp).trim();
+    console.log('Eliminando timestamp:', tsEnviar);
+    await sendAct({action:'eliminar',timestamp:tsEnviar});
     allRows=allRows.filter(function(x){return x.timestamp!==editRec.timestamp;});
     est.style.color='var(--green-tx)';est.textContent='Eliminado';
     setTimeout(function(){hideEditModal();renderVista();},1000);
-  }catch(err){est.style.color='var(--red-tx)';est.textContent='Error: '+err.message;}
+  }catch(err){est.style.color='var(--red-tx)';est.textContent='Error: '+err.message;console.error('Server error:',err.message);}
 }
 function quickDelete(r){editRec=r;pedirConfirmDelete();}
 

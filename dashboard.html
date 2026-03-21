@@ -764,15 +764,26 @@ async function fetchData() {
 
     var rows = json.table.rows || [];
     allRows = rows.map(function(r) {
+      var fechaRaw = r.c[6] ? (r.c[6].f || r.c[6].v || '') : '';
+      var mes = 0;
+      var gMatch = (fechaRaw+'').match(/Date\((\d+),(\d+),(\d+)\)/);
+      if (gMatch) {
+        mes = parseInt(gMatch[2]) + 1;
+        fechaRaw = gMatch[1]+'-'+String(mes).padStart(2,'0')+'-'+String(parseInt(gMatch[3])).padStart(2,'0');
+      } else {
+        var fmtMatch = (fechaRaw+'').match(/(\d{4})-(\d{2})-(\d{2})/);
+        if (fmtMatch) mes = parseInt(fmtMatch[2]);
+      }
       return {
-        fechahora:    r.c[0] ? r.c[0].v : '',
-        tipo:         r.c[1] ? r.c[1].v : '',
+        fechahora:    r.c[0] ? (r.c[0].v||'') : '',
+        tipo:         r.c[1] ? (r.c[1].v||'').toLowerCase().trim() : '',
         monto:        r.c[2] ? parseFloat(r.c[2].v) || 0 : 0,
-        categoria:    r.c[3] ? r.c[3].v : '',
-        subcategoria: r.c[4] ? r.c[4].v : '',
-        descripcion:  r.c[5] ? r.c[5].v : '',
-        fecha:        r.c[6] ? r.c[6].v : '',
-        timestamp:    r.c[7] ? r.c[7].v : ''
+        categoria:    r.c[3] ? (r.c[3].v||'') : '',
+        subcategoria: r.c[4] ? (r.c[4].v||'') : '',
+        descripcion:  r.c[5] ? (r.c[5].v||'') : '',
+        fecha:        fechaRaw,
+        mes:          mes,
+        timestamp:    r.c[7] ? (r.c[7].v||'') : ''
       };
     }).filter(function(r){ return r.tipo === 'gasto' || r.tipo === 'ingreso'; });
 
@@ -801,9 +812,7 @@ function setSyncState(state, text) {
 function getRows(mes) {
   if (!mes) return allRows;
   return allRows.filter(function(r) {
-    var f = r.fecha || r.fechahora || '';
-    var m = parseInt((f+'').substring(5,7)) || 0;
-    return m === mes;
+    return r.mes === mes;
   });
 }
 

@@ -288,7 +288,7 @@ tbody td.td-amt.g{color:var(--green-tx);}
           <select class="filter-sel" id="filtroTipo" onchange="filtrarTabla()"><option value="">Todos</option><option value="gasto">Gastos</option><option value="ingreso">Ingresos</option></select>
           <select class="filter-sel" id="filtroCat" onchange="filtrarTabla()"><option value="">Categorias</option></select>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Descripcion</th><th>Categoria</th><th>Subcategoria</th><th style="text-align:right">Monto</th><th>Tipo</th></tr></thead><tbody id="tablaBody"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Descripcion</th><th>Categoria</th><th>Subcategoria</th><th style="text-align:right">Monto</th><th>Tipo</th><th></th></tr></thead><tbody id="tablaBody"></tbody></table></div>
         <div style="margin-top:12px;font-size:10px;color:var(--muted)" id="tablaCount"></div>
       </div>
     </div>
@@ -307,6 +307,61 @@ tbody td.td-amt.g{color:var(--green-tx);}
     </div>
   </div>
 </div>
+<!-- MODAL EDITAR REGISTRO -->
+<div class="modal-ov" id="editModalOv" onclick="closeEditModal(event)">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-hdr-title">Editar registro</span>
+      <button class="modal-close-btn" onclick="hideEditModal()">x</button>
+    </div>
+    <div class="modal-field">
+      <label>Tipo</label>
+      <select id="editTipo">
+        <option value="gasto">Gasto</option>
+        <option value="ingreso">Ingreso</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Monto (S/)</label>
+      <input type="number" id="editMonto" step="0.01" min="0">
+    </div>
+    <div class="modal-field">
+      <label>Categoria</label>
+      <input type="text" id="editCat" maxlength="50">
+    </div>
+    <div class="modal-field">
+      <label>Subcategoria</label>
+      <input type="text" id="editSubcat" maxlength="50">
+    </div>
+    <div class="modal-field">
+      <label>Descripcion</label>
+      <input type="text" id="editDesc" maxlength="80">
+    </div>
+    <div class="modal-field">
+      <label>Fecha</label>
+      <input type="date" id="editFecha">
+    </div>
+    <div class="modal-row-btns">
+      <button class="modal-btn modal-btn-save" onclick="guardarEdicion()">Guardar</button>
+      <button class="modal-btn modal-btn-del" onclick="pedirConfirmDelete()">Eliminar</button>
+      <button class="modal-btn modal-btn-cancel" onclick="hideEditModal()">Cancelar</button>
+    </div>
+    <div id="editEstado" style="margin-top:10px;font-size:10px;text-align:center;color:var(--muted);letter-spacing:1px;min-height:14px;"></div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-ov" id="confirmOv">
+  <div class="confirm-box">
+    <div class="confirm-title">Eliminar registro</div>
+    <div class="confirm-sub">Esta accion es permanente.<br>Se eliminara del Google Sheet.</div>
+    <div class="confirm-btns">
+      <button class="confirm-btn-del" onclick="ejecutarDelete()">Eliminar</button>
+      <button class="confirm-btn-cancel" onclick="document.getElementById('confirmOv').classList.remove('show')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -406,7 +461,7 @@ function renderDashboard(){
   document.getElementById('mGas').textContent=fmt(gas);
   document.getElementById('mBal').textContent=fmt(bal);
   document.getElementById('mAho').textContent=aho+'%';
-  document.getElementById('labelEvol').textContent=periodoActivo?meses[periodoActivo-1]:'año';
+  document.getElementById('labelEvol').textContent=periodoActivo?meses[periodoActivo-1]:'anio';
   document.getElementById('dAho').textContent=aho>=30?'Meta cumplida':'Meta: 30%';
   document.getElementById('dAho').className='metric-delta'+(aho>=30?' up':'');
   if(periodoActivo>1){
@@ -651,9 +706,10 @@ function filtrarTabla(base){
   }).sort(function(a,b){return(b.timestamp||b.fechahora)>(a.timestamp||a.fechahora)?1:-1;});
   var tbody=document.getElementById('tablaBody');
   tbody.innerHTML='';
-  filtered.forEach(function(r){
+  var filteredRef=filtered;
+  filtered.forEach(function(r,i){
     var isG=r.tipo==='gasto';
-    tbody.innerHTML+='<tr><td>'+((r.fechahora||r.fecha||'')+'').substring(0,16)+'</td><td class="td-desc">'+(r.descripcion||'-')+'</td><td>'+(r.categoria||'-')+'</td><td>'+(r.subcategoria||'-')+'</td><td class="td-amt '+(isG?'r':'g')+'" style="text-align:right">'+(isG?'-':'+')+''+fmt(r.monto)+'</td><td><div class="badge '+(isG?'r':'g')+'">'+r.tipo+'</div></td></tr>';
+    tbody.innerHTML+='<tr><td>'+((r.fechahora||r.fecha||'')+' ').substring(0,16)+'</td><td class="td-desc">'+(r.descripcion||'-')+'</td><td>'+(r.categoria||'-')+'</td><td>'+(r.subcategoria||'-')+'</td><td class="td-amt '+(isG?'r':'g')+'" style="text-align:right">'+(isG?'-':'+')+fmt(r.monto)+'</td><td><div class="badge '+(isG?'r':'g')+'">' + r.tipo+'</div></td><td><div class="row-actions"><button class="row-btn" onclick="showEditModal(filteredRef['+i+'])">Editar</button><button class="row-btn del" onclick="quickDelete(filteredRef['+i+'])">Del</button></div></td></tr>';
   });
   document.getElementById('tablaCount').textContent=filtered.length+' registros';
 }
@@ -700,7 +756,7 @@ function exportarPDF(){
   var rows=getRows(periodoActivo);
   var ing=rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
   var gas=rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
-  var periodo=periodoActivo?meses[periodoActivo-1]:'Año completo';
+  var periodo=periodoActivo?meses[periodoActivo-1]:'A?o completo';
   var doc=new window.jspdf.jsPDF();
   doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('Finanzas Personales',20,24);
   doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(120,120,120);
@@ -720,6 +776,39 @@ function exportarExcel(){
   XLSX.utils.book_append_sheet(wb,ws,'Registros');
   XLSX.writeFile(wb,'finanzas_'+(periodoActivo?meses[periodoActivo-1]:'anual').toLowerCase()+'.xlsx');
 }
+
+
+var APPS_URL_EDIT = 'https://script.google.com/macros/s/AKfycbx78UpW8elymddcMQcp3LdrVvzuyC384_UHLkcX65z8oDa2oTW13aj7NJJw7X-rmkNz/exec';
+var editRec = null;
+async function sendAct(p){var res=await fetch(APPS_URL_EDIT,{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain'}});var j=await res.json();if(!j.ok)throw new Error(j.msg||'Error');return j;}
+function showEditModal(r){editRec=r;document.getElementById('editTipo').value=r.tipo||'gasto';document.getElementById('editMonto').value=r.monto||'';document.getElementById('editCat').value=r.categoria||'';document.getElementById('editSubcat').value=r.subcategoria||'';document.getElementById('editDesc').value=r.descripcion||'';document.getElementById('editFecha').value=r.fecha||'';document.getElementById('editEstado').textContent='';document.getElementById('editModalOv').classList.add('show');}
+function hideEditModal(){document.getElementById('editModalOv').classList.remove('show');editRec=null;}
+function closeEditModal(e){if(e.target===document.getElementById('editModalOv'))hideEditModal();}
+async function guardarEdicion(){
+  if(!editRec)return;
+  var est=document.getElementById('editEstado');est.textContent='Guardando...';est.style.color='var(--muted)';
+  try{
+    var p={action:'actualizar',timestamp:editRec.timestamp,tipo:document.getElementById('editTipo').value,monto:parseFloat(document.getElementById('editMonto').value)||0,categoria:document.getElementById('editCat').value.trim(),subcategoria:document.getElementById('editSubcat').value.trim(),descripcion:document.getElementById('editDesc').value.trim(),fecha:document.getElementById('editFecha').value};
+    await sendAct(p);
+    var idx=allRows.findIndex(function(x){return x.timestamp===editRec.timestamp;});
+    if(idx>=0){Object.assign(allRows[idx],{tipo:p.tipo,monto:p.monto,categoria:p.categoria,subcategoria:p.subcategoria,descripcion:p.descripcion,fecha:p.fecha});}
+    est.style.color='var(--green-tx)';est.textContent='Guardado en Sheet';
+    setTimeout(function(){hideEditModal();renderVista();},1200);
+  }catch(err){est.style.color='var(--red-tx)';est.textContent='Error: '+err.message;}
+}
+function pedirConfirmDelete(){document.getElementById('confirmOv').classList.add('show');}
+async function ejecutarDelete(){
+  document.getElementById('confirmOv').classList.remove('show');
+  if(!editRec)return;
+  var est=document.getElementById('editEstado');est.textContent='Eliminando...';
+  try{
+    await sendAct({action:'eliminar',timestamp:editRec.timestamp});
+    allRows=allRows.filter(function(x){return x.timestamp!==editRec.timestamp;});
+    est.style.color='var(--green-tx)';est.textContent='Eliminado';
+    setTimeout(function(){hideEditModal();renderVista();},1000);
+  }catch(err){est.style.color='var(--red-tx)';est.textContent='Error: '+err.message;}
+}
+function quickDelete(r){editRec=r;pedirConfirmDelete();}
 
 document.addEventListener('DOMContentLoaded',function(){
   setPeriod(new Date().getMonth()+1);

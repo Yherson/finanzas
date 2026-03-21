@@ -1381,6 +1381,13 @@ onAuthStateChanged(auth, user => {
   }
 });
 
+window._loadPatrimonio = async function() {
+  try{ const s=await getDoc(doc(db,userPath('config/patrimonio'))); return s.exists()?s.data():{activos:[],pasivos:[],history:[]}; }catch(e){return{activos:[],pasivos:[],history:[]};}
+};
+window._savePatrimonio = async function(data) {
+  await setDoc(doc(db,userPath('config/patrimonio')), data);
+};
+
 window._firebaseReady = true;
 </script>
 
@@ -2181,12 +2188,13 @@ window.onAppReady = async function(){
   setSyncState('loading','Cargando...');
 
   // Load all config in parallel
+  var safe = function(p, def){ return p ? p.catch(function(){ return def; }) : Promise.resolve(def); };
   var [presData, settingsData, metasData, recData, patriData] = await Promise.all([
-    window._loadPresupuestos(),
-    window._loadSettings(),
-    window._loadMetas(),
-    window._loadRecurrentes(),
-    window._loadPatrimonio()
+    safe(window._loadPresupuestos(), {cats:{},subs:{}}),
+    safe(window._loadSettings(), {}),
+    safe(window._loadMetas(), []),
+    safe(window._loadRecurrentes(), []),
+    safe(window._loadPatrimonio ? window._loadPatrimonio() : Promise.resolve(null), {activos:[],pasivos:[],history:[]})
   ]);
 
   presupCat = presData.cats||{};
@@ -2208,6 +2216,7 @@ window.onAppReady = async function(){
   if(settingsData.moneda){var ms=document.getElementById('cfgMoneda');if(ms)ms.value=settingsData.moneda;}
 
   // Real-time listener
+  if(!window._startListener){ setSyncState('error','Sin conexion'); return; }
   window._startListener(function(rows){
     allRows = processRows(rows);
     setSyncState('live','Sincronizado');
@@ -2216,7 +2225,7 @@ window.onAppReady = async function(){
     document.getElementById('dashPage').style.display='block';
     document.getElementById('errorBox').style.display='none';
     renderVista();
-    checkRecurrentes();
+    try{ checkRecurrentes(); }catch(e){}
   });
 };
 

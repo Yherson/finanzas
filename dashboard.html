@@ -278,7 +278,6 @@ function renderCalendario(){
    NOTAS Y ETIQUETAS - en modal de edicion
 ═══════════════════════════════════════════════════════════ */
 var _etiquetas = ['trabajo','familia','viaje','salud','ocio','urgente'];
-var _etiquetasActivas = [];
 
 function renderEtiquetas(){
   var cont = document.getElementById('eTagsWrap');
@@ -316,7 +315,7 @@ function renderEtiquetas(){
 /* ═══════════════════════════════════════════════════════════
    PATRIMONIO NETO
 ═══════════════════════════════════════════════════════════ */
-var _activos = [], _pasivos = [], _patrimonioHistory = [];
+
 
 async function loadPatrimonio(){
   if(!window._loadPatrimonio) return;
@@ -1398,6 +1397,8 @@ window._firebaseReady = true;
 /* GLOBALS */
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={};
+var _etiquetas=['trabajo','familia','viaje','salud','ocio','urgente'], _etiquetasActivas=[];
+var _activos=[], _pasivos=[], _patrimonioHistory=[];
 var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 var mesActual=new Date().getMonth()+1;
 var catColors=['#3a6a8a','#5a4a7a','#4a7a5a','#8a6a3a','#7a4a4a','#4a6a7a','#6a7a4a','#8a4a6a'];

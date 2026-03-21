@@ -732,18 +732,71 @@ function filtrarTabla(base){
   var tipo=document.getElementById('filtroTipo').value;
   var cat=document.getElementById('filtroCat').value;
   var filtered=rows.filter(function(r){
-    if(tipo&&r.tipo!==tipo)return false;
-    if(cat&&r.categoria!==cat)return false;
-    if(q&&!(r.descripcion||'').toLowerCase().includes(q)&&!(r.categoria||'').toLowerCase().includes(q)&&!(r.subcategoria||'').toLowerCase().includes(q))return false;
+    if(tipo&&r.tipo!==tipo) return false;
+    if(cat&&r.categoria!==cat) return false;
+    if(q&&!(r.descripcion||'').toLowerCase().includes(q)&&!(r.categoria||'').toLowerCase().includes(q)&&!(r.subcategoria||'').toLowerCase().includes(q)) return false;
     return true;
-  }).sort(function(a,b){return(b.timestamp||b.fechahora)>(a.timestamp||a.fechahora)?1:-1;});
+  }).sort(function(a,b){return (b.timestamp||b.fechahora)>(a.timestamp||a.fechahora)?1:-1;});
+
   var tbody=document.getElementById('tablaBody');
   tbody.innerHTML='';
-  var filteredRef=filtered;
-  filtered.forEach(function(r,i){
+
+  filtered.forEach(function(r){
     var isG=r.tipo==='gasto';
-    tbody.innerHTML+='<tr><td>'+((r.fechahora||r.fecha||'')+' ').substring(0,16)+'</td><td class="td-desc">'+(r.descripcion||'-')+'</td><td>'+(r.categoria||'-')+'</td><td>'+(r.subcategoria||'-')+'</td><td class="td-amt '+(isG?'r':'g')+'" style="text-align:right">'+(isG?'-':'+')+fmt(r.monto)+'</td><td><div class="badge '+(isG?'r':'g')+'">' + r.tipo+'</div></td><td><div class="row-actions"><button class="row-btn" onclick="showEditModal(filteredRef['+i+'])">Editar</button><button class="row-btn del" onclick="quickDelete(filteredRef['+i+'])">Del</button></div></td></tr>';
+    var tr=document.createElement('tr');
+
+    var tdFecha=document.createElement('td');
+    tdFecha.textContent=String(r.fechahora||r.fecha||'').substring(0,16);
+    tr.appendChild(tdFecha);
+
+    var tdDesc=document.createElement('td');
+    tdDesc.className='td-desc';
+    tdDesc.textContent=r.descripcion||'-';
+    tr.appendChild(tdDesc);
+
+    var tdCat=document.createElement('td');
+    tdCat.textContent=r.categoria||'-';
+    tr.appendChild(tdCat);
+
+    var tdSub=document.createElement('td');
+    tdSub.textContent=r.subcategoria||'-';
+    tr.appendChild(tdSub);
+
+    var tdAmt=document.createElement('td');
+    tdAmt.className='td-amt '+(isG?'r':'g');
+    tdAmt.style.textAlign='right';
+    tdAmt.textContent=(isG?'-':'+')+fmt(r.monto);
+    tr.appendChild(tdAmt);
+
+    var tdBadge=document.createElement('td');
+    var badge=document.createElement('div');
+    badge.className='badge '+(isG?'r':'g');
+    badge.textContent=r.tipo;
+    tdBadge.appendChild(badge);
+    tr.appendChild(tdBadge);
+
+    var tdAct=document.createElement('td');
+    var wrap=document.createElement('div');
+    wrap.className='row-actions';
+
+    var btnEdit=document.createElement('button');
+    btnEdit.className='row-btn';
+    btnEdit.textContent='Editar';
+    btnEdit.onclick=(function(rec){return function(){showEditModal(rec);};})(r);
+
+    var btnDel=document.createElement('button');
+    btnDel.className='row-btn del';
+    btnDel.textContent='x';
+    btnDel.onclick=(function(rec){return function(){quickDelete(rec);};})(r);
+
+    wrap.appendChild(btnEdit);
+    wrap.appendChild(btnDel);
+    tdAct.appendChild(wrap);
+    tr.appendChild(tdAct);
+
+    tbody.appendChild(tr);
   });
+
   document.getElementById('tablaCount').textContent=filtered.length+' registros';
 }
 

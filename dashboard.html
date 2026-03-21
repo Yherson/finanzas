@@ -281,6 +281,50 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   .pres-stats{grid-template-columns:1fr;}
   .m-value{font-size:18px;}
 }
+
+/* HISTORIAL MOBILE - cards instead of table */
+@media(max-width:768px){
+  .table-wrap table thead{display:none;}
+  .table-wrap table,
+  .table-wrap tbody,
+  .table-wrap tr{display:block;width:100%;}
+  .table-wrap tr{
+    background:var(--s2);
+    border:1px solid var(--border);
+    border-radius:3px;
+    margin-bottom:8px;
+    padding:12px 14px;
+    position:relative;
+  }
+  .table-wrap tr:last-child{margin-bottom:0;}
+  .table-wrap tr:hover{background:var(--s3);}
+  .table-wrap td{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:3px 0;
+    border:none;
+    font-size:12px;
+  }
+  .table-wrap td:empty{display:none;}
+  .table-wrap td::before{
+    content:attr(data-label);
+    font-size:9px;
+    font-weight:500;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    flex-shrink:0;
+    margin-right:10px;
+    min-width:80px;
+  }
+  .table-wrap td.td-main{font-size:13px;font-weight:400;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+  .table-wrap td.td-main::before{display:none;}
+  .table-wrap td.td-amt{font-size:14px;font-weight:400;}
+  .table-wrap td .row-actions{width:100%;justify-content:flex-start;gap:8px;margin-top:2px;}
+  .table-wrap td .row-btn{padding:5px 12px;font-size:10px;}
+}
+
 </style>
 </head>
 <body>
@@ -878,10 +922,17 @@ function filtrarTabla(base){
   filtered.forEach(function(r){
     var isG=r.tipo==='gasto';
     var tr=document.createElement('tr');
-    [String(r.fechahora||r.fecha||'').substring(0,16),r.descripcion||'-',r.categoria||'-',r.subcategoria||'-'].forEach(function(txt,i){var td=document.createElement('td');if(i===1)td.className='td-main';td.textContent=txt;tr.appendChild(td);});
-    var tdA=document.createElement('td');tdA.className='td-amt '+(isG?'r':'g');tdA.style.textAlign='right';tdA.textContent=(isG?'-':'+')+fmt(r.monto);tr.appendChild(tdA);
-    var tdB=document.createElement('td');var b=document.createElement('div');b.className='badge '+(isG?'r':'g');b.textContent=r.tipo;tdB.appendChild(b);tr.appendChild(tdB);
-    var tdAct=document.createElement('td');var wrap=document.createElement('div');wrap.className='row-actions';
+    var labels=['Fecha','','Categoria','Sub'];
+    [String(r.fechahora||r.fecha||'').substring(0,16),r.descripcion||'-',r.categoria||'-',r.subcategoria||'-'].forEach(function(txt,i){
+      var td=document.createElement('td');
+      if(i===1) td.className='td-main';
+      if(labels[i]) td.setAttribute('data-label',labels[i]);
+      td.textContent=txt;
+      tr.appendChild(td);
+    });
+    var tdA=document.createElement('td');tdA.className='td-amt '+(isG?'r':'g');tdA.setAttribute('data-label','Monto');tdA.style.textAlign='right';tdA.textContent=(isG?'-':'+')+fmt(r.monto);tr.appendChild(tdA);
+    var tdB=document.createElement('td');tdB.setAttribute('data-label','Tipo');var b=document.createElement('div');b.className='badge '+(isG?'r':'g');b.textContent=r.tipo;tdB.appendChild(b);tr.appendChild(tdB);
+    var tdAct=document.createElement('td');tdAct.setAttribute('data-label','');var wrap=document.createElement('div');wrap.className='row-actions';
     var bE=document.createElement('button');bE.className='row-btn';bE.textContent='Editar';bE.onclick=(function(rec){return function(){showEditModal(rec);};})(r);
     var bD=document.createElement('button');bD.className='row-btn del';bD.textContent='x';bD.onclick=(function(rec){return function(){quickDelete(rec);};})(r);
     wrap.appendChild(bE);wrap.appendChild(bD);tdAct.appendChild(wrap);tr.appendChild(tdAct);

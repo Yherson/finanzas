@@ -371,7 +371,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="sb-logo-mark">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M2 4h10M2 10h6" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>
       </div>
-      <div><div class="sb-name">Finanzas</div><div class="sb-sub">Panel personal</div></div>
+      <div><div class="sb-name" id="dashName">Finanzas</div><div class="sb-sub">Panel personal</div></div>
     </div>
   </div>
   <div class="sb-nav">
@@ -392,6 +392,15 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
     <div class="nav-item" onclick="showView('alertas',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v1M7 2C4.8 2 3 3.8 3 6v3l-1 1h10l-1-1V6C11 3.8 9.2 2 7 2ZM5.5 12a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       Alertas
+    </div>
+    <div class="nav-item" onclick="showView('recurrentes',this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M7 4v3l2 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      Recurrentes
+    </div>
+    <div class="sb-group-label">Sistema</div>
+    <div class="nav-item" onclick="showView('ajustes',this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.5 2.5l1 1M10.5 10.5l1 1M2.5 11.5l1-1M10.5 3.5l1-1" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      Ajustes
     </div>
   </div>
   <div class="sb-bottom">
@@ -503,6 +512,15 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
             <select class="s-sel" id="fTipo" onchange="filtrarTabla()"><option value="">Todos</option><option value="gasto">Gastos</option><option value="ingreso">Ingresos</option></select>
             <select class="s-sel" id="fCat" onchange="filtrarTabla()"><option value="">Categorias</option></select>
           </div>
+          <div class="search-bar" style="margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap">
+              <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0">Desde</span>
+              <input type="date" class="s-inp" id="fDesde" onchange="filtrarTabla()" style="flex:1;min-width:120px">
+              <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0">Hasta</span>
+              <input type="date" class="s-inp" id="fHasta" onchange="filtrarTabla()" style="flex:1;min-width:120px">
+              <button class="tb-btn" onclick="clearDateFilter()" style="padding:7px 12px;font-size:9px">Limpiar</button>
+            </div>
+          </div>
           <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Descripcion</th><th>Categoria</th><th>Sub</th><th style="text-align:right">Monto</th><th>Tipo</th><th></th></tr></thead><tbody id="tablaBody"></tbody></table></div>
           <div class="tbl-count" id="tblCount"></div>
         </div>
@@ -524,6 +542,87 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       </div>
     </div>
   </div>
+    <!-- RECURRENTES -->
+    <div id="vRecurrentes" style="display:none">
+      <div class="page fade">
+        <div class="card" style="margin-bottom:8px">
+          <div class="card-title">Gastos fijos este mes</div>
+          <div id="recList"><div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos recurrentes configurados</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Agregar gasto recurrente</div>
+          <div class="search-bar" style="margin-bottom:8px">
+            <input class="s-inp" id="recNombre" placeholder="Nombre (ej. Alquiler)" style="flex:2">
+            <input class="s-inp" id="recMonto" type="number" placeholder="S/ monto" style="flex:1;min-width:80px">
+          </div>
+          <div class="search-bar">
+            <select class="s-sel" id="recDia" style="flex:1"><option value="">Dia del mes...</option></select>
+            <select class="s-sel" id="recCat" style="flex:1"><option value="">Categoria...</option></select>
+            <button class="tb-btn gold" onclick="agregarRecurrente()" style="padding:8px 16px">Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AJUSTES -->
+    <div id="vAjustes" style="display:none">
+      <div class="page fade">
+        <div class="row r2" style="margin-bottom:8px">
+          <div class="card">
+            <div class="card-title">Personalizacion</div>
+            <div style="margin-bottom:14px">
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Nombre del dashboard</div>
+              <div style="display:flex;gap:8px">
+                <input class="s-inp" id="cfgNombre" placeholder="Mis Finanzas" style="flex:1">
+                <button class="tb-btn gold" onclick="guardarNombre()" style="padding:8px 12px">Ok</button>
+              </div>
+            </div>
+            <div style="margin-bottom:14px">
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Tema</div>
+              <div style="display:flex;gap:8px">
+                <button class="tb-btn" id="themeLight" onclick="setTheme('light')" style="flex:1;padding:9px">Claro</button>
+                <button class="tb-btn" id="themeDark" onclick="setTheme('dark')" style="flex:1;padding:9px">Oscuro</button>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Color de acento</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="accent-btn" data-color="#c9a84c" onclick="setAccent('#c9a84c',this)" style="width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);background:#c9a84c;cursor:pointer;"></button>
+                <button class="accent-btn" data-color="#6a9acc" onclick="setAccent('#6a9acc',this)" style="width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);background:#6a9acc;cursor:pointer;"></button>
+                <button class="accent-btn" data-color="#5aaa80" onclick="setAccent('#5aaa80',this)" style="width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);background:#5aaa80;cursor:pointer;"></button>
+                <button class="accent-btn" data-color="#c07070" onclick="setAccent('#c07070',this)" style="width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);background:#c07070;cursor:pointer;"></button>
+                <button class="accent-btn" data-color="#a088cc" onclick="setAccent('#a088cc',this)" style="width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);background:#a088cc;cursor:pointer;"></button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Finanzas</div>
+            <div style="margin-bottom:14px">
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Meta de ahorro mensual</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input class="s-inp" id="cfgMeta" type="number" placeholder="30" min="1" max="100" style="flex:1">
+                <span style="font-size:12px;color:var(--muted)">%</span>
+                <button class="tb-btn gold" onclick="guardarMeta()" style="padding:8px 12px">Ok</button>
+              </div>
+              <div style="font-size:10px;color:var(--muted);margin-top:6px">Meta actual: <span id="metaActual" style="color:var(--gold)">30%</span></div>
+            </div>
+            <div>
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Moneda</div>
+              <select class="s-sel" id="cfgMoneda" onchange="setMoneda(this.value)" style="width:100%">
+                <option value="S/">Soles (S/)</option>
+                <option value="$">Dolares ($)</option>
+                <option value="EUR">Euros</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Resumen del sistema</div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px" id="statsSystem"></div>
+        </div>
+      </div>
+    </div>
+
 </div>
 </div>
 
@@ -586,6 +685,28 @@ window._loadPresupuestos = async function() {
 window._savePresupuestos = async function(data) {
   await setDoc(doc(db, 'config', 'presupuestos'), data);
 };
+
+window._loadSettings = async function() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'settings'));
+    return snap.exists() ? snap.data() : {};
+  } catch(e) { return {}; }
+};
+
+window._saveSettings = async function(data) {
+  await setDoc(doc(db, 'config', 'settings'), data, {merge: true});
+};
+
+window._loadRecurrentes = async function() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'recurrentes'));
+    return snap.exists() ? (snap.data().lista || []) : [];
+  } catch(e) { return []; }
+};
+
+window._saveRecurrentes = async function(lista) {
+  await setDoc(doc(db, 'config', 'recurrentes'), {lista});
+};
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -602,7 +723,6 @@ var ttOpts = {backgroundColor:'#0d0d10',borderColor:'#1e1e28',borderWidth:1,titl
 Chart.defaults.color = '#52505c';
 Chart.defaults.font = {family:"'IBM Plex Sans',sans-serif",size:10,weight:'300'};
 
-function fmt(n){ return 'S/ '+Math.abs(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 // Sidebar
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sbOverlay').classList.toggle('show'); }
@@ -652,11 +772,11 @@ function setPeriod(m){
 
 function showView(v, el){
   vistaActiva = v;
-  ['vDashboard','vPresupuesto','vHistorial','vAlertas'].forEach(function(id){document.getElementById(id).style.display='none';});
+  ['vDashboard','vPresupuesto','vHistorial','vAlertas','vRecurrentes','vAjustes'].forEach(function(id){document.getElementById(id).style.display='none';});
   document.getElementById('v'+v.charAt(0).toUpperCase()+v.slice(1)).style.display = 'block';
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   if(el) el.classList.add('active');
-  var titles = {dashboard:'Dashboard',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas'};
+  var titles = {dashboard:'Dashboard',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas',recurrentes:'Recurrentes',ajustes:'Ajustes'};
   document.getElementById('viewTitle').textContent = titles[v] || v;
   closeSidebar();
   if(allRows.length) renderVista();
@@ -668,6 +788,8 @@ function renderVista(){
   else if(vistaActiva==='presupuesto') renderPresupuesto();
   else if(vistaActiva==='historial') renderHistorial();
   else if(vistaActiva==='alertas') renderAlertas();
+  else if(vistaActiva==='recurrentes') renderRecurrentes();
+  else if(vistaActiva==='ajustes') renderStatsSystem();
 }
 
 function destroyChart(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
@@ -684,8 +806,9 @@ function renderDashboard(){
   document.getElementById('mBal').textContent=fmt(bal);
   document.getElementById('mAho').textContent=aho+'%';
   document.getElementById('lblEvol').textContent=periodoActivo?meses[periodoActivo-1]:'anio';
-  document.getElementById('dAho').textContent=aho>=30?'Meta cumplida':'Meta: 30%';
-  document.getElementById('dAho').className='m-delta'+(aho>=30?' up':'');
+  var meta = window._metaAhorro || 30;
+  document.getElementById('dAho').textContent=aho>=meta?'Meta cumplida':'Meta: '+meta+'%';
+  document.getElementById('dAho').className='m-delta'+(aho>=meta?' up':'');
   if(periodoActivo>1){
     var pr=getRows(periodoActivo-1);
     var pI=pr.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
@@ -908,10 +1031,14 @@ function filtrarTabla(base){
   var q=(document.getElementById('searchInp').value||'').toLowerCase();
   var tipo=document.getElementById('fTipo').value;
   var cat=document.getElementById('fCat').value;
+  var desde = document.getElementById('fDesde') ? document.getElementById('fDesde').value : '';
+  var hasta = document.getElementById('fHasta') ? document.getElementById('fHasta').value : '';
   var filtered=rows.filter(function(r){
     if(tipo&&r.tipo!==tipo) return false;
     if(cat&&r.categoria!==cat) return false;
     if(q&&!(r.descripcion||'').toLowerCase().includes(q)&&!(r.categoria||'').toLowerCase().includes(q)&&!(r.subcategoria||'').toLowerCase().includes(q)) return false;
+    if(desde&&r.fecha&&r.fecha<desde) return false;
+    if(hasta&&r.fecha&&r.fecha>hasta) return false;
     return true;
   }).sort(function(a,b){
     var ta=a.createdAt?a.createdAt.seconds||0:0;
@@ -1054,10 +1181,209 @@ function exportarExcel(){
 function setSyncState(s,t){ document.getElementById('syncDot').className='sync-dot '+s; document.getElementById('syncTxt').textContent=t; }
 
 // INIT
+
+/* GLOBAL SETTINGS */
+window._moneda = 'S/';
+window._metaAhorro = 30;
+var _recurrentes = [];
+var _settings = {};
+
+function fmt(n){
+  var sym = window._moneda || 'S/';
+  return sym + ' ' + Math.abs(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* THEME */
+function applyTheme(theme){
+  _settings.theme = theme;
+  if(theme === 'light'){
+    document.documentElement.style.setProperty('--bg','#f4f4f6');
+    document.documentElement.style.setProperty('--s1','#ffffff');
+    document.documentElement.style.setProperty('--s2','#f0f0f4');
+    document.documentElement.style.setProperty('--s3','#e8e8ec');
+    document.documentElement.style.setProperty('--border','#e0e0e8');
+    document.documentElement.style.setProperty('--border2','#d0d0dc');
+    document.documentElement.style.setProperty('--text','#1a1a28');
+    document.documentElement.style.setProperty('--text2','#52505c');
+    document.documentElement.style.setProperty('--muted','#9090a0');
+    document.getElementById('themeLight').style.background='var(--border2)';
+    document.getElementById('themeLight').style.color='var(--text)';
+    document.getElementById('themeDark').style.background='';
+    document.getElementById('themeDark').style.color='';
+  } else {
+    document.documentElement.style.setProperty('--bg','#070709');
+    document.documentElement.style.setProperty('--s1','#0d0d10');
+    document.documentElement.style.setProperty('--s2','#121215');
+    document.documentElement.style.setProperty('--s3','#181820');
+    document.documentElement.style.setProperty('--border','#1e1e28');
+    document.documentElement.style.setProperty('--border2','#28283a');
+    document.documentElement.style.setProperty('--text','#e4e2dc');
+    document.documentElement.style.setProperty('--text2','#a8a6a0');
+    document.documentElement.style.setProperty('--muted','#52505c');
+    document.getElementById('themeDark').style.background='var(--border2)';
+    document.getElementById('themeDark').style.color='var(--text)';
+    document.getElementById('themeLight').style.background='';
+    document.getElementById('themeLight').style.color='';
+  }
+}
+
+function setTheme(t){
+  applyTheme(t);
+  _settings.theme = t;
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+}
+
+/* ACCENT COLOR */
+function applyAccent(color){
+  _settings.accentColor = color;
+  document.documentElement.style.setProperty('--gold', color);
+  document.documentElement.style.setProperty('--gold-d', color + '1a');
+  document.documentElement.style.setProperty('--gold-b', color + '4d');
+  document.querySelectorAll('.accent-btn').forEach(function(b){
+    b.style.border = b.dataset.color === color ? '2px solid var(--text)' : '2px solid var(--border2)';
+  });
+}
+
+function setAccent(color, el){
+  applyAccent(color);
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+}
+
+/* DASHBOARD NAME */
+function guardarNombre(){
+  var v = document.getElementById('cfgNombre').value.trim();
+  if(!v) return;
+  document.getElementById('dashName').textContent = v;
+  _settings.dashName = v;
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+}
+
+/* META AHORRO */
+function guardarMeta(){
+  var v = parseFloat(document.getElementById('cfgMeta').value) || 30;
+  window._metaAhorro = v;
+  _settings.meta = v;
+  document.getElementById('metaActual').textContent = v + '%';
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+  renderDashboard();
+}
+
+/* MONEDA */
+function setMoneda(m){
+  window._moneda = m;
+  _settings.moneda = m;
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+  renderVista();
+}
+
+/* DATE FILTER */
+function clearDateFilter(){
+  document.getElementById('fDesde').value = '';
+  document.getElementById('fHasta').value = '';
+  filtrarTabla();
+}
+
+/* RECURRENTES */
+async function loadRecurrentes(){
+  if(!window._loadRecurrentes) return;
+  try{ _recurrentes = await window._loadRecurrentes(); }catch(e){ _recurrentes = []; }
+}
+
+function renderRecurrentes(){
+  var mes = periodoActivo || (new Date().getMonth()+1);
+  var hoy = new Date().getDate();
+  var cats = [];var catSet={};
+  allRows.forEach(function(r){if(r.categoria&&!catSet[r.categoria]){catSet[r.categoria]=1;cats.push(r.categoria);}});
+  cats.sort();
+
+  var recCat = document.getElementById('recCat');
+  recCat.innerHTML = '<option value="">Categoria...</option>';
+  cats.forEach(function(c){recCat.innerHTML += '<option value="'+c+'">'+c+'</option>';});
+
+  var recDia = document.getElementById('recDia');
+  recDia.innerHTML = '<option value="">Dia del mes...</option>';
+  for(var d=1;d<=31;d++) recDia.innerHTML += '<option value="'+d+'">Dia '+d+'</option>';
+
+  var cont = document.getElementById('recList');
+  if(!_recurrentes.length){
+    cont.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos recurrentes configurados</div>';
+    return;
+  }
+
+  cont.innerHTML = '';
+  _recurrentes.forEach(function(rec, idx){
+    var vence = rec.dia <= hoy ? 'Vencio dia '+rec.dia : 'Vence dia '+rec.dia;
+    var estado = rec.dia < hoy ? 'var(--muted)' : rec.dia === hoy ? 'var(--red-tx)' : 'var(--green-tx)';
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);';
+    div.innerHTML =
+      '<div><div style="font-size:12px;font-weight:400;color:var(--text)">'+rec.nombre+'</div>'+
+      '<div style="font-size:9px;color:'+estado+';margin-top:2px;letter-spacing:.5px">'+vence+' - '+rec.categoria+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      '<div style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--red-tx)">-'+fmt(rec.monto)+'</div>'+
+      '<button class="row-btn del" onclick="eliminarRecurrente('+idx+')">x</button></div>';
+    cont.appendChild(div);
+  });
+}
+
+async function agregarRecurrente(){
+  var nombre = document.getElementById('recNombre').value.trim();
+  var monto  = parseFloat(document.getElementById('recMonto').value)||0;
+  var dia    = parseInt(document.getElementById('recDia').value)||0;
+  var cat    = document.getElementById('recCat').value;
+  if(!nombre||!monto||!dia) return;
+  _recurrentes.push({nombre:nombre, monto:monto, dia:dia, categoria:cat||'General'});
+  try{ await window._saveRecurrentes(_recurrentes); }catch(e){}
+  document.getElementById('recNombre').value='';
+  document.getElementById('recMonto').value='';
+  renderRecurrentes();
+}
+
+async function eliminarRecurrente(idx){
+  _recurrentes.splice(idx,1);
+  try{ await window._saveRecurrentes(_recurrentes); }catch(e){}
+  renderRecurrentes();
+}
+
+function checkRecurrentes(){
+  var hoy = new Date().getDate();
+  var vencenHoy = _recurrentes.filter(function(r){return r.dia===hoy;});
+  if(vencenHoy.length>0){
+    var banner = document.getElementById('alertBanner');
+    var msg = document.getElementById('alertMsg');
+    var recMsg = vencenHoy.map(function(r){return r.nombre+' ('+fmt(r.monto)+')';}).join(', ');
+    banner.classList.add('show');
+    msg.textContent = 'Vencen hoy: '+recMsg;
+  }
+}
+
+/* STATS SYSTEM */
+function renderStatsSystem(){
+  var total = allRows.length;
+  var meses_activos = new Set(allRows.map(function(r){return r.mes;})).size;
+  var categorias = new Set(allRows.map(function(r){return r.categoria;})).size;
+  var cont = document.getElementById('statsSystem');
+  if(!cont) return;
+  var stats = [
+    {lbl:'Total registros', val:total},
+    {lbl:'Meses con datos', val:meses_activos},
+    {lbl:'Categorias', val:categorias}
+  ];
+  cont.innerHTML = '';
+  stats.forEach(function(s){
+    cont.innerHTML += '<div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">'+s.lbl+'</div><div style="font-family:IBM Plex Mono,monospace;font-size:20px;color:var(--text)">'+s.val+'</div></div>';
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async function(){
   setPeriod(new Date().getMonth()+1);
 
-  // Wait for Firebase
+  // Show dashboard skeleton immediately
+  document.getElementById('loading').style.display='none';
+  document.getElementById('vDashboard').style.display='block';
+  renderDashboard();
+
+  // Wait for Firebase then load real data
   var tries=0;
   var waitFirebase=setInterval(async function(){
     tries++;
@@ -1065,27 +1391,37 @@ document.addEventListener('DOMContentLoaded', async function(){
       clearInterval(waitFirebase);
       setSyncState('loading','Cargando...');
 
-      // Load presupuestos from Firestore
+      // Load settings + presupuestos + recurrentes from Firestore
+      await loadRecurrentes();
       var presData = await window._loadPresupuestos();
       presupCat = presData.cats || {};
       presupSub = presData.subs || {};
+
+      // Load settings
+      try{
+        var settingsData = await window._loadSettings();
+        if(settingsData.dashName) document.getElementById('dashName').textContent = settingsData.dashName;
+        if(settingsData.moneda) window._moneda = settingsData.moneda;
+        if(settingsData.meta) window._metaAhorro = parseFloat(settingsData.meta)||30;
+        if(settingsData.theme) applyTheme(settingsData.theme);
+        if(settingsData.accentColor) applyAccent(settingsData.accentColor);
+      }catch(e){}
 
       // Real-time listener for registros
       window._startListener(function(rows){
         allRows = processRows(rows);
         setSyncState('live','Sincronizado');
         document.getElementById('lastSync').textContent = 'Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
-        document.getElementById('loading').style.display='none';
         document.getElementById('errorBox').classList.remove('show');
         renderVista();
+        checkRecurrentes();
       });
     }
     if(tries>20){
       clearInterval(waitFirebase);
       setSyncState('error','Error de conexion');
-      document.getElementById('loading').style.display='none';
       var eb=document.getElementById('errorBox');eb.classList.add('show');
-      eb.textContent='No se pudo conectar con Firebase. Verifica tu conexion.';
+      eb.innerHTML='<strong>No se pudo conectar con Firebase.</strong><br>Verifica tu conexion a internet.';
     }
   },200);
 });

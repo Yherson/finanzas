@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finanzas Personales</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Serif:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #08080b;
+      --s1:       #0e0e13;
+      --s2:       #13131a;
+      --border:   #1c1c26;
+      --border2:  #252530;
+      --text:     #dddbd4;
+      --muted:    #42414d;
+      --muted2:   #6a6878;
+      --gold:     #c9a84c;
+      --green:    #3d7a5c;
+      --green-tx: #5aaa80;
+      --red:      #8a3a3a;
+      --red-tx:   #c07070;
+      --blue:     #3a5a8a;
+      --blue-tx:  #6a9acc;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── LAYOUT ── */
+    .app { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--s1);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 0;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      padding: 0 24px 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .brand-name {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.3px;
+    }
+
+    .brand-sub {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      color: var(--muted2);
+      cursor: pointer;
+      transition: all .15s;
+      border-left: 2px solid transparent;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--s2); }
+
+    .nav-item.active {
+      color: var(--text);
+      border-left-color: var(--gold);
+      background: var(--s2);
+    }
+
+    .nav-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .nav-icon { opacity: 1; }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sync-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .sync-dot.live { background: var(--green-tx); }
+    .sync-dot.loading { background: var(--gold); animation: pulse 1s infinite; }
+    .sync-dot.error { background: var(--red-tx); }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .last-sync { font-size: 9px; color: var(--muted); margin-top: 4px; letter-spacing: 0.5px; }
+
+    /* ── CONTENT ── */
+    .content { flex: 1; overflow-y: auto; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--s1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-title {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .period-group {
+      display: flex;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .period-btn {
+      padding: 5px 14px;
+      border: none;
+      background: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted2);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all .15s;
+    }
+
+    .period-btn:hover { color: var(--text); }
+    .period-btn.active { background: var(--border2); color: var(--text); }
+
+    .btn-action {
+      padding: 7px 16px;
+      border: 1px solid var(--border2);
+      background: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted2);
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all .15s;
+    }
+
+    .btn-action:hover { color: var(--text); border-color: var(--border2); }
+    .btn-action.gold { color: var(--gold); border-color: rgba(201,168,76,0.3); }
+    .btn-action.gold:hover { background: rgba(201,168,76,0.08); }
+
+    /* ── MAIN CONTENT ── */
+    .main { padding: 28px 32px; }
+
+    /* ── ALERT BANNER ── */
+    .alert-banner {
+      display: none;
+      background: rgba(138,58,58,0.12);
+      border: 1px solid rgba(138,58,58,0.35);
+      border-radius: 3px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 11px;
+      color: var(--red-tx);
+      letter-spacing: 0.3px;
+    }
+
+    .alert-banner.show { display: flex; align-items: center; gap: 10px; }
+
+    /* ── MÉTRICAS ── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px; height: 100%;
+    }
+
+    .metric.m-green::after { background: var(--green); }
+    .metric.m-red::after   { background: var(--red); }
+    .metric.m-gold::after  { background: var(--gold); }
+    .metric.m-blue::after  { background: var(--blue); }
+
+    .metric-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .metric.m-green .metric-value { color: var(--green-tx); }
+    .metric.m-red   .metric-value { color: var(--red-tx); }
+    .metric.m-gold  .metric-value { color: var(--gold); }
+    .metric.m-blue  .metric-value { color: var(--blue-tx); }
+
+    .metric-delta {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    .metric-delta.up   { color: var(--green-tx); }
+    .metric-delta.down { color: var(--red-tx); }
+
+    /* ── GRID GRÁFICOS ── */
+    .row { display: grid; gap: 10px; margin-bottom: 10px; }
+    .row.r2 { grid-template-columns: 1.7fr 1fr; }
+    .row.r3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    .card {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .chart-wrap { position: relative; width: 100%; }
+
+    /* ── LEYENDA ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted2);
+    }
+
+    .legend-sq {
+      width: 8px; height: 8px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ── TABLA HISTORIAL ── */
+    .search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 8px 12px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    .search-input:focus { border-color: var(--border2); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .filter-sel {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 8px 12px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 11px;
+      color: var(--muted2);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .filter-sel option { background: var(--s2); }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead th {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+
+    tbody tr:hover { background: var(--s2); }
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody td {
+      padding: 11px 12px;
+      color: var(--muted2);
+      font-weight: 300;
+    }
+
+    tbody td.td-desc { color: var(--text); font-weight: 400; }
+    tbody td.td-amt  { font-family: 'IBM Plex Serif', serif; font-weight: 400; }
+    tbody td.td-amt.r { color: var(--red-tx); }
+    tbody td.td-amt.g { color: var(--green-tx); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .badge.r { background: rgba(138,58,58,0.15); color: var(--red-tx); border: 1px solid rgba(138,58,58,0.3); }
+    .badge.g { background: rgba(61,122,92,0.15); color: var(--green-tx); border: 1px solid rgba(61,122,92,0.3); }
+
+    /* ── ALERTA LÍMITE ── */
+    .alert-section {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 20px;
+      margin-bottom: 10px;
+    }
+
+    .alert-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .alert-row:last-child { margin-bottom: 0; }
+
+    .alert-label {
+      font-size: 10px;
+      color: var(--muted2);
+      width: 120px;
+      flex-shrink: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .alert-bar-bg {
+      flex: 1;
+      height: 3px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .alert-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .6s ease;
+    }
+
+    .alert-pct {
+      font-size: 10px;
+      color: var(--muted2);
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── LOADING ── */
+    .loading-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 32px;
+      gap: 16px;
+    }
+
+    .loading-text {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 24px; height: 24px;
+      border: 1px solid var(--border2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .error-box {
+      display: none;
+      background: rgba(138,58,58,0.08);
+      border: 1px solid rgba(138,58,58,0.25);
+      border-radius: 3px;
+      padding: 20px 24px;
+      margin: 28px 32px;
+      font-size: 12px;
+      color: var(--red-tx);
+      line-height: 1.6;
+    }
+
+    .error-box.show { display: block; }
+
+    /* Animación entrada */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation: fadeUp .35s ease both; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Finanzas</div>
+      <div class="brand-sub">Panel personal</div>
+    </div>
+
+    <div class="nav-item active" onclick="showView('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/>
+        <rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/>
+        <rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/>
+        <rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showView('historial')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none">
+        <path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      Historial
+    </div>
+    <div class="nav-item" onclick="showView('alertas')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1L7 2M7 2C4.8 2 3 3.8 3 6v3l-1 1h10l-1-1V6C11 3.8 9.2 2 7 2ZM5.5 12a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      Alertas
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sync-status">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncText">Conectando...</span>
+      </div>
+      <div class="last-sync" id="lastSync"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="viewTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="period-group">
+          <button class="period-btn" onclick="setPeriod(1)" id="p1">Ene</button>
+          <button class="period-btn" onclick="setPeriod(2)" id="p2">Feb</button>
+          <button class="period-btn" onclick="setPeriod(3)" id="p3">Mar</button>
+          <button class="period-btn" onclick="setPeriod(4)" id="p4">Abr</button>
+          <button class="period-btn" onclick="setPeriod(5)" id="p5">May</button>
+          <button class="period-btn" onclick="setPeriod(6)" id="p6">Jun</button>
+          <button class="period-btn" onclick="setPeriod(7)" id="p7">Jul</button>
+          <button class="period-btn" onclick="setPeriod(8)" id="p8">Ago</button>
+          <button class="period-btn" onclick="setPeriod(9)" id="p9">Sep</button>
+          <button class="period-btn" onclick="setPeriod(10)" id="p10">Oct</button>
+          <button class="period-btn" onclick="setPeriod(11)" id="p11">Nov</button>
+          <button class="period-btn" onclick="setPeriod(12)" id="p12">Dic</button>
+          <button class="period-btn active" onclick="setPeriod(0)" id="p0">Año</button>
+        </div>
+        <button class="btn-action" onclick="recargar()">↻ Sync</button>
+        <button class="btn-action gold" onclick="exportarPDF()">↓ PDF</button>
+        <button class="btn-action" onclick="exportarExcel()">↓ Excel</button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-overlay" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Cargando datos...</div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-box" id="errorBox"></div>
+
+    <!-- VISTA DASHBOARD -->
+    <div id="viewDashboard" style="display:none">
+      <div class="main fade-in">
+
+        <div class="alert-banner" id="alertBanner">
+          <span>⚠</span>
+          <span id="alertMsg"></span>
+        </div>
+
+        <!-- Métricas -->
+        <div class="metrics">
+          <div class="metric m-green">
+            <div class="metric-label">Ingresos</div>
+            <div class="metric-value" id="mIngresos">—</div>
+            <div class="metric-delta" id="dIngresos"></div>
+          </div>
+          <div class="metric m-red">
+            <div class="metric-label">Gastos</div>
+            <div class="metric-value" id="mGastos">—</div>
+            <div class="metric-delta" id="dGastos"></div>
+          </div>
+          <div class="metric m-gold">
+            <div class="metric-label">Balance neto</div>
+            <div class="metric-value" id="mBalance">—</div>
+            <div class="metric-delta" id="dBalance"></div>
+          </div>
+          <div class="metric m-blue">
+            <div class="metric-label">Tasa de ahorro</div>
+            <div class="metric-value" id="mAhorro">—</div>
+            <div class="metric-delta" id="dAhorro"></div>
+          </div>
+        </div>
+
+        <!-- Fila 1: Evolución + Donut -->
+        <div class="row r2">
+          <div class="card">
+            <div class="card-title">Evolución mensual · <span id="labelEvol">año completo</span></div>
+            <div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-sq" style="background:#3d7a5c"></div>Ingresos</div>
+              <div class="legend-item"><div class="legend-sq" style="background:#8a3a3a"></div>Gastos</div>
+              <div class="legend-item"><div class="legend-sq" style="background:#c9a84c"></div>Balance</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Por categoría</div>
+            <div class="chart-wrap" style="height:180px"><canvas id="cDonut"></canvas></div>
+            <div class="legend" id="legDonut"></div>
+          </div>
+        </div>
+
+        <!-- Fila 2: Barras comparativas + Top + Proyección -->
+        <div class="row r3">
+          <div class="card">
+            <div class="card-title">Comparar meses</div>
+            <div class="chart-wrap" style="height:180px"><canvas id="cComp"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Top 5 gastos</div>
+            <div class="chart-wrap" style="height:180px"><canvas id="cTop"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Proyección ahorro anual</div>
+            <div class="chart-wrap" style="height:180px"><canvas id="cProyec"></canvas></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VISTA HISTORIAL -->
+    <div id="viewHistorial" style="display:none">
+      <div class="main fade-in">
+        <div class="card">
+          <div class="card-title">Historial completo</div>
+          <div class="search-bar">
+            <input class="search-input" id="searchInp" placeholder="Buscar por descripción, categoría..." oninput="filtrarTabla()">
+            <select class="filter-sel" id="filtroTipo" onchange="filtrarTabla()">
+              <option value="">Todos</option>
+              <option value="gasto">Gastos</option>
+              <option value="ingreso">Ingresos</option>
+            </select>
+            <select class="filter-sel" id="filtroCat" onchange="filtrarTabla()">
+              <option value="">Categorías</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha y hora</th>
+                  <th>Descripción</th>
+                  <th>Categoría</th>
+                  <th>Subcategoría</th>
+                  <th style="text-align:right">Monto</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody id="tablaBody"></tbody>
+            </table>
+          </div>
+          <div style="margin-top:12px;font-size:10px;color:var(--muted);letter-spacing:0.5px" id="tablaCount"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA ALERTAS -->
+    <div id="viewAlertas" style="display:none">
+      <div class="main fade-in">
+        <div class="alert-section">
+          <div class="card-title" style="margin-bottom:18px">Límites de gasto mensual</div>
+          <div id="alertasContent"></div>
+        </div>
+        <div class="card" style="margin-top:10px">
+          <div class="card-title">Configurar límite</div>
+          <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+            <select class="filter-sel" id="alertCat" style="flex:1;min-width:140px">
+              <option value="">Seleccionar categoría</option>
+            </select>
+            <input class="search-input" id="alertLimit" type="number" placeholder="Límite en S/" style="flex:1;min-width:100px;max-width:160px">
+            <button class="btn-action gold" onclick="guardarAlerta()" style="padding:8px 20px">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ── CONFIG ───────────────────────────────────────────────────
+var SHEET_ID = '1CbDPyGOiM_iwibLTOChfRH4yjGGifH2Ox2I0Cq5rLYs';
+var SHEET_NAME = 'Registros';
+var SYNC_INTERVAL = 60000; // Auto-sync cada 60 segundos
+// ────────────────────────────────────────────────────────────
+
+var allRows = [];
+var periodoActivo = 0;
+var vistaActiva = 'dashboard';
+var charts = {};
+var catColors = ['#3a6a8a','#5a4a7a','#4a7a5a','#8a6a3a','#7a4a4a','#4a6a7a','#6a7a4a','#8a4a6a','#5a7a4a','#6a4a8a'];
+var meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+var mesActual = new Date().getMonth() + 1;
+
+// Chartjs defaults
+Chart.defaults.color = '#42414d';
+Chart.defaults.font = { family: "'IBM Plex Sans', sans-serif", size: 10, weight: '300' };
+var gridColor = 'rgba(255,255,255,0.04)';
+var tooltipOpts = { backgroundColor:'#13131a', borderColor:'#1c1c26', borderWidth:1, titleFont:{size:11}, bodyFont:{size:11}, padding:10 };
+
+// ── FETCH DATOS ──────────────────────────────────────────────
+async function fetchData() {
+  setSyncState('loading', 'Sincronizando...');
+  try {
+    var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+      '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME);
+    var res = await fetch(url);
+    var text = await res.text();
+    var json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+
+    var rows = json.table.rows || [];
+    allRows = rows.map(function(r) {
+      return {
+        fechahora:    r.c[0] ? r.c[0].v : '',
+        tipo:         r.c[1] ? r.c[1].v : '',
+        monto:        r.c[2] ? parseFloat(r.c[2].v) || 0 : 0,
+        categoria:    r.c[3] ? r.c[3].v : '',
+        subcategoria: r.c[4] ? r.c[4].v : '',
+        descripcion:  r.c[5] ? r.c[5].v : '',
+        fecha:        r.c[6] ? r.c[6].v : '',
+        timestamp:    r.c[7] ? r.c[7].v : ''
+      };
+    }).filter(function(r){ return r.tipo === 'gasto' || r.tipo === 'ingreso'; });
+
+    setSyncState('live', 'Sincronizado');
+    document.getElementById('lastSync').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('errorBox').classList.remove('show');
+    renderVista();
+  } catch(err) {
+    setSyncState('error', 'Error de conexión');
+    document.getElementById('loading').style.display = 'none';
+    var eb = document.getElementById('errorBox');
+    eb.classList.add('show');
+    eb.innerHTML = '<strong>No se pudo conectar al Sheet.</strong><br>Verifica que el archivo esté compartido como público para lectura.<br><br>Error: ' + err.message;
+  }
+}
+
+function setSyncState(state, text) {
+  var dot = document.getElementById('syncDot');
+  var txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + state;
+  txt.textContent = text;
+}
+
+// ── FILTRAR POR PERÍODO ──────────────────────────────────────
+function getRows(mes) {
+  if (!mes) return allRows;
+  return allRows.filter(function(r) {
+    var f = r.fecha || r.fechahora || '';
+    var m = parseInt((f+'').substring(5,7)) || 0;
+    return m === mes;
+  });
+}
+
+function setPeriod(mes) {
+  periodoActivo = mes;
+  document.querySelectorAll('.period-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('p' + mes).classList.add('active');
+  renderVista();
+}
+
+// ── FORMATEAR ────────────────────────────────────────────────
+function fmt(n) {
+  return 'S/ ' + Math.abs(n).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ── RENDER SEGÚN VISTA ───────────────────────────────────────
+function renderVista() {
+  if (vistaActiva === 'dashboard') renderDashboard();
+  else if (vistaActiva === 'historial') renderHistorial();
+  else if (vistaActiva === 'alertas') renderAlertas();
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function renderDashboard() {
+  var rows = getRows(periodoActivo);
+  var ingresos = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gastos   = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var balance  = ingresos - gastos;
+  var ahorro   = ingresos > 0 ? Math.round(balance / ingresos * 100) : 0;
+
+  document.getElementById('mIngresos').textContent = fmt(ingresos);
+  document.getElementById('mGastos').textContent   = fmt(gastos);
+  document.getElementById('mBalance').textContent  = fmt(balance);
+  document.getElementById('mAhorro').textContent   = ahorro + '%';
+
+  var labelEvol = periodoActivo ? meses[periodoActivo-1] : 'año completo';
+  document.getElementById('labelEvol').textContent = labelEvol;
+
+  // Deltas vs mes anterior
+  var prevMes = periodoActivo > 1 ? periodoActivo - 1 : (periodoActivo === 0 ? 0 : 12);
+  if (periodoActivo > 0 && prevMes > 0) {
+    var prev = getRows(prevMes);
+    var pI = prev.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+    var pG = prev.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+    setDelta('dIngresos', ingresos, pI);
+    setDelta('dGastos', gastos, pG, true);
+    setDelta('dBalance', balance, pI-pG);
+  } else {
+    ['dIngresos','dGastos','dBalance','dAhorro'].forEach(function(id){ document.getElementById(id).textContent=''; });
+  }
+  document.getElementById('dAhorro').textContent = ahorro >= 30 ? '✓ Meta cumplida' : 'Meta: 30%';
+  document.getElementById('dAhorro').className = 'metric-delta ' + (ahorro >= 30 ? 'up' : '');
+
+  // Alertas límite
+  checkAlertas(rows);
+
+  // Gráficos
+  buildEvolucion();
+  buildDonut(rows);
+  buildComparacion();
+  buildTop(rows);
+  buildProyeccion();
+}
+
+function setDelta(id, curr, prev, invertido) {
+  var el = document.getElementById(id);
+  if (!prev || prev === 0) { el.textContent = ''; return; }
+  var pct = Math.round((curr - prev) / prev * 100);
+  var up = pct >= 0;
+  var cls = invertido ? (up ? 'down' : 'up') : (up ? 'up' : 'down');
+  el.textContent = (up ? '↑ ' : '↓ ') + Math.abs(pct) + '% vs mes anterior';
+  el.className = 'metric-delta ' + cls;
+}
+
+// ── GRÁFICO EVOLUCIÓN ────────────────────────────────────────
+function buildEvolucion() {
+  var ingData = [], gasData = [], balData = [];
+  for (var m = 1; m <= 12; m++) {
+    var r = getRows(m);
+    var ing = r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0);
+    var gas = r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0);
+    ingData.push(ing); gasData.push(gas); balData.push(ing-gas);
+  }
+  destroyChart('cEvol');
+  charts['cEvol'] = new Chart(document.getElementById('cEvol'), {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [
+        {label:'Ingresos', data:ingData, borderColor:'#3d7a5c', backgroundColor:'rgba(61,122,92,0.06)', borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#3d7a5c', tension:0.4, fill:true},
+        {label:'Gastos',   data:gasData, borderColor:'#8a3a3a', backgroundColor:'rgba(138,58,58,0.06)', borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#8a3a3a', tension:0.4, fill:true},
+        {label:'Balance',  data:balData, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,0.04)', borderWidth:1, pointRadius:2, pointBackgroundColor:'#c9a84c', tension:0.4, borderDash:[4,3]}
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:tooltipOpts},
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{font:{size:10}}},
+        y:{grid:{color:gridColor}, ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}
+      }
+    }
+  });
+}
+
+// ── GRÁFICO DONUT ────────────────────────────────────────────
+function buildDonut(rows) {
+  var gastos = rows.filter(function(r){return r.tipo==='gasto';});
+  var byCat = {};
+  gastos.forEach(function(r){ byCat[r.categoria] = (byCat[r.categoria]||0) + r.monto; });
+  var cats = Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a];});
+  var vals = cats.map(function(c){return byCat[c];});
+  var colors = cats.map(function(_,i){return catColors[i % catColors.length];});
+  var total = vals.reduce(function(s,v){return s+v;},0);
+
+  destroyChart('cDonut');
+  if (cats.length === 0) { document.getElementById('legDonut').innerHTML = '<div style="color:var(--muted);font-size:11px">Sin datos</div>'; return; }
+
+  charts['cDonut'] = new Chart(document.getElementById('cDonut'), {
+    type: 'doughnut',
+    data: { labels:cats, datasets:[{data:vals, backgroundColor:colors, borderWidth:0, hoverOffset:4}] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{legend:{display:false}, tooltip:tooltipOpts} }
+  });
+
+  var leg = document.getElementById('legDonut');
+  leg.innerHTML = '';
+  cats.forEach(function(c,i) {
+    var pct = total > 0 ? Math.round(byCat[c]/total*100) : 0;
+    leg.innerHTML += '<div class="legend-item"><div class="legend-sq" style="background:'+colors[i]+'"></div>'+c+' '+pct+'%</div>';
+  });
+}
+
+// ── COMPARACIÓN MESES ────────────────────────────────────────
+function buildComparacion() {
+  var show = periodoActivo > 0
+    ? [Math.max(1,periodoActivo-2), Math.max(1,periodoActivo-1), periodoActivo]
+    : [10,11,12].map(function(m){return Math.min(m,mesActual);});
+
+  var ingData=[], gasData=[], labels=[];
+  show.forEach(function(m) {
+    var r = getRows(m);
+    ingData.push(r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0));
+    gasData.push(r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0));
+    labels.push(meses[m-1]);
+  });
+
+  destroyChart('cComp');
+  charts['cComp'] = new Chart(document.getElementById('cComp'), {
+    type:'bar',
+    data:{labels:labels, datasets:[
+      {label:'Ingresos', data:ingData, backgroundColor:'rgba(61,122,92,0.65)', borderRadius:2},
+      {label:'Gastos',   data:gasData, backgroundColor:'rgba(138,58,58,0.65)', borderRadius:2}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:tooltipOpts},
+      scales:{x:{grid:{color:gridColor}},y:{grid:{color:gridColor}, ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}
+  });
+}
+
+// ── TOP GASTOS ───────────────────────────────────────────────
+function buildTop(rows) {
+  var gastos = rows.filter(function(r){return r.tipo==='gasto';});
+  var byCat = {};
+  gastos.forEach(function(r){ byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto; });
+  var sorted = Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a];}).slice(0,5);
+  var vals = sorted.map(function(c){return byCat[c];});
+  var colors = sorted.map(function(_,i){return catColors[i%catColors.length];});
+
+  destroyChart('cTop');
+  if (!sorted.length) return;
+  charts['cTop'] = new Chart(document.getElementById('cTop'), {
+    type:'bar',
+    data:{labels:sorted, datasets:[{data:vals, backgroundColor:colors, borderRadius:2}]},
+    options:{responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false}, tooltip:tooltipOpts},
+      scales:{x:{grid:{color:gridColor}, ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}, y:{grid:{display:false}}}}
+  });
+}
+
+// ── PROYECCIÓN AHORRO ────────────────────────────────────────
+function buildProyeccion() {
+  var acum = 0, data = [], proyData = [];
+  var ultimoReal = 0;
+  for (var m = 1; m <= 12; m++) {
+    var r = getRows(m);
+    var ing = r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0);
+    var gas = r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0);
+    if (ing > 0 || gas > 0) { acum += (ing-gas); ultimoReal = m; }
+    data.push(m <= mesActual ? acum : null);
+    proyData.push(m >= mesActual ? acum : null);
+  }
+  var avgMensual = ultimoReal > 0 ? acum / ultimoReal : 0;
+  for (var m2 = mesActual+1; m2 <= 12; m2++) {
+    acum += avgMensual;
+    data[m2-1] = null;
+    proyData[m2-1] = Math.round(acum);
+  }
+  destroyChart('cProyec');
+  charts['cProyec'] = new Chart(document.getElementById('cProyec'), {
+    type:'line',
+    data:{labels:meses, datasets:[
+      {label:'Real', data:data, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,0.07)', borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#c9a84c', tension:0.4, fill:true},
+      {label:'Proyección', data:proyData, borderColor:'#c9a84c', borderDash:[5,4], borderWidth:1, pointRadius:0, tension:0.4}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:tooltipOpts},
+      scales:{x:{grid:{color:gridColor}}, y:{grid:{color:gridColor}, ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}
+  });
+}
+
+// ── HISTORIAL ────────────────────────────────────────────────
+function renderHistorial() {
+  var rows = getRows(periodoActivo);
+  var cats = [...new Set(allRows.map(function(r){return r.categoria;}))].filter(Boolean);
+  var sel = document.getElementById('filtroCat');
+  sel.innerHTML = '<option value="">Categorías</option>';
+  cats.forEach(function(c){ sel.innerHTML += '<option value="'+c+'">'+c+'</option>'; });
+
+  var alertCatSel = document.getElementById('alertCat');
+  if(alertCatSel) {
+    alertCatSel.innerHTML = '<option value="">Seleccionar categoría</option>';
+    cats.forEach(function(c){ alertCatSel.innerHTML += '<option value="'+c+'">'+c+'</option>'; });
+  }
+
+  filtrarTabla(rows);
+}
+
+function filtrarTabla(baseRows) {
+  var rows = baseRows || getRows(periodoActivo);
+  var q = (document.getElementById('searchInp').value||'').toLowerCase();
+  var tipo = document.getElementById('filtroTipo').value;
+  var cat  = document.getElementById('filtroCat').value;
+
+  var filtered = rows.filter(function(r) {
+    if (tipo && r.tipo !== tipo) return false;
+    if (cat  && r.categoria !== cat) return false;
+    if (q && !(r.descripcion||'').toLowerCase().includes(q) &&
+             !(r.categoria||'').toLowerCase().includes(q) &&
+             !(r.subcategoria||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  filtered.sort(function(a,b){ return (b.timestamp||b.fechahora) > (a.timestamp||a.fechahora) ? 1 : -1; });
+
+  var tbody = document.getElementById('tablaBody');
+  tbody.innerHTML = '';
+  filtered.forEach(function(r) {
+    var isG = r.tipo === 'gasto';
+    tbody.innerHTML += '<tr>' +
+      '<td>'+((r.fechahora||r.fecha||'')+'').substring(0,16)+'</td>' +
+      '<td class="td-desc">'+(r.descripcion||'—')+'</td>' +
+      '<td>'+(r.categoria||'—')+'</td>' +
+      '<td>'+(r.subcategoria||'—')+'</td>' +
+      '<td class="td-amt '+(isG?'r':'g')+'" style="text-align:right">'+(isG?'−':'+')+''+fmt(r.monto)+'</td>' +
+      '<td><div class="badge '+(isG?'r':'g')+'">'+r.tipo+'</div></td>' +
+      '</tr>';
+  });
+  document.getElementById('tablaCount').textContent = filtered.length + ' registros';
+}
+
+// ── ALERTAS ──────────────────────────────────────────────────
+function getLimites() {
+  try { return JSON.parse(localStorage.getItem('ff_limites')||'{}'); } catch(e){ return {}; }
+}
+
+function checkAlertas(rows) {
+  var limites = getLimites();
+  var gastos = rows.filter(function(r){return r.tipo==='gasto';});
+  var byCat = {};
+  gastos.forEach(function(r){ byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto; });
+  var alertas = [];
+  Object.keys(limites).forEach(function(cat) {
+    if (byCat[cat] && byCat[cat] > limites[cat]) {
+      alertas.push(cat + ': S/ ' + byCat[cat].toFixed(2) + ' supera el límite de S/ ' + limites[cat]);
+    }
+  });
+  var banner = document.getElementById('alertBanner');
+  if (alertas.length > 0) {
+    banner.classList.add('show');
+    document.getElementById('alertMsg').textContent = alertas.join(' · ');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+function renderAlertas() {
+  var rows = getRows(periodoActivo);
+  var gastos = rows.filter(function(r){return r.tipo==='gasto';});
+  var byCat = {};
+  gastos.forEach(function(r){ byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto; });
+  var limites = getLimites();
+  var cats = [...new Set(allRows.map(function(r){return r.categoria;}))].filter(Boolean);
+
+  var alertCatSel = document.getElementById('alertCat');
+  alertCatSel.innerHTML = '<option value="">Seleccionar categoría</option>';
+  cats.forEach(function(c){ alertCatSel.innerHTML += '<option value="'+c+'">'+c+'</option>'; });
+
+  var cont = document.getElementById('alertasContent');
+  if (!cats.length) { cont.innerHTML = '<div style="color:var(--muted);font-size:11px">Sin datos aún</div>'; return; }
+
+  cont.innerHTML = '';
+  cats.forEach(function(cat) {
+    var gastado = byCat[cat] || 0;
+    var limite  = limites[cat] || 0;
+    var pct     = limite > 0 ? Math.min(100, Math.round(gastado/limite*100)) : 0;
+    var color   = pct >= 100 ? '#8a3a3a' : pct >= 80 ? '#c9a84c' : '#3d7a5c';
+    cont.innerHTML += '<div class="alert-row">' +
+      '<div class="alert-label">'+cat+(limite>0?' · S/'+limite:'')+'</div>' +
+      '<div class="alert-bar-bg"><div class="alert-bar" style="width:'+pct+'%;background:'+color+'"></div></div>' +
+      '<div class="alert-pct" style="color:'+color+'">'+fmt(gastado).replace('S/ ','')+'</div>' +
+      '</div>';
+  });
+}
+
+function guardarAlerta() {
+  var cat   = document.getElementById('alertCat').value;
+  var limit = parseFloat(document.getElementById('alertLimit').value);
+  if (!cat || !limit || limit <= 0) return;
+  var limites = getLimites();
+  limites[cat] = limit;
+  localStorage.setItem('ff_limites', JSON.stringify(limites));
+  document.getElementById('alertLimit').value = '';
+  renderAlertas();
+}
+
+// ── EXPORTAR PDF ─────────────────────────────────────────────
+function exportarPDF() {
+  var rows = getRows(periodoActivo);
+  var ingresos = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gastos   = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var balance  = ingresos - gastos;
+  var periodo  = periodoActivo ? meses[periodoActivo-1] : 'Año completo';
+
+  var doc = new window.jspdf.jsPDF();
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('Finanzas Personales', 20, 24);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(120,120,120);
+  doc.text('Período: ' + periodo + ' · ' + new Date().toLocaleDateString('es-PE'), 20, 32);
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(12);
+  doc.text('Ingresos:  S/ ' + ingresos.toFixed(2), 20, 50);
+  doc.text('Gastos:    S/ ' + gastos.toFixed(2),   20, 60);
+  doc.text('Balance:   S/ ' + balance.toFixed(2),  20, 70);
+  doc.setFontSize(10);
+  doc.setTextColor(100,100,100);
+  doc.text('Generado por Finanzas Personales Dashboard', 20, 85);
+  doc.save('finanzas_' + periodo.toLowerCase().replace(' ','_') + '.pdf');
+}
+
+// ── EXPORTAR EXCEL ───────────────────────────────────────────
+function exportarExcel() {
+  var rows = getRows(periodoActivo);
+  var data = [['Fecha y Hora','Tipo','Monto','Categoría','Subcategoría','Descripción','Fecha']];
+  rows.forEach(function(r) {
+    data.push([r.fechahora, r.tipo, r.monto, r.categoria, r.subcategoria, r.descripcion, r.fecha]);
+  });
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+  var periodo = periodoActivo ? meses[periodoActivo-1] : 'anual';
+  XLSX.writeFile(wb, 'finanzas_' + periodo.toLowerCase() + '.xlsx');
+}
+
+// ── VISTAS ───────────────────────────────────────────────────
+function showView(v) {
+  vistaActiva = v;
+  ['dashboard','historial','alertas'].forEach(function(x) {
+    document.getElementById('viewDashboard').style.display  = 'none';
+    document.getElementById('viewHistorial').style.display  = 'none';
+    document.getElementById('viewAlertas').style.display    = 'none';
+  });
+  document.getElementById('view' + v.charAt(0).toUpperCase() + v.slice(1)).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); });
+  event.currentTarget.classList.add('active');
+  var titles = {dashboard:'Dashboard', historial:'Historial', alertas:'Alertas de gasto'};
+  document.getElementById('viewTitle').textContent = titles[v];
+  renderVista();
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function recargar() { fetchData(); }
+
+// ── INIT ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  setPeriod(0);
+  fetchData();
+  setInterval(fetchData, SYNC_INTERVAL);
+
+  // Seleccionar mes actual por defecto
+  var m = new Date().getMonth() + 1;
+  if (m > 0) setPeriod(m);
+});
+</script>
+</body>
+</html>

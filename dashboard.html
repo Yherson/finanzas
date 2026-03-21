@@ -338,7 +338,8 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
     <div class="m-field"><label>Categoria</label><input type="text" id="eCat" maxlength="50"></div>
     <div class="m-field"><label>Subcategoria</label><input type="text" id="eSub" maxlength="50"></div>
     <div class="m-field"><label>Descripcion</label><input type="text" id="eDesc" maxlength="80"></div>
-    <div class="m-field"><label>Fecha</label><input type="date" id="eFecha"></div>
+    <div class="m-field"><label>Fecha real (la que elegiste)</label><input type="date" id="eFecha"></div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:0.3px" id="eFechaIngreso"></div>
     <div class="m-btns">
       <button class="mbtn mbtn-save" onclick="guardarEdicion()">Guardar</button>
       <button class="mbtn mbtn-del" onclick="pedirConfirm()">Eliminar</button>
@@ -521,7 +522,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
               <button class="tb-btn" onclick="clearDateFilter()" style="padding:7px 12px;font-size:9px">Limpiar</button>
             </div>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Descripcion</th><th>Categoria</th><th>Sub</th><th style="text-align:right">Monto</th><th>Tipo</th><th></th></tr></thead><tbody id="tablaBody"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha real</th><th>Fecha ingreso</th><th>Descripcion</th><th>Categoria</th><th style="text-align:right">Monto</th><th>Tipo</th><th></th></tr></thead><tbody id="tablaBody"></tbody></table></div>
           <div class="tbl-count" id="tblCount"></div>
         </div>
       </div>
@@ -742,21 +743,31 @@ function getRows(m){ return m ? allRows.filter(function(r){return r.mes===m;}) :
 
 function processRows(raw){
   return raw.map(function(r){
+    // fecha = fecha real elegida en el formulario (YYYY-MM-DD)
+    // fecha_ingreso = fecha en que se registro el dato
     var fechaRaw = r.fecha || '';
     var mes = 0;
     var fm = String(fechaRaw).match(/(\d{4})-(\d{2})-(\d{2})/);
     if(fm) mes = parseInt(fm[2]);
+    // Build fecha_ingreso from fechahora if not present
+    var fechaIngreso = r.fecha_ingreso || '';
+    if(!fechaIngreso && r.fechahora){
+      var parts = String(r.fechahora).match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if(parts) fechaIngreso = parts[3]+'-'+parts[2]+'-'+parts[1];
+    }
     return {
       id: r.id,
-      fechahora: r.fechahora || '',
-      tipo: String(r.tipo || '').toLowerCase().trim(),
-      monto: parseFloat(r.monto) || 0,
-      categoria: r.categoria || '',
-      subcategoria: r.subcategoria || '',
-      descripcion: r.descripcion || '',
-      fecha: fechaRaw,
-      mes: mes,
-      createdAt: r.createdAt
+      fecha:         fechaRaw,
+      fecha_ingreso: fechaIngreso,
+      hora_ingreso:  r.hora_ingreso || '',
+      fechahora:     r.fechahora || '',
+      tipo:          String(r.tipo || '').toLowerCase().trim(),
+      monto:         parseFloat(r.monto) || 0,
+      categoria:     r.categoria || '',
+      subcategoria:  r.subcategoria || '',
+      descripcion:   r.descripcion || '',
+      mes:           mes,
+      createdAt:     r.createdAt
     };
   }).filter(function(r){ return r.tipo === 'gasto' || r.tipo === 'ingreso'; });
 }
@@ -1039,6 +1050,9 @@ function filtrarTabla(base){
     if(q&&!(r.descripcion||'').toLowerCase().includes(q)&&!(r.categoria||'').toLowerCase().includes(q)&&!(r.subcategoria||'').toLowerCase().includes(q)) return false;
     if(desde&&r.fecha&&r.fecha<desde) return false;
     if(hasta&&r.fecha&&r.fecha>hasta) return false;
+    // also allow filtering by fecha_ingreso if fecha is empty
+    if(desde&&!r.fecha&&r.fecha_ingreso&&r.fecha_ingreso<desde) return false;
+    if(hasta&&!r.fecha&&r.fecha_ingreso&&r.fecha_ingreso>hasta) return false;
     return true;
   }).sort(function(a,b){
     var ta=a.createdAt?a.createdAt.seconds||0:0;
@@ -1049,14 +1063,31 @@ function filtrarTabla(base){
   filtered.forEach(function(r){
     var isG=r.tipo==='gasto';
     var tr=document.createElement('tr');
-    var labels=['Fecha','','Categoria','Sub'];
-    [String(r.fechahora||r.fecha||'').substring(0,16),r.descripcion||'-',r.categoria||'-',r.subcategoria||'-'].forEach(function(txt,i){
-      var td=document.createElement('td');
-      if(i===1) td.className='td-main';
-      if(labels[i]) td.setAttribute('data-label',labels[i]);
-      td.textContent=txt;
-      tr.appendChild(td);
-    });
+    // Fecha real (chosen in form)
+    var tdFecha=document.createElement('td');
+    tdFecha.setAttribute('data-label','Fecha real');
+    tdFecha.textContent=r.fecha||'-';
+    tdFecha.style.fontFamily="'IBM Plex Mono',monospace";
+    tr.appendChild(tdFecha);
+    // Fecha ingreso (when registered)
+    var tdFI=document.createElement('td');
+    tdFI.setAttribute('data-label','Ingresado');
+    tdFI.style.color='var(--muted)';
+    tdFI.style.fontSize='11px';
+    tdFI.style.fontFamily="'IBM Plex Mono',monospace";
+    tdFI.textContent=(r.fecha_ingreso||'-')+(r.hora_ingreso?' '+r.hora_ingreso:'');
+    tr.appendChild(tdFI);
+    // Descripcion
+    var tdDesc=document.createElement('td');
+    tdDesc.className='td-main';
+    tdDesc.setAttribute('data-label','Descripcion');
+    tdDesc.textContent=r.descripcion||'-';
+    tr.appendChild(tdDesc);
+    // Categoria
+    var tdCat=document.createElement('td');
+    tdCat.setAttribute('data-label','Categoria');
+    tdCat.textContent=(r.categoria||'-')+(r.subcategoria?' / '+r.subcategoria:'');
+    tr.appendChild(tdCat);
     var tdA=document.createElement('td');tdA.className='td-amt '+(isG?'r':'g');tdA.setAttribute('data-label','Monto');tdA.style.textAlign='right';tdA.textContent=(isG?'-':'+')+fmt(r.monto);tr.appendChild(tdA);
     var tdB=document.createElement('td');tdB.setAttribute('data-label','Tipo');var b=document.createElement('div');b.className='badge '+(isG?'r':'g');b.textContent=r.tipo;tdB.appendChild(b);tr.appendChild(tdB);
     var tdAct=document.createElement('td');tdAct.setAttribute('data-label','');var wrap=document.createElement('div');wrap.className='row-actions';
@@ -1113,6 +1144,7 @@ function showEditModal(r){
   document.getElementById('eSub').value=r.subcategoria||'';
   document.getElementById('eDesc').value=r.descripcion||'';
   document.getElementById('eFecha').value=r.fecha||'';
+  document.getElementById('eFechaIngreso').textContent='Ingresado: '+(r.fecha_ingreso||'-')+(r.hora_ingreso?' a las '+r.hora_ingreso:'');
   document.getElementById('eStatus').textContent='';
   document.getElementById('editOv').classList.add('show');
 }
@@ -1170,8 +1202,19 @@ function exportarPDF(){
 }
 function exportarExcel(){
   var rows=getRows(periodoActivo);
-  var data=[['Fecha','Tipo','Monto','Categoria','Subcategoria','Descripcion']];
-  rows.forEach(function(r){data.push([r.fechahora,r.tipo,r.monto,r.categoria,r.subcategoria,r.descripcion]);});
+  var data=[['Fecha Real','Fecha Ingreso','Hora Ingreso','Tipo','Monto','Categoria','Subcategoria','Descripcion']];
+  rows.forEach(function(r){
+    data.push([
+      r.fecha||'',
+      r.fecha_ingreso||'',
+      r.hora_ingreso||'',
+      r.tipo,
+      r.monto,
+      r.categoria,
+      r.subcategoria,
+      r.descripcion
+    ]);
+  });
   var ws=XLSX.utils.aoa_to_sheet(data),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Registros');
   XLSX.writeFile(wb,'finanzas_'+(periodoActivo?meses[periodoActivo-1]:'anual').toLowerCase()+'.xlsx');

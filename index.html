@@ -19,8 +19,21 @@
   --green:#5aaa80;--green-d:rgba(90,170,128,0.12);--green-b:rgba(90,170,128,0.35);
 }
 html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:300;-webkit-font-smoothing:antialiased;}
-body{display:flex;justify-content:center;padding:28px 16px 80px;}
-.page{width:100%;max-width:440px;}
+
+/* AUTH */
+.auth-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.auth-screen.show{display:flex;}
+.auth-card{width:100%;max-width:340px;background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:32px 24px;text-align:center;}
+.auth-logo{width:44px;height:44px;background:var(--gold-d);border:1px solid var(--gold-b);border-radius:3px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.auth-title{font-family:'IBM Plex Serif',serif;font-size:18px;color:var(--text);margin-bottom:6px;}
+.auth-sub{font-size:11px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.auth-btn{width:100%;padding:12px;background:var(--s2);border:1px solid var(--border2);border-radius:3px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+.auth-btn:hover{background:var(--s2);border-color:var(--muted);}
+
+/* MAIN */
+body{display:flex;justify-content:center;padding:0;}
+.page{width:100%;max-width:440px;padding:28px 16px 80px;display:none;}
+.page.show{display:block;}
 
 /* HEADER */
 .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;}
@@ -29,7 +42,13 @@ body{display:flex;justify-content:center;padding:28px 16px 80px;}
 .dt-wrap{text-align:right;}
 .dt-time{font-family:'IBM Plex Serif',serif;font-size:20px;font-weight:300;color:var(--text);line-height:1;}
 .dt-date{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
-.rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,var(--border) 50%,transparent 100%);margin-bottom:24px;}
+.rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,var(--border) 50%,transparent 100%);margin-bottom:20px;}
+
+/* USER ROW */
+.user-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:10px 12px;background:var(--s1);border:1px solid var(--border);border-radius:3px;}
+.user-name{font-size:11px;color:var(--text2);}
+.user-out{background:none;border:none;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:4px 8px;border:1px solid var(--border);border-radius:2px;font-family:'IBM Plex Sans',sans-serif;}
+.user-out:hover{color:var(--red);border-color:var(--red-b);}
 
 /* TIPO TOGGLE */
 .tipo-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
@@ -46,34 +65,33 @@ body{display:flex;justify-content:center;padding:28px 16px 80px;}
 .monto-sym{font-family:'IBM Plex Serif',serif;font-size:22px;font-weight:300;color:var(--muted);}
 .monto-inp{flex:1;background:none;border:none;outline:none;font-family:'IBM Plex Serif',serif;font-size:44px;font-weight:400;color:var(--text);letter-spacing:-1px;width:100%;-webkit-appearance:none;}
 .monto-inp::placeholder{color:var(--border2);}
-.err-msg{font-size:10px;color:var(--red);margin-top:5px;letter-spacing:0.3px;}
+.err-msg{font-size:10px;color:var(--red);margin-top:5px;}
 
 /* CHIPS */
 .chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
-.chip{display:flex;align-items:center;border-radius:2px;border:1px solid var(--border2);background:transparent;overflow:hidden;transition:border-color .15s;}
+.chip{display:flex;align-items:center;border-radius:2px;border:1px solid var(--border2);overflow:hidden;transition:border-color .15s;}
 .chip-lbl{padding:7px 13px;font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);cursor:pointer;background:none;border:none;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
-.chip-edit{display:flex;align-items:center;padding:7px 8px;background:none;border:none;border-left:1px solid var(--border);cursor:pointer;color:var(--muted);transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.chip-edit{display:flex;align-items:center;padding:7px 8px;background:none;border:none;border-left:1px solid var(--border);cursor:pointer;color:var(--muted);transition:color .15s;}
 .chip:hover{border-color:var(--muted);}
 .chip.sel-g{background:var(--red-d);border-color:var(--red-b);}
 .chip.sel-g .chip-lbl{color:var(--red);}
 .chip.sel-g .chip-edit{border-left-color:var(--red-b);}
 .chip.sel-i{background:var(--green-d);border-color:var(--green-b);}
 .chip.sel-i .chip-lbl{color:var(--green);}
-.chip.sel-i .chip-edit{border-left-color:var(--green-b);}
-.chip-add{padding:7px 12px;border-radius:2px;border:1px dashed var(--border2);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.chip-add{padding:7px 12px;border-radius:2px;border:1px dashed var(--border2);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .chip-add:hover{border-color:var(--muted);color:var(--text);}
 
 /* SUBCHIPS */
 .sub-section{margin-top:16px;}
 .subchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;}
 .subchip{display:flex;align-items:center;border-radius:2px;border:1px solid var(--border);background:var(--s2);overflow:hidden;}
-.subchip-lbl{padding:5px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);cursor:pointer;background:none;border:none;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
+.subchip-lbl{padding:5px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);cursor:pointer;background:none;border:none;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
 .subchip-edit{display:flex;align-items:center;padding:5px 6px;background:none;border:none;border-left:1px solid var(--border);cursor:pointer;color:var(--muted);}
 .subchip.sel-g{background:var(--red-d);border-color:var(--red-b);}
 .subchip.sel-g .subchip-lbl{color:var(--red);}
 .subchip.sel-i{background:var(--green-d);border-color:var(--green-b);}
 .subchip.sel-i .subchip-lbl{color:var(--green);}
-.subchip-add{padding:5px 9px;border-radius:2px;border:1px dashed var(--border);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.subchip-add{padding:5px 9px;border-radius:2px;border:1px dashed var(--border);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);cursor:pointer;}
 
 /* INLINE FORM */
 .inline-form{display:none;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap;}
@@ -81,18 +99,18 @@ body{display:flex;justify-content:center;padding:28px 16px 80px;}
 .inline-inp{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);outline:none;-webkit-appearance:none;}
 .inline-inp::placeholder{color:var(--muted);}
 .inline-inp:focus{border-color:var(--gold-b);}
-.inline-ok{padding:9px 16px;border-radius:2px;border:1px solid var(--gold-b);background:var(--gold-d);font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.inline-ok{padding:9px 16px;border-radius:2px;border:1px solid var(--gold-b);background:var(--gold-d);font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);cursor:pointer;}
 .inline-ok:hover{background:var(--gold);color:var(--bg);}
 .inline-cancel{padding:9px 11px;border-radius:2px;border:1px solid var(--border);background:none;font-size:12px;color:var(--muted);cursor:pointer;}
 
-/* MODAL EDITAR CAT */
+/* MODAL */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:flex-end;justify-content:center;}
 .modal-ov.show{display:flex;}
 .modal-box{width:100%;max-width:440px;background:var(--s1);border:1px solid var(--border2);border-bottom:none;border-radius:12px 12px 0 0;padding:22px 20px 40px;animation:slideUp .22s ease;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .modal-title-txt{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 2px;line-height:1;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
 .modal-inp{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:300;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;}
 .modal-inp:focus{border-color:var(--gold-b);}
 .modal-btns{display:flex;gap:8px;}
@@ -110,11 +128,10 @@ body{display:flex;justify-content:center;padding:28px 16px 80px;}
 .row .section{flex:1;}
 .row .section.wide{flex:1.8;}
 .text-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;}
-.text-inp:focus{border-bottom-color:var(--border2);}
 .text-inp::placeholder{color:var(--muted);}
 input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3);cursor:pointer;}
 
-/* BTN GUARDAR */
+/* BTN */
 .btn-save{width:100%;padding:15px;border-radius:2px;border:none;font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:8px;-webkit-tap-highlight-color:transparent;}
 .btn-save:active{transform:scale(.99);opacity:.85;}
 .btn-save:disabled{opacity:.3;cursor:not-allowed;transform:none;}
@@ -128,41 +145,37 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 .estado.ok{color:var(--green);}
 .estado.fail{color:var(--red);}
 
-/* OFFLINE */
-.offline-bar{display:none;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#b89040;background:#1a1508;border:1px solid #3a2e10;border-radius:2px;padding:8px 12px;margin-bottom:16px;}
-
-/* RESPONSIVE */
-@media(max-width:360px){
-  .monto-inp{font-size:36px;}
-  .row{flex-direction:column;gap:0;}
-}
+@media(max-width:360px){.monto-inp{font-size:36px;}.row{flex-direction:column;gap:0;}}
 </style>
 </head>
 <body>
 
-<!-- MODAL EDITAR/ELIMINAR CATEGORIA -->
-<div class="modal-ov" id="modalOv" onclick="closeModalOv(event)">
-  <div class="modal-box">
-    <div class="modal-title">
-      <span class="modal-title-txt" id="modalTitleTxt">Editar</span>
-      <button class="modal-close" onclick="hideModal()">&#x2715;</button>
+<!-- AUTH SCREEN -->
+<div class="auth-screen show" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9h14M2 5.5h10M2 12.5h7" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round"/></svg>
     </div>
-    <input class="modal-inp" id="modalInp" type="text" maxlength="40" placeholder="Nombre...">
-    <div class="modal-btns">
-      <button class="mbtn mbtn-save" onclick="confirmModalEdit()">Guardar</button>
-      <button class="mbtn mbtn-del" onclick="confirmModalDelete()">Eliminar</button>
-      <button class="mbtn mbtn-cancel" onclick="hideModal()">Cancelar</button>
-    </div>
+    <div class="auth-title">Finanzas Personales</div>
+    <div class="auth-sub">Registra tus gastos e ingresos<br>desde tu celular.</div>
+    <button class="auth-btn" onclick="loginConGoogle()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuar con Google
+    </button>
   </div>
 </div>
 
-<div class="page">
+<!-- FORM -->
+<div class="page" id="mainPage">
   <div class="header">
     <div><div class="brand">Finanzas</div><div class="brand-sub">Registro personal</div></div>
     <div class="dt-wrap"><div class="dt-time" id="dtTime">--:--</div><div class="dt-date" id="dtDate">---</div></div>
   </div>
   <div class="rule"></div>
-  <div class="offline-bar" id="offlineBar">Sin conexion - sincronizara al reconectar</div>
+  <div class="user-row">
+    <span class="user-name" id="userName">Cargando...</span>
+    <button class="user-out" onclick="logout()">Salir</button>
+  </div>
 
   <div class="tipo-row">
     <button class="tipo-btn ag" id="btnG" onclick="setTipo('gasto')">Gasto</button>
@@ -222,10 +235,27 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
   <div class="estado" id="estado"></div>
 </div>
 
-<!-- Firebase SDK -->
+<!-- MODAL EDITAR CATEGORIA -->
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)hideModal()">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span class="modal-title-txt" id="modalTitleTxt">Editar</span>
+      <button class="modal-close" onclick="hideModal()">&#x2715;</button>
+    </div>
+    <input class="modal-inp" id="modalInp" type="text" maxlength="40" placeholder="Nombre...">
+    <div class="modal-btns">
+      <button class="mbtn mbtn-save" onclick="confirmModalEdit()">Guardar</button>
+      <button class="mbtn mbtn-del" onclick="confirmModalDelete()">Eliminar</button>
+      <button class="mbtn mbtn-cancel" onclick="hideModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCBEViX704HkJvpQBxCgb_r6so9c3efhr8",
@@ -238,46 +268,54 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-window._db = db;
-window._addDoc = addDoc;
-window._collection = collection;
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
 window._serverTimestamp = serverTimestamp;
-window._firebaseReady = true;
+
+window._loginGoogle = async () => {
+  try { await signInWithPopup(auth, provider); }
+  catch(e) { alert('Error: ' + e.message); }
+};
+
+window._logout = () => signOut(auth);
+
+onAuthStateChanged(auth, user => {
+  if(user){
+    window._currentUser = user;
+    window._addRegistro = async (data) => addDoc(collection(db,'users',user.uid,'registros'), data);
+    window._firebaseReady = true;
+    document.getElementById('authScreen').classList.remove('show');
+    document.getElementById('mainPage').classList.add('show');
+    document.getElementById('userName').textContent = user.displayName || user.email || 'Usuario';
+  } else {
+    window._currentUser = null;
+    window._firebaseReady = false;
+    document.getElementById('authScreen').classList.add('show');
+    document.getElementById('mainPage').classList.remove('show');
+  }
+});
 </script>
 
 <script>
-var tipo = 'gasto', rawMonto = '', catSel = '', subSel = '';
-var modalMode = '', modalTarget = '', modalParent = '';
-var today = new Date().toISOString().split('T')[0];
+var tipo='gasto', rawMonto='', catSel='', subSel='';
+var modalMode='', modalTarget='', modalParent='';
+var today=new Date().toISOString().split('T')[0];
 
-var defaultData = {
-  gasto: {
-    cats: ['Alimentacion','Transporte','Salud','Servicios','Entretenimiento','Ahorro','Alquiler'],
-    subs: {
-      'Alimentacion':    ['Desayuno','Almuerzo','Cena'],
-      'Transporte':      ['Bus','Taxi','Gasolina','Estacionamiento'],
-      'Salud':           ['Farmacia','Consulta','Laboratorio'],
-      'Servicios':       ['Luz','Agua','Internet','Telefono'],
-      'Entretenimiento': ['Streaming','Salida','Evento'],
-      'Ahorro':          ['Fondo emergencia','Inversion','Meta'],
-      'Alquiler':        ['Mensualidad','Mantenimiento']
-    }
+var defaultData={
+  gasto:{
+    cats:['Alimentacion','Transporte','Salud','Servicios','Entretenimiento','Ahorro','Alquiler'],
+    subs:{'Alimentacion':['Desayuno','Almuerzo','Cena'],'Transporte':['Bus','Taxi','Gasolina','Estacionamiento'],'Salud':['Farmacia','Consulta','Laboratorio'],'Servicios':['Luz','Agua','Internet','Telefono'],'Entretenimiento':['Streaming','Salida','Evento'],'Ahorro':['Fondo emergencia','Inversion','Meta'],'Alquiler':['Mensualidad','Mantenimiento']}
   },
-  ingreso: {
-    cats: ['Sueldo','Freelance','Negocio','Inversiones','Otro'],
-    subs: {
-      'Sueldo':      ['Mensual','Quincenal','Bono'],
-      'Freelance':   ['Proyecto','Consultoria','Diseno'],
-      'Negocio':     ['Ventas','Servicios','Comision'],
-      'Inversiones': ['Dividendos','Intereses','Venta activo'],
-      'Otro':        ['Regalo','Premio','Devolucion']
-    }
+  ingreso:{
+    cats:['Sueldo','Freelance','Negocio','Inversiones','Otro'],
+    subs:{'Sueldo':['Mensual','Quincenal','Bono'],'Freelance':['Proyecto','Consultoria','Diseno'],'Negocio':['Ventas','Servicios','Comision'],'Inversiones':['Dividendos','Intereses','Venta activo'],'Otro':['Regalo','Premio','Devolucion']}
   }
 };
 
-function loadData(){ try{var s=localStorage.getItem('ff_data');if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(defaultData)); }
-function saveData(d){ localStorage.setItem('ff_data',JSON.stringify(d)); }
-var data = loadData();
+function loadData(){try{var s=localStorage.getItem('ff_data');if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(defaultData));}
+function saveData(d){localStorage.setItem('ff_data',JSON.stringify(d));}
+var data=loadData();
 
 // DateTime
 function updateDT(){
@@ -288,15 +326,12 @@ function updateDT(){
   document.getElementById('dtDate').textContent=dd[now.getDay()]+' '+now.getDate()+' '+mm[now.getMonth()];
 }
 updateDT(); setInterval(updateDT,30000);
-document.getElementById('fecha').value = today;
+document.getElementById('fecha').value=today;
 
-// Online/offline
-function checkOnline(){ document.getElementById('offlineBar').style.display=navigator.onLine?'none':'block'; }
-window.addEventListener('online', checkOnline);
-window.addEventListener('offline', checkOnline);
-checkOnline();
+function loginConGoogle(){if(window._loginGoogle) window._loginGoogle();}
+function logout(){if(confirm('Cerrar sesion?')&&window._logout) window._logout();}
 
-// Render categorias
+// RENDER CATS
 function renderCats(){
   var c=document.getElementById('chipsCat'); c.innerHTML='';
   data[tipo].cats.forEach(function(cat){
@@ -329,8 +364,8 @@ function renderSubs(){
   c.appendChild(add);
 }
 
-function selectCat(c){ catSel=catSel===c?'':c; subSel=''; document.getElementById('eCat').textContent=''; cancelInline('cat'); cancelInline('sub'); renderCats(); renderSubs(); }
-function selectSub(s){ subSel=subSel===s?'':s; renderSubs(); }
+function selectCat(c){catSel=catSel===c?'':c;subSel='';document.getElementById('eCat').textContent='';cancelInline('cat');cancelInline('sub');renderCats();renderSubs();}
+function selectSub(s){subSel=subSel===s?'':s;renderSubs();}
 
 function showInline(t){
   if(t==='cat'){document.getElementById('addCatForm').classList.add('on');document.getElementById('addCatInp').focus();}
@@ -340,63 +375,34 @@ function cancelInline(t){
   if(t==='cat'){document.getElementById('addCatForm').classList.remove('on');document.getElementById('addCatInp').value='';}
   else{document.getElementById('addSubForm').classList.remove('on');document.getElementById('addSubInp').value='';}
 }
-function confirmAddCat(){
-  var v=document.getElementById('addCatInp').value.trim(); if(!v) return;
-  if(!data[tipo].cats.includes(v)){data[tipo].cats.push(v);data[tipo].subs[v]=[];saveData(data);}
-  catSel=v; subSel=''; cancelInline('cat'); renderCats(); renderSubs();
-}
-function confirmAddSub(){
-  var v=document.getElementById('addSubInp').value.trim(); if(!v||!catSel) return;
-  if(!data[tipo].subs[catSel]) data[tipo].subs[catSel]=[];
-  if(!data[tipo].subs[catSel].includes(v)){data[tipo].subs[catSel].push(v);saveData(data);}
-  subSel=v; cancelInline('sub'); renderSubs();
-}
+function confirmAddCat(){var v=document.getElementById('addCatInp').value.trim();if(!v)return;if(!data[tipo].cats.includes(v)){data[tipo].cats.push(v);data[tipo].subs[v]=[];saveData(data);}catSel=v;subSel='';cancelInline('cat');renderCats();renderSubs();}
+function confirmAddSub(){var v=document.getElementById('addSubInp').value.trim();if(!v||!catSel)return;if(!data[tipo].subs[catSel])data[tipo].subs[catSel]=[];if(!data[tipo].subs[catSel].includes(v)){data[tipo].subs[catSel].push(v);saveData(data);}subSel=v;cancelInline('sub');renderSubs();}
 
-// Modal editar/eliminar categorias
-function showModal(mode,target,parent){
-  modalMode=mode; modalTarget=target; modalParent=parent;
-  document.getElementById('modalTitleTxt').textContent=mode==='cat'?'Editar categoria':'Editar subcategoria';
-  document.getElementById('modalInp').value=target;
-  document.getElementById('modalOv').classList.add('show');
-  setTimeout(function(){document.getElementById('modalInp').focus();},300);
-}
-function hideModal(){ document.getElementById('modalOv').classList.remove('show'); }
-function closeModalOv(e){ if(e.target===document.getElementById('modalOv')) hideModal(); }
+// MODAL EDITAR CATEGORIA
+function showModal(mode,target,parent){modalMode=mode;modalTarget=target;modalParent=parent;document.getElementById('modalTitleTxt').textContent=mode==='cat'?'Editar categoria':'Editar subcategoria';document.getElementById('modalInp').value=target;document.getElementById('modalOv').classList.add('show');setTimeout(function(){document.getElementById('modalInp').focus();},300);}
+function hideModal(){document.getElementById('modalOv').classList.remove('show');}
 function confirmModalEdit(){
-  var v=document.getElementById('modalInp').value.trim(); if(!v) return;
-  if(modalMode==='cat'){
-    var idx=data[tipo].cats.indexOf(modalTarget);
-    if(idx>=0){data[tipo].cats[idx]=v;var old=data[tipo].subs[modalTarget]||[];delete data[tipo].subs[modalTarget];data[tipo].subs[v]=old;if(catSel===modalTarget)catSel=v;saveData(data);}
-  } else {
-    var subs=data[tipo].subs[modalParent]||[];var idx2=subs.indexOf(modalTarget);
-    if(idx2>=0){subs[idx2]=v;if(subSel===modalTarget)subSel=v;saveData(data);}
-  }
-  hideModal(); renderCats(); renderSubs();
+  var v=document.getElementById('modalInp').value.trim();if(!v)return;
+  if(modalMode==='cat'){var idx=data[tipo].cats.indexOf(modalTarget);if(idx>=0){data[tipo].cats[idx]=v;var old=data[tipo].subs[modalTarget]||[];delete data[tipo].subs[modalTarget];data[tipo].subs[v]=old;if(catSel===modalTarget)catSel=v;saveData(data);}}
+  else{var subs=data[tipo].subs[modalParent]||[];var idx2=subs.indexOf(modalTarget);if(idx2>=0){subs[idx2]=v;if(subSel===modalTarget)subSel=v;saveData(data);}}
+  hideModal();renderCats();renderSubs();
 }
 function confirmModalDelete(){
-  if(modalMode==='cat'){
-    data[tipo].cats=data[tipo].cats.filter(function(c){return c!==modalTarget;});
-    delete data[tipo].subs[modalTarget];
-    if(catSel===modalTarget){catSel='';subSel='';}
-    saveData(data);
-  } else {
-    data[tipo].subs[modalParent]=(data[tipo].subs[modalParent]||[]).filter(function(s){return s!==modalTarget;});
-    if(subSel===modalTarget) subSel='';
-    saveData(data);
-  }
-  hideModal(); renderCats(); renderSubs();
+  if(modalMode==='cat'){data[tipo].cats=data[tipo].cats.filter(function(c){return c!==modalTarget;});delete data[tipo].subs[modalTarget];if(catSel===modalTarget){catSel='';subSel='';}saveData(data);}
+  else{data[tipo].subs[modalParent]=(data[tipo].subs[modalParent]||[]).filter(function(s){return s!==modalTarget;});if(subSel===modalTarget)subSel='';saveData(data);}
+  hideModal();renderCats();renderSubs();
 }
 
 function setTipo(t){
-  tipo=t; catSel=''; subSel='';
+  tipo=t;catSel='';subSel='';
   document.getElementById('btnG').className='tipo-btn'+(t==='gasto'?' ag':'');
   document.getElementById('btnI').className='tipo-btn'+(t==='ingreso'?' ai':'');
   document.getElementById('btnSave').className='btn-save btn-'+(t==='gasto'?'g':'i');
   document.getElementById('btnSave').textContent='Registrar '+(t==='gasto'?'Gasto':'Ingreso');
   document.getElementById('estado').className='estado';
   document.getElementById('estado').textContent='';
-  cancelInline('cat'); cancelInline('sub');
-  renderCats(); renderSubs();
+  cancelInline('cat');cancelInline('sub');
+  renderCats();renderSubs();
 }
 
 function validate(){
@@ -407,27 +413,27 @@ function validate(){
 }
 
 function resetForm(){
-  rawMonto=''; catSel=''; subSel='';
+  rawMonto='';catSel='';subSel='';
   document.getElementById('monto').value='';
   document.getElementById('desc').value='';
   document.getElementById('fecha').value=today;
-  renderCats(); renderSubs();
+  renderCats();renderSubs();
 }
 
 async function guardar(){
   if(!validate()) return;
-  if(!window._firebaseReady){
+  if(!window._firebaseReady||!window._addRegistro){
     document.getElementById('estado').className='estado fail';
-    document.getElementById('estado').textContent='Conectando con Firebase...';
-    setTimeout(guardar, 1000); return;
+    document.getElementById('estado').textContent='Conectando...';
+    setTimeout(guardar,1000); return;
   }
   var btn=document.getElementById('btnSave');
   var e=document.getElementById('estado');
   btn.disabled=true;
   e.className='estado'; e.textContent='Guardando...';
-  try {
+  try{
     var now=new Date();
-    var registro = {
+    await window._addRegistro({
       fecha:          document.getElementById('fecha').value,
       fecha_ingreso:  now.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
       hora_ingreso:   now.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
@@ -438,11 +444,10 @@ async function guardar(){
       subcategoria:   subSel,
       descripcion:    document.getElementById('desc').value.trim(),
       createdAt:      window._serverTimestamp()
-    };
-    await window._addDoc(window._collection(window._db,'registros'), registro);
+    });
     e.className='estado ok'; e.textContent='Registrado';
     resetForm();
-  } catch(err) {
+  } catch(err){
     e.className='estado fail'; e.textContent='Error: '+err.message;
   }
   btn.disabled=false;

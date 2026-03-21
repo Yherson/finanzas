@@ -63,9 +63,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'IBM Pl
 .hamburger{display:none;background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;border-radius:3px;transition:color .15s;}
 .hamburger:hover{color:var(--text);}
 .topbar-title{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:400;color:var(--text);flex:1;}
-.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:0;overflow:hidden;}
 .period-group{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:3px;gap:1px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
 .period-group::-webkit-scrollbar{display:none;}
+.period-select{display:none;background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text);outline:none;cursor:pointer;}
+.period-select option{background:var(--s2);}
 .period-btn{padding:5px 10px;border:none;background:none;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-radius:2px;transition:all .15s;white-space:nowrap;}
 .period-btn:hover{color:var(--text);}
 .period-btn.active{background:var(--border2);color:var(--text);}
@@ -260,12 +262,10 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .fade{animation:fadeUp .3s ease both;}
 
 /* ── RESPONSIVE ── */
-@media(max-width:1024px){
-  .r3{grid-template-columns:1fr 1fr;}
+
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%);}
+
   .sidebar.open{transform:translateX(0);}
   .main-wrap{margin-left:0;}
   .hamburger{display:flex;align-items:center;justify-content:center;}
@@ -273,17 +273,95 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
   .pres-cfg{grid-template-columns:1fr;}
   .pres-stats{grid-template-columns:1fr 1fr;}
-  .topbar-right .tb-btn{display:none;}
-  .topbar-right .tb-btn.vis{display:inline-block;}
-  .page{padding:16px;}
-  .topbar{padding:0 16px;}
+  .topbar{padding:0 14px;gap:8px;}
+  .topbar-title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
+  .period-group{display:none;}
+  .period-select{display:block;}
+  .tb-btn{display:none;}
+  .tb-btn.mobile-vis{display:inline-block;padding:6px 10px;font-size:9px;}
+  .page{padding:14px;}
 }
-@media(max-width:480px){
-  .metrics{grid-template-columns:1fr 1fr;}
+
+  .metric-value{font-size:20px;}
+  .topbar-title{max-width:80px;}
+  .pres-stats{grid-template-columns:1fr;}
+}
+
   .metric-value{font-size:20px;}
   .period-group{max-width:200px;}
   .pres-stats{grid-template-columns:1fr;}
 }
+
+/* ── FLUID RESPONSIVE ── */
+
+/* Sidebar always fixed on desktop */
+@media(min-width:769px){
+  .hamburger{display:none!important;}
+  .period-select{display:none!important;}
+  .tb-btn{display:inline-block!important;}
+  .period-group{display:flex!important;}
+}
+
+/* Mobile - sidebar becomes overlay drawer */
+@media(max-width:768px){
+  .sidebar{
+    transform:translateX(-100%);
+    width:260px;
+    position:fixed;
+    top:0;left:0;
+    z-index:50;
+    transition:transform .25s ease;
+  }
+  .sidebar.open{transform:translateX(0);}
+  .main-wrap{margin-left:0!important;}
+  .hamburger{
+    display:flex!important;
+    align-items:center;
+    justify-content:center;
+    width:36px;height:36px;
+    flex-shrink:0;
+  }
+  /* Topbar: hamburger | title | select | sync icon */
+  .topbar{
+    padding:0 12px;
+    gap:10px;
+    height:52px;
+  }
+  .topbar-title{
+    flex:1;
+    font-size:14px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  /* Hide desktop period buttons */
+  .period-group{display:none!important;}
+  /* Show compact select instead */
+  .period-select{display:block!important;}
+  /* Hide text buttons, show only icon sync */
+  .tb-btn{display:none!important;}
+  .tb-btn.sync-icon{display:flex!important;align-items:center;justify-content:center;width:32px;height:32px;padding:0;flex-shrink:0;}
+  /* Layouts go single column */
+  .r2,.r3{grid-template-columns:1fr!important;}
+  /* Metrics 2x2 */
+  .metrics{grid-template-columns:1fr 1fr!important;}
+  .metric{padding:14px 12px;}
+  .metric-value{font-size:20px!important;}
+  /* Presupuesto */
+  .pres-cfg{grid-template-columns:1fr!important;}
+  .pres-stats{grid-template-columns:1fr 1fr!important;}
+  /* Page padding */
+  .page{padding:12px!important;}
+}
+
+/* Small phones */
+@media(max-width:400px){
+  .metrics{grid-template-columns:1fr!important;}
+  .pres-stats{grid-template-columns:1fr!important;}
+  .metric-value{font-size:18px!important;}
+  .topbar-title{font-size:13px;}
+}
+
 </style>
 </head>
 <body>
@@ -381,9 +459,22 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
         <button class="period-btn" onclick="setPeriod(12)" id="p12">Dic</button>
         <button class="period-btn" onclick="setPeriod(0)" id="p0">Año</button>
       </div>
+      <select class="period-select" id="periodSelect" onchange="setPeriod(parseInt(this.value))">
+        <option value="1">Ene</option><option value="2">Feb</option><option value="3">Mar</option>
+        <option value="4">Abr</option><option value="5">May</option><option value="6">Jun</option>
+        <option value="7">Jul</option><option value="8">Ago</option><option value="9">Sep</option>
+        <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dic</option>
+        <option value="0">Año</option>
+      </select>
+      <button class="tb-btn mobile-vis" onclick="fetchData()" title="Sincronizar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7A6 6 0 0012 9M13 7A6 6 0 002 5M1 2v3h3M13 12v-3h-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="tb-btn sync-icon" onclick="fetchData()" title="Sincronizar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M1 7A6 6 0 0012 9M13 7A6 6 0 002 5"/><path d="M1 2v3h3M13 12v-3h-3"/></svg>
+      </button>
       <button class="tb-btn" onclick="fetchData()">Sync</button>
-      <button class="tb-btn gold vis" onclick="exportarPDF()">PDF</button>
-      <button class="tb-btn vis" onclick="exportarExcel()">Excel</button>
+      <button class="tb-btn gold" onclick="exportarPDF()">PDF</button>
+      <button class="tb-btn" onclick="exportarExcel()">Excel</button>
     </div>
   </div>
 
@@ -572,6 +663,8 @@ function setPeriod(m){
   periodoActivo=m;
   document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('p'+m).classList.add('active');
+  var sel=document.getElementById('periodSelect');
+  if(sel) sel.value=m;
   if(allRows.length) renderVista();
 }
 

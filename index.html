@@ -697,7 +697,7 @@
 
   <button class="btn-save btn-g" id="btnSave" onclick="guardar()">Registrar Gasto</button>
   <div class="estado" id="estado"></div>
-  <div class="pending-note" id="pendingNote"></div>
+  <div class="pending-note" id="pendingNote" onclick="if(getPending().length>0&&confirm('Vaciar cola de pendientes?')){savePending([]);}" style="cursor:pointer"></div>
 </div>
 
 <script>
@@ -1047,6 +1047,14 @@ async function guardar(){
 }
 
 /* INIT */
+// Limpiar pendientes inválidos al cargar
+var rawPending = getPending();
+var validPending = rawPending.filter(function(r){
+  return r.tipo && (r.tipo==='gasto'||r.tipo==='ingreso') && r.monto && parseFloat(r.monto)>0 && r.categoria;
+});
+if(validPending.length !== rawPending.length){
+  savePending(validPending);
+}
 renderCats(); renderSubs(); savePending(getPending());
 if(navigator.onLine) flushPending();
 </script>

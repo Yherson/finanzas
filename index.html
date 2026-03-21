@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0c0c0e">
+  <title>Finanzas</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0c0c0e;
+      --surface:  #111114;
+      --surface2: #17171b;
+      --border:   #222228;
+      --border2:  #2e2e36;
+      --text:     #e8e6e0;
+      --muted:    #52515a;
+      --subtle:   #2a2a30;
+      --gold:     #c9a84c;
+      --gold-dim: #c9a84c22;
+      --gold-bd:  #c9a84c44;
+      --red:      #9b3535;
+      --red-dim:  #9b353520;
+      --red-bd:   #9b353550;
+      --red-tx:   #d07070;
+      --green:    #2d6b4a;
+      --green-dim:#2d6b4a20;
+      --green-bd: #2d6b4a55;
+      --green-tx: #6ab090;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 36px 20px 72px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .brand span {
+      display: block;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .dt-block {
+      text-align: right;
+    }
+
+    .dt-time {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    .dt-date {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    /* Línea decorativa */
+    .rule {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--border) 40%, transparent 100%);
+      margin-bottom: 28px;
+    }
+
+    /* ── TOGGLE TIPO ── */
+    .tipo-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+
+    .tipo-btn {
+      flex: 1;
+      padding: 11px 0;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .25s;
+      position: relative;
+    }
+
+    .tipo-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0;
+      width: 0; height: 1px;
+      transition: width .3s ease;
+    }
+
+    .tipo-btn.active-g {
+      color: var(--red-tx);
+    }
+    .tipo-btn.active-g::after {
+      background: var(--red-tx);
+      width: 100%;
+    }
+
+    .tipo-btn.active-i {
+      color: var(--green-tx);
+    }
+    .tipo-btn.active-i::after {
+      background: var(--green-tx);
+      width: 100%;
+    }
+
+    /* ── OFFLINE ── */
+    .offline-bar {
+      display: none;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #b89040;
+      background: #1a1508;
+      border: 1px solid #3a2e10;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 20px;
+    }
+
+    /* ── SECCIONES ── */
+    .section { margin-bottom: 26px; }
+
+    .section-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── MONTO ── */
+    .monto-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .monto-sym {
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0px;
+    }
+
+    .monto-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 48px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .monto-input::placeholder { color: var(--border2); }
+
+    /* ── CHIPS CATEGORÍA ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 2px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .chip:hover {
+      border-color: var(--text);
+      color: var(--text);
+    }
+
+    .chip.sel-g {
+      background: var(--red-dim);
+      border-color: var(--red-bd);
+      color: var(--red-tx);
+    }
+
+    .chip.sel-i {
+      background: var(--green-dim);
+      border-color: var(--green-bd);
+      color: var(--green-tx);
+    }
+
+    .chip-add {
+      padding: 6px 10px;
+      border-radius: 2px;
+      border: 1px dashed var(--border);
+      background: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .chip-add:hover { border-color: var(--border2); color: var(--text); }
+
+    /* ── SUBCATEGORÍAS ── */
+    .sub-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .subcats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .subchip {
+      padding: 5px 11px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+
+    .subchip:hover { border-color: var(--border2); color: var(--text); }
+
+    .subchip.sel-g {
+      background: var(--red-dim);
+      border-color: var(--red-bd);
+      color: var(--red-tx);
+    }
+
+    .subchip.sel-i {
+      background: var(--green-dim);
+      border-color: var(--green-bd);
+      color: var(--green-tx);
+    }
+
+    .subchip-add {
+      padding: 5px 8px;
+      border-radius: 2px;
+      border: 1px dashed var(--border);
+      background: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .subchip-add:hover { border-color: var(--border2); color: var(--text); }
+
+    /* ── INPUT AGREGAR ── */
+    .add-wrap {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .add-wrap.on { display: flex; }
+
+    .add-inp {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 2px;
+      padding: 8px 10px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 1px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    .add-inp:focus { border-color: var(--gold); }
+    .add-inp::placeholder { color: var(--muted); }
+
+    .add-ok {
+      padding: 8px 14px;
+      border-radius: 2px;
+      border: 1px solid var(--gold-bd);
+      background: var(--gold-dim);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .add-ok:hover { background: var(--gold); color: var(--bg); }
+
+    .add-cancel {
+      padding: 8px 10px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: none;
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .add-cancel:hover { color: var(--text); }
+
+    /* ── DIVIDER ── */
+    .div {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── CAMPOS TEXTO ── */
+    .row { display: flex; gap: 24px; }
+    .row .section { flex: 1; }
+    .row .section.wide { flex: 1.8; }
+
+    .text-inp {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .text-inp:focus { border-bottom-color: var(--border2); }
+    .text-inp::placeholder { color: var(--muted); }
+
+    input[type="date"] {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.3);
+      cursor: pointer;
+    }
+
+    /* ── ERROR ── */
+    .err {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      color: var(--red-tx);
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+
+    /* ── BOTÓN GUARDAR ── */
+    .btn-save {
+      width: 100%;
+      padding: 16px;
+      border-radius: 2px;
+      border: none;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+      margin-top: 10px;
+    }
+
+    .btn-save:active { transform: scale(.99); }
+    .btn-save:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+
+    .btn-g {
+      background: var(--red-dim);
+      border: 1px solid var(--red-bd);
+      color: var(--red-tx);
+    }
+
+    .btn-g:hover:not(:disabled) {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .btn-i {
+      background: var(--green-dim);
+      border: 1px solid var(--green-bd);
+      color: var(--green-tx);
+    }
+
+    .btn-i:hover:not(:disabled) {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    /* ── ESTADO ── */
+    .estado {
+      margin-top: 14px;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      color: var(--muted);
+      min-height: 14px;
+      transition: all .2s;
+    }
+
+    .estado.ok   { color: var(--green-tx); }
+    .estado.fail { color: var(--red-tx); }
+
+    .pending-note {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Animación entrada */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .wrap > * {
+      animation: fadeUp .4s ease both;
+    }
+
+    .header        { animation-delay: .05s; }
+    .tipo-row      { animation-delay: .1s; }
+    .section:nth-child(1) { animation-delay: .15s; }
+    .section:nth-child(2) { animation-delay: .2s; }
+    .btn-save      { animation-delay: .25s; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        Finanzas
+        <span>Registro personal</span>
+      </div>
+      <div class="dt-block">
+        <div class="dt-time" id="dtTime">--:--</div>
+        <div class="dt-date" id="dtDate">---</div>
+      </div>
+    </div>
+    <div class="rule"></div>
+    <div class="offline-bar" id="offlineBar">Sin conexión · Se sincronizará al reconectar</div>
+  </div>
+
+  <!-- Tipo -->
+  <div class="tipo-row">
+    <button class="tipo-btn active-g" id="btnG" onclick="setTipo('gasto')">Gasto</button>
+    <button class="tipo-btn" id="btnI" onclick="setTipo('ingreso')">Ingreso</button>
+  </div>
+
+  <!-- Monto -->
+  <div class="section">
+    <div class="section-label">Monto</div>
+    <div class="monto-wrap">
+      <span class="monto-sym">S/</span>
+      <input class="monto-input" id="monto" type="text" inputmode="decimal" placeholder="0.00"
+        oninput="rawMonto=this.value.replace(/[^0-9.]/g,'')"
+        onblur="if(rawMonto)this.value=parseFloat(rawMonto).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})"
+        onfocus="this.value=rawMonto">
+    </div>
+    <div class="err" id="eMonto"></div>
+  </div>
+
+  <hr class="div">
+
+  <!-- Categoría + Subcategoría -->
+  <div class="section">
+    <div class="section-label">Categoría</div>
+    <div class="chips" id="chipsCat"></div>
+    <div class="add-wrap" id="addCatWrap">
+      <input class="add-inp" id="addCatInp" placeholder="Nueva categoría" maxlength="30"
+        onkeydown="if(event.key==='Enter')confirmCat()">
+      <button class="add-ok" onclick="confirmCat()">Ok</button>
+      <button class="add-cancel" onclick="cancelAdd('cat')">✕</button>
+    </div>
+    <div class="err" id="eCat"></div>
+
+    <div class="sub-section" id="subSection" style="display:none">
+      <div class="section-label">Subcategoría</div>
+      <div class="subcats" id="subcats"></div>
+      <div class="add-wrap" id="addSubWrap">
+        <input class="add-inp" id="addSubInp" placeholder="Nueva subcategoría" maxlength="30"
+          onkeydown="if(event.key==='Enter')confirmSub()">
+        <button class="add-ok" onclick="confirmSub()">Ok</button>
+        <button class="add-cancel" onclick="cancelAdd('sub')">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- Fecha y Descripción -->
+  <div class="row">
+    <div class="section">
+      <div class="section-label">Fecha</div>
+      <input type="date" id="fecha">
+    </div>
+    <div class="section wide">
+      <div class="section-label">Descripción</div>
+      <input class="text-inp" type="text" id="desc" placeholder="ej. Almuerzo trabajo" maxlength="80">
+    </div>
+  </div>
+
+  <button class="btn-save btn-g" id="btnSave" onclick="guardar()">Registrar Gasto</button>
+  <div class="estado" id="estado"></div>
+  <div class="pending-note" id="pendingNote"></div>
+
+</div>
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx78UpW8elymddcMQcp3LdrVvzuyC384_UHLkcX65z8oDa2oTW13aj7NJJw7X-rmkNz/exec";
+
+var tipo='gasto', rawMonto='', catSel='', subSel='';
+
+var defaultData = {
+  gasto: {
+    cats: ['Alimentación','Transporte','Salud','Servicios','Entretenimiento','Ahorro','Alquiler'],
+    subs: {
+      'Alimentación':    ['Desayuno','Almuerzo','Cena'],
+      'Transporte':      ['Bus','Taxi','Gasolina','Estacionamiento'],
+      'Salud':           ['Farmacia','Consulta','Laboratorio'],
+      'Servicios':       ['Luz','Agua','Internet','Teléfono'],
+      'Entretenimiento': ['Streaming','Salida','Evento'],
+      'Ahorro':          ['Fondo emergencia','Inversión','Meta'],
+      'Alquiler':        ['Mensualidad','Mantenimiento']
+    }
+  },
+  ingreso: {
+    cats: ['Sueldo','Freelance','Negocio','Inversiones','Otro'],
+    subs: {
+      'Sueldo':      ['Mensual','Quincenal','Bono'],
+      'Freelance':   ['Proyecto','Consultoría','Diseño'],
+      'Negocio':     ['Ventas','Servicios','Comisión'],
+      'Inversiones': ['Dividendos','Intereses','Venta activo'],
+      'Otro':        ['Regalo','Premio','Devolución']
+    }
+  }
+};
+
+function loadData(){ try{ var s=localStorage.getItem('ff_data'); if(s) return JSON.parse(s); }catch(e){} return JSON.parse(JSON.stringify(defaultData)); }
+function saveData(d){ localStorage.setItem('ff_data',JSON.stringify(d)); }
+var data=loadData();
+
+// Fecha / hora en tiempo real
+function updateDT(){
+  var now=new Date();
+  var dd=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var mm=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var h=now.getHours().toString().padStart(2,'0');
+  var m=now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('dtTime').textContent=h+':'+m;
+  document.getElementById('dtDate').textContent=dd[now.getDay()]+' '+now.getDate()+' '+mm[now.getMonth()];
+}
+updateDT(); setInterval(updateDT,30000);
+
+var today=new Date().toISOString().split('T')[0];
+document.getElementById('fecha').value=today;
+
+// Online / offline
+function checkOnline(){ document.getElementById('offlineBar').style.display=navigator.onLine?'none':'block'; }
+window.addEventListener('online',()=>{ checkOnline(); flushPending(); });
+window.addEventListener('offline',checkOnline);
+checkOnline();
+
+// Render categorías
+function renderCats(){
+  var c=document.getElementById('chipsCat');
+  c.innerHTML='';
+  data[tipo].cats.forEach(function(cat){
+    var b=document.createElement('button');
+    b.className='chip'+(catSel===cat?' sel-'+(tipo==='gasto'?'g':'i'):'');
+    b.textContent=cat;
+    b.onclick=function(){ selectCat(cat); };
+    c.appendChild(b);
+  });
+  var add=document.createElement('button');
+  add.className='chip-add';
+  add.textContent='+ Agregar';
+  add.onclick=function(){ showAdd('cat'); };
+  c.appendChild(add);
+}
+
+// Render subcategorías
+function renderSubs(){
+  var sec=document.getElementById('subSection');
+  if(!catSel){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  var subs=data[tipo].subs[catSel]||[];
+  var c=document.getElementById('subcats');
+  c.innerHTML='';
+  subs.forEach(function(s){
+    var b=document.createElement('button');
+    b.className='subchip'+(subSel===s?' sel-'+(tipo==='gasto'?'g':'i'):'');
+    b.textContent=s;
+    b.onclick=function(){ selectSub(s); };
+    c.appendChild(b);
+  });
+  var add=document.createElement('button');
+  add.className='subchip-add';
+  add.textContent='+ Agregar';
+  add.onclick=function(){ showAdd('sub'); };
+  c.appendChild(add);
+}
+
+function selectCat(c){ catSel=catSel===c?'':c; subSel=''; document.getElementById('eCat').textContent=''; cancelAdd('cat'); cancelAdd('sub'); renderCats(); renderSubs(); }
+function selectSub(s){ subSel=subSel===s?'':s; renderSubs(); }
+
+function showAdd(t){
+  if(t==='cat'){ document.getElementById('addCatWrap').classList.add('on'); document.getElementById('addCatInp').focus(); }
+  else{ if(!catSel) return; document.getElementById('addSubWrap').classList.add('on'); document.getElementById('addSubInp').focus(); }
+}
+function cancelAdd(t){
+  if(t==='cat'){ document.getElementById('addCatWrap').classList.remove('on'); document.getElementById('addCatInp').value=''; }
+  else{ document.getElementById('addSubWrap').classList.remove('on'); document.getElementById('addSubInp').value=''; }
+}
+function confirmCat(){
+  var v=document.getElementById('addCatInp').value.trim();
+  if(!v) return;
+  if(!data[tipo].cats.includes(v)){ data[tipo].cats.push(v); data[tipo].subs[v]=[]; saveData(data); }
+  catSel=v; subSel=''; cancelAdd('cat'); renderCats(); renderSubs();
+}
+function confirmSub(){
+  var v=document.getElementById('addSubInp').value.trim();
+  if(!v||!catSel) return;
+  if(!data[tipo].subs[catSel]) data[tipo].subs[catSel]=[];
+  if(!data[tipo].subs[catSel].includes(v)){ data[tipo].subs[catSel].push(v); saveData(data); }
+  subSel=v; cancelAdd('sub'); renderSubs();
+}
+
+function setTipo(t){
+  tipo=t; catSel=''; subSel='';
+  document.getElementById('btnG').className='tipo-btn'+(t==='gasto'?' active-g':'');
+  document.getElementById('btnI').className='tipo-btn'+(t==='ingreso'?' active-i':'');
+  document.getElementById('btnSave').className='btn-save btn-'+(t==='gasto'?'g':'i');
+  document.getElementById('btnSave').textContent='Registrar '+(t==='gasto'?'Gasto':'Ingreso');
+  cancelAdd('cat'); cancelAdd('sub');
+  document.getElementById('estado').className='estado';
+  document.getElementById('estado').textContent='';
+  renderCats(); renderSubs();
+}
+
+// Cola offline
+function getPending(){ try{ return JSON.parse(localStorage.getItem('ff_pending')||'[]'); }catch(e){ return []; } }
+function savePending(a){
+  localStorage.setItem('ff_pending',JSON.stringify(a));
+  var n=a.length;
+  document.getElementById('pendingNote').textContent=n>0?n+' PENDIENTE'+(n>1?'S':'')+' DE SINCRONIZAR':'';
+}
+async function send(r){
+  var res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(r),headers:{'Content-Type':'text/plain'}});
+  var j=await res.json();
+  if(!j.ok) throw new Error(j.error||'Error');
+}
+async function flushPending(){
+  var p=getPending(),f=[];
+  for(var r of p){ try{ await send(r); }catch(e){ f.push(r); } }
+  savePending(f);
+}
+
+function buildRegistro(){
+  var now=new Date();
+  return {
+    timestamp: now.toISOString(),
+    fechahora: now.toLocaleString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+    tipo: tipo,
+    monto: parseFloat(rawMonto),
+    categoria: catSel,
+    subcategoria: subSel,
+    descripcion: document.getElementById('desc').value.trim(),
+    fecha: document.getElementById('fecha').value
+  };
+}
+
+function validate(){
+  var ok=true;
+  if(!rawMonto||isNaN(parseFloat(rawMonto))||parseFloat(rawMonto)<=0){ document.getElementById('eMonto').textContent='Ingresa un monto válido'; ok=false; }
+  if(!catSel){ document.getElementById('eCat').textContent='Selecciona una categoría'; ok=false; }
+  return ok;
+}
+
+function resetForm(){
+  rawMonto=''; catSel=''; subSel='';
+  document.getElementById('monto').value='';
+  document.getElementById('desc').value='';
+  document.getElementById('fecha').value=today;
+  renderCats(); renderSubs();
+}
+
+async function guardar(){
+  if(!validate()) return;
+  var r=buildRegistro(), btn=document.getElementById('btnSave'), e=document.getElementById('estado');
+  btn.disabled=true;
+  if(!navigator.onLine){
+    var p=getPending(); p.push(r); savePending(p);
+    e.className='estado ok'; e.textContent='Guardado · Sincronizará al reconectar';
+    resetForm(); btn.disabled=false; return;
+  }
+  e.className='estado'; e.textContent='Enviando...';
+  try{
+    await flushPending();
+    await send(r);
+    e.className='estado ok'; e.textContent='✓ Registrado';
+    resetForm();
+  }catch(err){
+    var p=getPending(); p.push(r); savePending(p);
+    e.className='estado ok'; e.textContent='✓ Guardado · Enviará al reconectar';
+  }
+  btn.disabled=false;
+  setTimeout(()=>{ e.className='estado'; e.textContent=''; },3000);
+}
+
+renderCats(); renderSubs(); savePending(getPending());
+if(navigator.onLine) flushPending();
+</script>
+</body>
+</html>

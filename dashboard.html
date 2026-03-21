@@ -866,7 +866,26 @@ function exportarExcel(){
 
 var APPS_URL_EDIT = 'https://script.google.com/macros/s/AKfycbx78UpW8elymddcMQcp3LdrVvzuyC384_UHLkcX65z8oDa2oTW13aj7NJJw7X-rmkNz/exec';
 var editRec = null;
-async function sendAct(p){var res=await fetch(APPS_URL_EDIT,{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'text/plain'}});var j=await res.json();if(!j.ok)throw new Error(j.msg||'Error');return j;}
+async function sendAct(p){
+  var res=await fetch(APPS_URL_EDIT,{
+    method:'POST',
+    body:JSON.stringify(p),
+    headers:{'Content-Type':'text/plain'},
+    redirect:'follow'
+  });
+  var text=await res.text();
+  // Google redirects POST to GET - extract JSON from response
+  var j;
+  try{
+    // The response might be wrapped in a callback
+    var match=text.match(/\{[\s\S]*\}/);
+    j=match?JSON.parse(match[0]):{ok:false,msg:'No JSON en respuesta'};
+  }catch(e){
+    j={ok:false,msg:'Error parseando: '+text.substring(0,100)};
+  }
+  if(!j.ok)throw new Error(j.msg||'Error');
+  return j;
+}
 function showEditModal(r){editRec=r;document.getElementById('editTipo').value=r.tipo||'gasto';document.getElementById('editMonto').value=r.monto||'';document.getElementById('editCat').value=r.categoria||'';document.getElementById('editSubcat').value=r.subcategoria||'';document.getElementById('editDesc').value=r.descripcion||'';document.getElementById('editFecha').value=r.fecha||'';document.getElementById('editEstado').textContent='';document.getElementById('editModalOv').classList.add('show');}
 function hideEditModal(){document.getElementById('editModalOv').classList.remove('show');editRec=null;}
 function closeEditModal(e){if(e.target===document.getElementById('editModalOv'))hideEditModal();}

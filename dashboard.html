@@ -913,8 +913,23 @@ window._startListener = (cb)=>{
   const q=query(collection(db,'users',currentUser.uid,'registros'),orderBy('createdAt','desc'));
   unsubListener=onSnapshot(q,snap=>{ const r=[]; snap.forEach(d=>r.push({id:d.id,...d.data()})); cb(r); },e=>console.error(e));
 };
-async function loadDoc(path,def){ try{ const s=await getDoc(doc(db,path)); return s.exists()?s.data():def; }catch(e){ return def; } }
-async function saveDoc(path,data){ await setDoc(doc(db,path),data); }
+async function loadDoc(path,def){
+  if(!path) return def;
+  try{
+    const segs=path.split('/');
+    const ref=doc(db,...segs);
+    const s=await getDoc(ref);
+    return s.exists()?s.data():def;
+  }catch(e){ console.error('loadDoc error',path,e); return def; }
+}
+async function saveDoc(path,data){
+  if(!path){ console.error('saveDoc: null path'); return; }
+  try{
+    const segs=path.split('/');
+    const ref=doc(db,...segs);
+    await setDoc(ref,data);
+  }catch(e){ console.error('saveDoc error',path,e); throw e; }
+}
 window._loadPresupuestos = ()=>loadDoc(up('config/presupuestos'),{cats:{},subs:{}});
 window._savePresupuestos = (d)=>saveDoc(up('config/presupuestos'),d);
 window._loadSettings     = ()=>loadDoc(up('config/settings'),{});

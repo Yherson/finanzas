@@ -883,7 +883,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 
 <!-- Firebase SDK -->
 <script type="module">
-
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
@@ -897,68 +896,98 @@ const firebaseConfig = {
   appId: "1:433329691661:web:8d2d39f30b52afedd78944"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
 let unsubListener = null;
-function up(path){ return currentUser ? 'users/'+currentUser.uid+'/'+path : null; }
 
-window._loginGoogle = async()=>{ try{ await signInWithPopup(auth,provider); }catch(e){ window.toast('Error al iniciar sesion','err'); } };
-window._logout = async()=>{ if(unsubListener) unsubListener(); await signOut(auth); };
-window._updateDoc = async(id,data)=>{ await updateDoc(doc(db,'users',currentUser.uid,'registros',id),data); };
-window._deleteDoc = async(id)=>{ await deleteDoc(doc(db,'users',currentUser.uid,'registros',id)); };
-window._startListener = (cb)=>{
-  const q=query(collection(db,'users',currentUser.uid,'registros'),orderBy('createdAt','desc'));
-  unsubListener=onSnapshot(q,snap=>{ const r=[]; snap.forEach(d=>r.push({id:d.id,...d.data()})); cb(r); },e=>console.error(e));
+// Build a Firestore DocumentReference from a slash-separated path
+function makeRef(path) {
+  if (!path) { console.error('[FB] makeRef: null path'); return null; }
+  const segs = path.split('/');
+  return doc(db, ...segs);
+}
+
+// Generic load with fallback
+async function loadDoc(path, def) {
+  const ref = makeRef(path);
+  if (!ref) return def;
+  try {
+    const snap = await getDoc(ref);
+    const result = snap.exists() ? snap.data() : def;
+    console.log('[FB] load', path, '->', snap.exists() ? 'found' : 'empty');
+    return result;
+  } catch(e) {
+    console.error('[FB] load ERROR', path, e.code, e.message);
+    return def;
+  }
+}
+
+// Generic save with logging
+async function saveDoc(path, data) {
+  const ref = makeRef(path);
+  if (!ref) { console.error('[FB] saveDoc: null ref for path', path); return; }
+  try {
+    console.log('[FB] saving', path, '...');
+    await setDoc(ref, data);
+    console.log('[FB] saved OK', path);
+  } catch(e) {
+    console.error('[FB] save ERROR', path, e.code, e.message);
+    throw e;
+  }
+}
+
+// User-scoped path helper
+function up(path) {
+  if (!currentUser) { console.error('[FB] up(): no currentUser'); return null; }
+  return 'users/' + currentUser.uid + '/' + path;
+}
+
+// Expose all operations
+window._loginGoogle      = async () => { try { await signInWithPopup(auth, provider); } catch(e) { window.toast('Error al iniciar sesion','err'); } };
+window._logout           = async () => { if (unsubListener) unsubListener(); await signOut(auth); };
+window._updateDoc        = async (id, data) => { await updateDoc(doc(db,'users',currentUser.uid,'registros',id), data); };
+window._deleteDoc        = async (id)       => { await deleteDoc(doc(db,'users',currentUser.uid,'registros',id)); };
+
+window._startListener = (cb) => {
+  const q = query(collection(db,'users',currentUser.uid,'registros'), orderBy('createdAt','desc'));
+  unsubListener = onSnapshot(q,
+    snap => { const r=[]; snap.forEach(d=>r.push({id:d.id,...d.data()})); cb(r); },
+    e => console.error('[FB] listener error', e)
+  );
 };
-async function loadDoc(path,def){
-  if(!path) return def;
-  try{
-    const segs=path.split('/');
-    const ref=doc(db,...segs);
-    const s=await getDoc(ref);
-    return s.exists()?s.data():def;
-  }catch(e){ console.error('loadDoc error',path,e); return def; }
-}
-async function saveDoc(path,data){
-  if(!path){ console.error('saveDoc: null path'); return; }
-  try{
-    const segs=path.split('/');
-    const ref=doc(db,...segs);
-    await setDoc(ref,data);
-  }catch(e){ console.error('saveDoc error',path,e); throw e; }
-}
-window._loadPresupuestos = ()=>loadDoc(up('config/presupuestos'),{cats:{},subs:{}});
-window._savePresupuestos = (d)=>saveDoc(up('config/presupuestos'),d);
-window._loadSettings     = ()=>loadDoc(up('config/settings'),{});
-window._saveSettings     = (d)=>saveDoc(up('config/settings'),d);
-window._loadMetas        = async()=>{ const d=await loadDoc(up('config/metas'),{lista:[]}); return d.lista||[]; };
-window._saveMetas        = (l)=>saveDoc(up('config/metas'),{lista:l});
-window._loadRecurrentes  = async()=>{ const d=await loadDoc(up('config/recurrentes'),{lista:[]}); return d.lista||[]; };
-window._saveRecurrentes  = (l)=>saveDoc(up('config/recurrentes'),{lista:l});
-window._loadPatrimonio   = async()=>{ return loadDoc(up('config/patrimonio'),{activos:[],pasivos:[],history:[]}); };
-window._savePatrimonio   = (d)=>saveDoc(up('config/patrimonio'),d);
 
-onAuthStateChanged(auth, user=>{
-  if(user){
-    currentUser=user;
+window._loadPresupuestos = ()          => loadDoc(up('config/presupuestos'), {cats:{}, subs:{}});
+window._savePresupuestos = (d)         => saveDoc(up('config/presupuestos'), d);
+window._loadSettings     = ()          => loadDoc(up('config/settings'), {});
+window._saveSettings     = (d)         => saveDoc(up('config/settings'), d);
+window._loadMetas        = async ()    => { const d = await loadDoc(up('config/metas'), {lista:[]}); return d.lista || []; };
+window._saveMetas        = async (l)   => { console.log('[FB] _saveMetas called, count:', l.length); await saveDoc(up('config/metas'), {lista: l}); };
+window._loadRecurrentes  = async ()    => { const d = await loadDoc(up('config/recurrentes'), {lista:[]}); return d.lista || []; };
+window._saveRecurrentes  = (l)         => saveDoc(up('config/recurrentes'), {lista: l});
+window._loadPatrimonio   = ()          => loadDoc(up('config/patrimonio'), {activos:[], pasivos:[], history:[]});
+window._savePatrimonio   = (d)         => saveDoc(up('config/patrimonio'), d);
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    console.log('[FB] auth OK, uid:', user.uid);
     document.getElementById('authScreen').classList.remove('show');
     document.getElementById('app').classList.add('ready');
-    const nm=user.displayName||user.email||'Usuario';
-    document.getElementById('sbUserName').textContent=nm;
-    const av=document.getElementById('sbAvatar');
-    if(user.photoURL) av.innerHTML='<img src="'+user.photoURL+'" alt="">';
-    else av.textContent=nm.charAt(0).toUpperCase();
+    const nm = user.displayName || user.email || 'Usuario';
+    document.getElementById('sbUserName').textContent = nm;
+    const av = document.getElementById('sbAvatar');
+    if (user.photoURL) av.innerHTML = '<img src="' + user.photoURL + '" alt="">';
+    else av.textContent = nm.charAt(0).toUpperCase();
     window.onAppReady();
   } else {
-    currentUser=null;
+    currentUser = null;
     document.getElementById('authScreen').classList.add('show');
     document.getElementById('app').classList.remove('ready');
   }
 });
-
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -2038,6 +2067,24 @@ window.onAppReady = async function(){
   if(_settings.theme) applyTheme(_settings.theme);
   if(_settings.accentColor) applyAccent(_settings.accentColor);
   if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var wsEl=document.getElementById('cfgWeekStart');if(wsEl)wsEl.value=String(_settings.weekStart);}
+
+  // Quick Firestore write/read test
+  try {
+    var testPath = up('config/test');
+    await window._saveSettings(Object.assign({}, _settings, {_lastSeen: new Date().toISOString()}));
+    console.log('[TEST] Settings write: OK');
+    var testRead = await window._loadSettings();
+    console.log('[TEST] Settings read: OK, keys=', Object.keys(testRead).join(','));
+    var metasCheck = await window._loadMetas();
+    console.log('[TEST] Metas read: count=', metasCheck.length, JSON.stringify(metasCheck));
+    if(metasCheck.length !== _metas.length){
+      console.warn('[TEST] Metas mismatch! memory=',_metas.length,'firestore=',metasCheck.length);
+      _metas = metasCheck;
+    }
+  } catch(e) {
+    console.error('[TEST] Firestore test FAILED:', e.code, e.message);
+    toast('Error conectando con base de datos: ' + (e.code||e.message), 'err', 8000);
+  }
 
   window._startListener(function(rows){
     allRows=processRows(rows);

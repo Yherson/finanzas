@@ -6,6 +6,7 @@
 <title>Finanzas Personales</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#070709;--s1:#0d0d10;--s2:#121215;--s3:#181820;
@@ -402,6 +403,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   .neto-summary{grid-template-columns:1fr!important;}
   .m-value{font-size:18px!important;}
 }
+
 </style>
 </head>
 <body>
@@ -872,7 +874,9 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 </div>
 </div>
 
+<!-- Firebase SDK -->
 <script type="module">
+
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
@@ -932,12 +936,15 @@ onAuthStateChanged(auth, user=>{
     document.getElementById('app').classList.remove('ready');
   }
 });
+
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+
+
 /* GLOBALS */
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={};
@@ -1132,7 +1139,7 @@ function buildEvol(){
   var iD=[],gD=[],bD=[];
   for(var m=1;m<=12;m++){var r=getRows(m);var i=r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0);var g=r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0);iD.push(i);gD.push(g);bD.push(i-g);}
   destroyChart('cEvol');
-  charts['cEvol']=new Chart(document.getElementById('cEvol'),{type:'line',data:{labels:meses,datasets:[{label:'Ingresos',data:iD,borderColor:'#3d7a5c',backgroundColor:'rgba(61,122,92,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#3d7a5c',tension:.4,fill:true},{label:'Gastos',data:gD,borderColor:'#8a3a3a',backgroundColor:'rgba(138,58,58,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#8a3a3a',tension:.4,fill:true},{label:'Balance',data:bD,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.03)',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}});
+  charts['cEvol']=new Chart(document.getElementById('cEvol'),{type:'line',data:{labels:meses,datasets:[{label:'Ingresos',data:iD,borderColor:'#3d7a5c',backgroundColor:'rgba(61,122,92,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#3d7a5c',tension:.4,fill:true},{label:'Gastos',data:gD,borderColor:'#8a3a3a',backgroundColor:'rgba(138,58,58,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#8a3a3a',tension:.4,fill:true},{label:'Balance',data:bD,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.03)',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
 }
 
 function buildDonut(rows){
@@ -1714,16 +1721,44 @@ function renderPatrimonio(){
   var aL=document.getElementById('activosList'),pL=document.getElementById('pasivosList');
   if(aL){
   aL.innerHTML='';
-  if(!_activos.length) aL.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin activos registrados</div>';
-  _activos.forEach(function(a){
-    aL.innerHTML+='<div class="neto-item"><div class="neto-item-name">'+a.nombre+'</div><div style="display:flex;align-items:center;gap:6px"><div class="neto-item-val pos">'+fmt(a.monto)+'</div><button class="neto-item-del" style="font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted)" onclick="editarPatrimonio('activo',''+a.id+'')">Editar</button><button class="neto-item-del" onclick="eliminarActivo(''+a.id+'')">&#x2715;</button></div></div>';
+  if(!_activos.length){
+    var empty=document.createElement('div');
+    empty.style.cssText='color:var(--muted);font-size:11px;padding:8px 0';
+    empty.textContent='Sin activos registrados';
+    aL.appendChild(empty);
+  } else _activos.forEach(function(a){
+    var row=document.createElement('div'); row.className='neto-item';
+    var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=a.nombre;
+    var right=document.createElement('div'); right.style.cssText='display:flex;align-items:center;gap:6px';
+    var val=document.createElement('div'); val.className='neto-item-val pos'; val.textContent=fmt(a.monto);
+    var btnE=document.createElement('button'); btnE.textContent='Editar';
+    btnE.style.cssText='font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:IBM Plex Sans,sans-serif';
+    btnE.onclick=(function(id){return function(){editarPatrimonio('activo',id);};})(a.id);
+    var btnD=document.createElement('button'); btnD.className='neto-item-del'; btnD.innerHTML='&#x2715;';
+    btnD.onclick=(function(id){return function(){eliminarActivo(id);};})(a.id);
+    right.appendChild(val); right.appendChild(btnE); right.appendChild(btnD);
+    row.appendChild(name); row.appendChild(right); aL.appendChild(row);
   });
-});}
+}
   if(pL){
   pL.innerHTML='';
-  if(!_pasivos.length) pL.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin pasivos registrados</div>';
-  _pasivos.forEach(function(p){
-    pL.innerHTML+='<div class="neto-item"><div class="neto-item-name">'+p.nombre+'</div><div style="display:flex;align-items:center;gap:6px"><div class="neto-item-val neg">'+fmt(p.monto)+'</div><button class="neto-item-del" style="font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted)" onclick="editarPatrimonio('pasivo',''+p.id+'')">Editar</button><button class="neto-item-del" onclick="eliminarPasivo(''+p.id+'')">&#x2715;</button></div></div>';
+  if(!_pasivos.length){
+    var empty2=document.createElement('div');
+    empty2.style.cssText='color:var(--muted);font-size:11px;padding:8px 0';
+    empty2.textContent='Sin pasivos registrados';
+    pL.appendChild(empty2);
+  } else _pasivos.forEach(function(p){
+    var row=document.createElement('div'); row.className='neto-item';
+    var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=p.nombre;
+    var right=document.createElement('div'); right.style.cssText='display:flex;align-items:center;gap:6px';
+    var val=document.createElement('div'); val.className='neto-item-val neg'; val.textContent=fmt(p.monto);
+    var btnE=document.createElement('button'); btnE.textContent='Editar';
+    btnE.style.cssText='font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:IBM Plex Sans,sans-serif';
+    btnE.onclick=(function(id){return function(){editarPatrimonio('pasivo',id);};})(p.id);
+    var btnD=document.createElement('button'); btnD.className='neto-item-del'; btnD.innerHTML='&#x2715;';
+    btnD.onclick=(function(id){return function(){eliminarPasivo(id);};})(p.id);
+    right.appendChild(val); right.appendChild(btnE); right.appendChild(btnD);
+    row.appendChild(name); row.appendChild(right); pL.appendChild(row);
   });
 }
   destroyChart('cPatrimonio');
@@ -1921,6 +1956,8 @@ window.onAppReady = async function(){
 };
 
 document.addEventListener('DOMContentLoaded',function(){ handleResize(); });
+
+
 </script>
 </body>
 </html>

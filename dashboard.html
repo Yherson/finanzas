@@ -1912,7 +1912,13 @@ function applyAccent(c){document.documentElement.style.setProperty('--gold',c);d
 function setAccent(c,el){applyAccent(c);_settings.accentColor=c;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});}
 function guardarNombre(){var v=document.getElementById('cfgNombre').value.trim();if(!v)return;document.getElementById('dashName').textContent=v;_settings.dashName=v;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Nombre actualizado','ok');}
 function guardarMetaPct(){var v=parseFloat(document.getElementById('cfgMeta').value)||30;window._metaAhorro=v;_settings.meta=v;document.getElementById('metaActualLabel').textContent=v+'%';if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Meta de ahorro: '+v+'%','ok');renderDashboard();}
-function setWeekStart(v){_weekStart=parseInt(v);// weekStart saved in _settings below_settings.weekStart=v;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Inicio de semana actualizado','ok');if(vistaActiva==='calendario')renderCalendario();}
+function setWeekStart(v){
+  _weekStart=parseInt(v);
+  _settings.weekStart=v;
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+  toast('Inicio de semana actualizado','ok');
+  if(vistaActiva==='calendario') renderCalendario();
+}
 function setMoneda(m){window._moneda=m;_settings.moneda=m;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Moneda: '+m,'ok');renderVista();}
 function renderStatsSystem(){
   var cont=document.getElementById('statsSystem');if(!cont)return;
@@ -2008,7 +2014,7 @@ window.onAppReady = async function(){
   if(_settings.meta){window._metaAhorro=parseFloat(_settings.meta)||30;var ml=document.getElementById('metaActualLabel');if(ml)ml.textContent=_settings.meta+'%';}
   if(_settings.theme) applyTheme(_settings.theme);
   if(_settings.accentColor) applyAccent(_settings.accentColor);
-  if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var ws=document.getElementById('cfgWeekStart');if(ws)ws.value=String(_settings.weekStart);}
+  if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var wsEl=document.getElementById('cfgWeekStart');if(wsEl)wsEl.value=String(_settings.weekStart);}
 
   window._startListener(function(rows){
     allRows=processRows(rows);

@@ -254,7 +254,7 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 const firebaseConfig = {
@@ -280,6 +280,18 @@ window._loginGoogle = async () => {
 
 window._logout = () => signOut(auth);
 
+// Categories persistence in Firestore
+window._loadCats = async (uid) => {
+  try {
+    const s = await getDoc(doc(db,'users',uid,'config','categorias'));
+    return s.exists() ? s.data() : null;
+  } catch(e) { return null; }
+};
+window._saveCats = async (uid, data) => {
+  try { await setDoc(doc(db,'users',uid,'config','categorias'), data); }
+  catch(e) { console.error('saveCats:', e); }
+};
+
 onAuthStateChanged(auth, user => {
   if(user){
     window._currentUser = user;
@@ -288,6 +300,13 @@ onAuthStateChanged(auth, user => {
     document.getElementById('authScreen').classList.remove('show');
     document.getElementById('mainPage').classList.add('show');
     document.getElementById('userName').textContent = user.displayName || user.email || 'Usuario';
+    // Load categories from Firestore
+    window._loadCats(user.uid).then(function(cats){
+      if(cats && (cats.gasto || cats.ingreso)){
+        data = cats;
+      }
+      renderCats(); renderSubs();
+    });
   } else {
     window._currentUser = null;
     window._firebaseReady = false;
@@ -313,9 +332,18 @@ var defaultData={
   }
 };
 
-function loadData(){try{var s=localStorage.getItem('ff_data');if(s)return JSON.parse(s);}catch(e){}return JSON.parse(JSON.stringify(defaultData));}
-function saveData(d){localStorage.setItem('ff_data',JSON.stringify(d));}
+function loadData(){return JSON.parse(JSON.stringify(defaultData));} // initial default
+function saveData(d){
+  // Save to localStorage as fast cache
+  try{localStorage.setItem('ff_data',JSON.stringify(d));}catch(e){}
+  // Save to Firestore as source of truth
+  if(window._currentUser && window._saveCats){
+    window._saveCats(window._currentUser.uid, d).catch(function(e){console.error('saveCats:',e);});
+  }
+}
 var data=loadData();
+// Try to restore from localStorage while Firestore loads
+try{var s=localStorage.getItem('ff_data');if(s){var parsed=JSON.parse(s);if(parsed.gasto||parsed.ingreso)data=parsed;}}catch(e){}
 
 // DateTime
 function updateDT(){

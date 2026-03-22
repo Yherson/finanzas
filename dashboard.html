@@ -967,7 +967,7 @@ var ttOpts={backgroundColor:'#0d0d10',borderColor:'#1e1e28',borderWidth:1,titleF
 window._moneda='S/'; window._metaAhorro=30;
 var PAGE_SIZE=25, currentPage=1;
 var calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
-var _weekStart=parseInt(localStorage.getItem('ff_weekStart')||'0');
+var _weekStart=0; // loaded from Firestore _settings on app ready
 Chart.defaults.color='#52505c';
 Chart.defaults.font={family:"'IBM Plex Sans',sans-serif",size:10,weight:'300'};
 
@@ -1571,7 +1571,7 @@ function buildPagination(total){
 function clearDateFilter(){var d=document.getElementById('fDesde'),h=document.getElementById('fHasta');if(d)d.value='';if(h)h.value='';filtrarTabla();}
 
 /* ALERTAS */
-function getLimites(){ try{return JSON.parse(localStorage.getItem('ff_limites')||'{}');}catch(e){return{};} }
+function getLimites(){ return _settings.limites||{}; }
 function checkAlertas(rows){
   var limites=getLimites(),gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
   gas.forEach(function(r){bc[r.categoria]=(bc[r.categoria]||0)+r.monto;});
@@ -1614,7 +1614,8 @@ function renderAlertas(){
 function guardarAlerta(){
   var cat=document.getElementById('alertCat').value,limit=parseFloat(document.getElementById('alertLimit').value);
   if(!cat||!limit||limit<=0){toast('Completa categoria y limite','err');return;}
-  var l=getLimites();l[cat]=limit;localStorage.setItem('ff_limites',JSON.stringify(l));
+  var l=getLimites();l[cat]=limit;_settings.limites=l;
+  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
   document.getElementById('alertLimit').value=''; toast('Limite guardado para '+cat,'ok'); renderAlertas();
 }
 
@@ -1911,7 +1912,7 @@ function applyAccent(c){document.documentElement.style.setProperty('--gold',c);d
 function setAccent(c,el){applyAccent(c);_settings.accentColor=c;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});}
 function guardarNombre(){var v=document.getElementById('cfgNombre').value.trim();if(!v)return;document.getElementById('dashName').textContent=v;_settings.dashName=v;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Nombre actualizado','ok');}
 function guardarMetaPct(){var v=parseFloat(document.getElementById('cfgMeta').value)||30;window._metaAhorro=v;_settings.meta=v;document.getElementById('metaActualLabel').textContent=v+'%';if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Meta de ahorro: '+v+'%','ok');renderDashboard();}
-function setWeekStart(v){_weekStart=parseInt(v);localStorage.setItem('ff_weekStart',v);_settings.weekStart=v;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Inicio de semana actualizado','ok');if(vistaActiva==='calendario')renderCalendario();}
+function setWeekStart(v){_weekStart=parseInt(v);// weekStart saved in _settings below_settings.weekStart=v;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Inicio de semana actualizado','ok');if(vistaActiva==='calendario')renderCalendario();}
 function setMoneda(m){window._moneda=m;_settings.moneda=m;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Moneda: '+m,'ok');renderVista();}
 function renderStatsSystem(){
   var cont=document.getElementById('statsSystem');if(!cont)return;

@@ -420,6 +420,18 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 
 <div class="toast-container" id="toastContainer"></div>
 
+<div class="modal-ov" id="patriEditOv" onclick="if(event.target===this)hidePatriEditModal()">
+  <div class="modal-box">
+    <div class="modal-hdr"><span class="modal-hdr-txt" id="patriEditTitle">Editar activo</span><button class="modal-close" onclick="hidePatriEditModal()">&#x2715;</button></div>
+    <div class="m-field"><label>Nombre</label><input type="text" id="peNombre" maxlength="50"></div>
+    <div class="m-field"><label>Monto (S/)</label><input type="number" id="peMonto" min="0"></div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-save" onclick="confirmarPatriEdit()">Guardar</button>
+      <button class="mbtn mbtn-cancel" onclick="hidePatriEditModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div class="confirm-ov" id="confirmOv">
   <div class="confirm-box">
     <div class="confirm-title">Eliminar registro</div>
@@ -449,6 +461,29 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <button class="mbtn mbtn-cancel" onclick="hideEditModal()">Cancelar</button>
     </div>
     <div class="m-status" id="eStatus"></div>
+  </div>
+</div>
+
+<div class="modal-ov" id="metaEditOv" onclick="if(event.target===this)hideMetaEditModal()">
+  <div class="modal-box">
+    <div class="modal-hdr"><span class="modal-hdr-txt">Editar meta</span><button class="modal-close" onclick="hideMetaEditModal()">&#x2715;</button></div>
+    <div class="m-field"><label>Nombre</label><input type="text" id="meNombre" maxlength="50"></div>
+    <div class="m-field"><label>Objetivo (S/)</label><input type="number" id="meObjetivo" min="1"></div>
+    <div class="m-field"><label>Monto actual ahorrado (S/)</label><input type="number" id="meActual" min="0"></div>
+    <div class="m-field"><label>Fecha limite</label><input type="date" id="meFecha"></div>
+    <div class="m-field"><label>Categoria</label>
+      <select id="meCat">
+        <option value="ahorro">Ahorro personal</option>
+        <option value="emergencia">Fondo de emergencia</option>
+        <option value="viaje">Viaje</option>
+        <option value="educacion">Educacion</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-save" onclick="confirmarMetaEdit()">Guardar</button>
+      <button class="mbtn mbtn-cancel" onclick="hideMetaEditModal()">Cancelar</button>
+    </div>
   </div>
 </div>
 
@@ -626,7 +661,11 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <button class="tb-btn gold" onclick="showMetaModal()">+ Nueva meta</button>
         </div>
         <div class="metas-grid" id="metasGrid"></div>
-        <div class="card" style="margin-top:8px"><div class="card-title">Resumen</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px" id="metasResumen"></div></div>
+        <div class="row r2" style="margin-top:8px">
+          <div class="card"><div class="card-title">Resumen de metas</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px" id="metasResumen"></div></div>
+          <div class="card"><div class="card-title">Progreso por meta</div><div class="chart-wrap" style="height:180px"><canvas id="cMetasBar"></canvas></div></div>
+        </div>
+        <div class="card" style="margin-top:8px"><div class="card-title">Cuanto necesitas ahorrar mensualmente para llegar a tiempo</div><div id="metasMensualNeeded"></div></div>
       </div>
     </div>
 
@@ -1093,7 +1132,7 @@ function buildEvol(){
   var iD=[],gD=[],bD=[];
   for(var m=1;m<=12;m++){var r=getRows(m);var i=r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0);var g=r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0);iD.push(i);gD.push(g);bD.push(i-g);}
   destroyChart('cEvol');
-  charts['cEvol']=new Chart(document.getElementById('cEvol'),{type:'line',data:{labels:meses,datasets:[{label:'Ingresos',data:iD,borderColor:'#3d7a5c',backgroundColor:'rgba(61,122,92,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#3d7a5c',tension:.4,fill:true},{label:'Gastos',data:gD,borderColor:'#8a3a3a',backgroundColor:'rgba(138,58,58,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#8a3a3a',tension:.4,fill:true},{label:'Balance',data:bD,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.03)',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+  charts['cEvol']=new Chart(document.getElementById('cEvol'),{type:'line',data:{labels:meses,datasets:[{label:'Ingresos',data:iD,borderColor:'#3d7a5c',backgroundColor:'rgba(61,122,92,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#3d7a5c',tension:.4,fill:true},{label:'Gastos',data:gD,borderColor:'#8a3a3a',backgroundColor:'rgba(138,58,58,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#8a3a3a',tension:.4,fill:true},{label:'Balance',data:bD,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.03)',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}});
 }
 
 function buildDonut(rows){
@@ -1156,6 +1195,39 @@ async function eliminarMeta(id){
   try{ await window._saveMetas(_metas); toast('Meta eliminada','info'); }catch(e){}
   renderMetas();
 }
+var _metaEditId=null;
+function showMetaEditModal(id){
+  var m=_metas.find(function(x){return x.id===id;}); if(!m) return;
+  _metaEditId=id;
+  document.getElementById('meNombre').value=m.nombre||'';
+  document.getElementById('meObjetivo').value=m.objetivo||'';
+  document.getElementById('meActual').value=m.actual||0;
+  document.getElementById('meFecha').value=m.fecha||'';
+  document.getElementById('meCat').value=m.cat||'ahorro';
+  document.getElementById('metaEditOv').classList.add('show');
+}
+function hideMetaEditModal(){ document.getElementById('metaEditOv').classList.remove('show'); _metaEditId=null; }
+async function confirmarMetaEdit(){
+  if(!_metaEditId) return;
+  var m=_metas.find(function(x){return x.id===_metaEditId;}); if(!m) return;
+  var n=document.getElementById('meNombre').value.trim(); if(n) m.nombre=n;
+  var o=parseFloat(document.getElementById('meObjetivo').value); if(o) m.objetivo=o;
+  m.actual=parseFloat(document.getElementById('meActual').value)||0;
+  var f=document.getElementById('meFecha').value; if(f) m.fecha=f;
+  m.cat=document.getElementById('meCat').value||m.cat;
+  try{await window._saveMetas(_metas);toast('Meta actualizada','ok');}catch(e){toast('Error','err');}
+  hideMetaEditModal(); renderMetas();
+}
+async function abonarMeta(id){
+  var inp=document.getElementById('mu_'+id);
+  var abono=parseFloat(inp?inp.value:0)||0;
+  if(!abono||abono<=0){toast('Ingresa un monto valido','err');return;}
+  var m=_metas.find(function(x){return x.id===id;}); if(!m) return;
+  m.actual=Math.min(m.objetivo,m.actual+abono);
+  try{await window._saveMetas(_metas);toast('+'+fmt(abono)+' abonado a '+m.nombre,'ok');}catch(e){toast('Error','err');}
+  renderMetas();
+}
+
 function renderMetas(){
   var grid=document.getElementById('metasGrid'); if(!grid) return;
   grid.innerHTML='';
@@ -1175,6 +1247,45 @@ function renderMetas(){
   var tA=_metas.reduce(function(s,m){return s+m.actual;},0);
   var comp=_metas.filter(function(m){return m.actual>=m.objetivo;}).length;
   res.innerHTML='<div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Total objetivo</div><div style="font-family:IBM Plex Mono,monospace;font-size:16px;color:var(--text)">'+fmt(tO)+'</div></div><div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Total ahorrado</div><div style="font-family:IBM Plex Mono,monospace;font-size:16px;color:var(--green-tx)">'+fmt(tA)+'</div></div><div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Completadas</div><div style="font-family:IBM Plex Mono,monospace;font-size:16px;color:var(--gold)">'+comp+' / '+_metas.length+'</div></div>';
+
+  // Grafico de barras de progreso por meta
+  destroyChart('cMetasBar');
+  var canv=document.getElementById('cMetasBar');
+  if(canv&&_metas.length){
+    var mLabels=_metas.map(function(m){return m.nombre.length>15?m.nombre.substring(0,15)+'...':m.nombre;});
+    var mPcts=_metas.map(function(m){return m.objetivo>0?Math.min(100,Math.round(m.actual/m.objetivo*100)):0;});
+    var mColors=mPcts.map(function(p){return p>=100?'rgba(90,170,128,.8)':p>=70?'rgba(201,168,76,.8)':'rgba(106,154,204,.8)';});
+    charts['cMetasBar']=new Chart(canv,{
+      type:'bar',
+      data:{labels:mLabels,datasets:[
+        {label:'Completado',data:mPcts,backgroundColor:mColors,borderRadius:3},
+        {label:'Restante',data:mPcts.map(function(p){return Math.max(0,100-p);}),backgroundColor:'rgba(255,255,255,.04)',borderRadius:3}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{stacked:true,grid:{color:gColor}},y:{stacked:true,max:100,grid:{color:gColor},ticks:{callback:function(v){return v+'%';}}}}}
+    });
+  }
+  // Cuanto necesitas ahorrar mensualmente
+  var mnEl=document.getElementById('metasMensualNeeded');
+  if(mnEl){
+    mnEl.innerHTML='';
+    var conFecha=_metas.filter(function(m){return m.fecha&&m.actual<m.objetivo;});
+    if(!conFecha.length){mnEl.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin metas pendientes con fecha limite</div>';return;}
+    conFecha.forEach(function(m){
+      var diff=Math.ceil((new Date(m.fecha)-new Date())/(1000*60*60*24));
+      var falta=m.objetivo-m.actual;
+      var meses=Math.max(1,Math.ceil(diff/30));
+      var mensual=Math.ceil(falta/meses);
+      var diario=Math.ceil(falta/Math.max(1,diff));
+      var urgente=diff<=30;
+      mnEl.innerHTML+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">'+
+        '<div><div style="font-size:12px;font-weight:400;color:var(--text)">'+m.nombre+'</div>'+
+        '<div style="font-size:9px;color:'+(urgente?'var(--red-tx)':'var(--muted)')+';margin-top:2px">'+diff+' dias restantes - faltan '+fmt(falta)+'</div></div>'+
+        '<div style="display:flex;gap:12px;flex-shrink:0">'+
+        '<div style="text-align:right"><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Por mes</div><div style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--gold)">'+fmt(mensual)+'</div></div>'+
+        '<div style="text-align:right"><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Por dia</div><div style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--blue-tx)">'+fmt(diario)+'</div></div>'+
+        '</div></div>';
+    });
+  }
 }
 
 /* PRESUPUESTO */
@@ -1206,17 +1317,84 @@ function renderPresupuesto(){
   if(!catsConP.length){catsEl.innerHTML='<div style="color:var(--muted);font-size:12px;padding:16px 0">Configura tu primer presupuesto abajo.</div>';renderPresupLists();return;}
   catsConP.forEach(function(cat){
     var pm=presupCat[cat].mensual||0,pd=presupCat[cat].diario||0;
-    var gastado=byCat[cat]||0,esperado=pm*rf;
-    var pctG=pm>0?Math.min(gastado/pm*100,100):0;
-    var pctE=Math.min(rf*100,100);
-    var cls=gastado>pm?'bad':gastado>esperado*1.05?'warn':'ok';
-    var barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
-    var diff=gastado-esperado;
+    var gastado=byCat[cat]||0;
+    var esSoloMensual=pm>0&&pd===0; // Solo mensual, sin gestion diaria
+    var esDiario=pd>0; // Tiene presupuesto diario
+
+    // ?? MODO SOLO MENSUAL: pago puntual, no se gestiona por ritmo diario
+    var cls,barC,diff=0,pctG=0,pctE=0;
+    var infoExtra='';
+    var ajusteDiario=null;
+
+    if(esSoloMensual){
+      // Solo mostrar progreso simple: cuanto llevo del total mensual
+      pctG=pm>0?Math.min(gastado/pm*100,100):0;
+      cls=gastado>pm?'bad':gastado>pm*0.9?'warn':'ok';
+      barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
+      infoExtra='<div style="font-size:9px;color:var(--muted);margin-top:4px">Pago mensual - sin gestion diaria</div>';
+    } else {
+      // ?? MODO CON GESTION DIARIA (tiene presupuesto diario o mensual dividido)
+      var diasRestantes=totalDias-diaHoy;
+      var presupuestoDiario=pd>0?pd:Math.round(pm/totalDias);
+      var esperadoHastaHoy=presupuestoDiario*diaHoy;
+      diff=gastado-esperadoHastaHoy;
+
+      pctG=pm>0?Math.min(gastado/pm*100,100):0;
+      pctE=Math.min((esperadoHastaHoy/pm)*100,100);
+      cls=gastado>pm?'bad':gastado>esperadoHastaHoy*1.05?'warn':'ok';
+      barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
+
+      // Calculo ajustado para dias restantes
+      if(diasRestantes>0){
+        var montoRestante=Math.max(0,pm-gastado);
+        var diarioAjustado=Math.round(montoRestante/diasRestantes);
+        var diferenciaVsOriginal=diarioAjustado-presupuestoDiario;
+        ajusteDiario={
+          original:presupuestoDiario,
+          ajustado:diarioAjustado,
+          diferencia:diferenciaVsOriginal,
+          dias:diasRestantes,
+          restante:montoRestante
+        };
+      }
+    }
+
     var subKeys=Object.keys(presupSub).filter(function(k){return k.indexOf(cat+'||')===0;});
     var card=document.createElement('div'); card.className='pc-card';
-    var html='<div class="pc-head" onclick="toggleSubsP(this)"><div><div class="pc-name">'+cat+'</div><div class="pc-meta">'+(pd>0?fmt(pd)+'/dia - ':'')+fmt(pm)+'/mes</div></div><div class="pc-right"><div class="pc-nums"><div class="pc-diff '+(diff>0?'bad':'ok')+'">'+(diff>0?'+':'')+diff.toFixed(2)+' '+(diff>0?'sobre':'bajo')+' ritmo</div><span class="pc-val '+cls+'">'+fmt(gastado)+'</span><span style="font-size:10px;color:var(--muted)"> / '+fmt(pm)+'</span></div>';
+
+    var html='<div class="pc-head" onclick="toggleSubsP(this)">';
+    html+='<div><div class="pc-name">'+cat+'</div><div class="pc-meta">';
+    if(esSoloMensual) html+=fmt(pm)+'/mes (mensual puntual)';
+    else if(pd>0) html+=fmt(pd)+'/dia - '+fmt(pm)+'/mes';
+    else html+=fmt(pm)+'/mes ('+fmt(Math.round(pm/totalDias))+'/dia estimado)';
+    html+='</div></div>';
+    html+='<div class="pc-right"><div class="pc-nums">';
+    if(!esSoloMensual) html+='<div class="pc-diff '+(diff>0?'bad':'ok')+'">'+(diff>0?'+':'')+diff.toFixed(2)+' '+(diff>0?'sobre':'bajo')+' ritmo</div>';
+    html+='<span class="pc-val '+cls+'">'+fmt(gastado)+'</span><span style="font-size:10px;color:var(--muted)"> / '+fmt(pm)+'</span>';
+    html+='</div>';
     if(subKeys.length>0) html+='<span class="chevron">&#9660;</span>';
-    html+='</div></div><div class="p-bars"><div class="p-bar-row"><span class="p-bar-lbl">Gastado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctG+'%;background:'+barC+'"></div><div class="p-bar-mk" style="left:'+pctE+'%"></div></div><span class="p-bar-pct '+cls+'">'+Math.round(pctG)+'%</span></div><div class="p-bar-row"><span class="p-bar-lbl">Esperado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctE+'%;background:var(--muted)"></div></div><span class="p-bar-pct">'+Math.round(pctE)+'%</span></div></div>';
+    html+='</div></div>';
+
+    // Barras
+    html+='<div class="p-bars">';
+    html+='<div class="p-bar-row"><span class="p-bar-lbl">Gastado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctG+'%;background:'+barC+'"></div>'+(esSoloMensual?'':'<div class="p-bar-mk" style="left:'+pctE+'%"></div>')+'</div><span class="p-bar-pct '+cls+'">'+Math.round(pctG)+'%</span></div>';
+    if(!esSoloMensual) html+='<div class="p-bar-row"><span class="p-bar-lbl">Esperado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctE+'%;background:var(--muted)"></div></div><span class="p-bar-pct">'+Math.round(pctE)+'%</span></div>';
+    if(infoExtra) html+=infoExtra;
+    // ?? AJUSTE DIARIO INTELIGENTE
+    if(ajusteDiario){
+      var adjColor=ajusteDiario.diferencia<0?'var(--green-tx)':ajusteDiario.diferencia>0?'var(--red-tx)':'var(--muted)';
+      var adjMsg=ajusteDiario.diferencia<0
+        ?'Vas bien: puedes gastar '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias'
+        :ajusteDiario.diferencia>0
+          ?'Te pasaste: ajusta a '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias'
+          :'En ritmo exacto: '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias';
+      html+='<div style="margin-top:8px;padding:8px 0 0;border-top:1px dashed var(--border)">'+
+        '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Ritmo ajustado</div>'+
+        '<div style="font-size:11px;color:'+adjColor+'">'+adjMsg+'</div>'+
+        '<div style="font-size:10px;color:var(--muted);margin-top:3px">Restante: '+fmt(ajusteDiario.restante)+' en '+ajusteDiario.dias+' dias</div>'+
+        '</div>';
+    }
+    html+='</div>';
     if(subKeys.length>0){
       html+='<div class="p-subs">';
       subKeys.forEach(function(sk){
@@ -1503,6 +1681,28 @@ async function agregarPasivo(){
   document.getElementById('pasivoNombre').value='';document.getElementById('pasivoMonto').value='';
   renderPatrimonio();
 }
+var _patriEditType=null, _patriEditId=null;
+function editarPatrimonio(tipo,id){
+  _patriEditType=tipo; _patriEditId=id;
+  var lista=tipo==='activo'?_activos:_pasivos;
+  var item=lista.find(function(x){return x.id===id;}); if(!item) return;
+  document.getElementById('patriEditTitle').textContent=tipo==='activo'?'Editar activo':'Editar pasivo';
+  document.getElementById('peNombre').value=item.nombre||'';
+  document.getElementById('peMonto').value=item.monto||'';
+  document.getElementById('patriEditOv').classList.add('show');
+}
+function hidePatriEditModal(){ document.getElementById('patriEditOv').classList.remove('show'); _patriEditType=null; _patriEditId=null; }
+async function confirmarPatriEdit(){
+  if(!_patriEditType||!_patriEditId) return;
+  var lista=_patriEditType==='activo'?_activos:_pasivos;
+  var item=lista.find(function(x){return x.id===_patriEditId;}); if(!item) return;
+  item.nombre=document.getElementById('peNombre').value.trim()||item.nombre;
+  item.monto=parseFloat(document.getElementById('peMonto').value)||item.monto;
+  await savePatrimonio();
+  toast(item.nombre+' actualizado','ok');
+  hidePatriEditModal(); renderPatrimonio();
+}
+
 async function eliminarActivo(id){_activos=_activos.filter(function(a){return a.id!==id;});await savePatrimonio();renderPatrimonio();}
 async function eliminarPasivo(id){_pasivos=_pasivos.filter(function(p){return p.id!==id;});await savePatrimonio();renderPatrimonio();}
 function renderPatrimonio(){
@@ -1512,8 +1712,20 @@ function renderPatrimonio(){
   var sum=document.getElementById('netoSummary');if(!sum)return;
   sum.innerHTML='<div class="neto-card"><div class="neto-lbl">Total activos</div><div class="neto-val pos">'+fmt(tA)+'</div></div><div class="neto-card"><div class="neto-lbl">Total pasivos</div><div class="neto-val neg">'+fmt(tP)+'</div></div><div class="neto-card"><div class="neto-lbl">Patrimonio neto</div><div class="neto-val '+(neto>=0?'neu':'neg')+'">'+fmt(neto)+'</div></div>';
   var aL=document.getElementById('activosList'),pL=document.getElementById('pasivosList');
-  if(aL){aL.innerHTML='';if(!_activos.length)aL.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin activos registrados</div>';_activos.forEach(function(a){aL.innerHTML+='<div class="neto-item"><div class="neto-item-name">'+a.nombre+'</div><div class="neto-item-val pos">'+fmt(a.monto)+'</div><button class="neto-item-del" onclick="eliminarActivo(\''+a.id+'\')">&#x2715;</button></div>';});}
-  if(pL){pL.innerHTML='';if(!_pasivos.length)pL.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin pasivos registrados</div>';_pasivos.forEach(function(p){pL.innerHTML+='<div class="neto-item"><div class="neto-item-name">'+p.nombre+'</div><div class="neto-item-val neg">'+fmt(p.monto)+'</div><button class="neto-item-del" onclick="eliminarPasivo(\''+p.id+'\')">&#x2715;</button></div>';});}
+  if(aL){
+  aL.innerHTML='';
+  if(!_activos.length) aL.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin activos registrados</div>';
+  _activos.forEach(function(a){
+    aL.innerHTML+='<div class="neto-item"><div class="neto-item-name">'+a.nombre+'</div><div style="display:flex;align-items:center;gap:6px"><div class="neto-item-val pos">'+fmt(a.monto)+'</div><button class="neto-item-del" style="font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted)" onclick="editarPatrimonio('activo',''+a.id+'')">Editar</button><button class="neto-item-del" onclick="eliminarActivo(''+a.id+'')">&#x2715;</button></div></div>';
+  });
+});}
+  if(pL){
+  pL.innerHTML='';
+  if(!_pasivos.length) pL.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin pasivos registrados</div>';
+  _pasivos.forEach(function(p){
+    pL.innerHTML+='<div class="neto-item"><div class="neto-item-name">'+p.nombre+'</div><div style="display:flex;align-items:center;gap:6px"><div class="neto-item-val neg">'+fmt(p.monto)+'</div><button class="neto-item-del" style="font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted)" onclick="editarPatrimonio('pasivo',''+p.id+'')">Editar</button><button class="neto-item-del" onclick="eliminarPasivo(''+p.id+'')">&#x2715;</button></div></div>';
+  });
+}
   destroyChart('cPatrimonio');
   var canv=document.getElementById('cPatrimonio');
   if(canv&&_patrimonioHistory.length>1){

@@ -1213,7 +1213,14 @@ async function guardarMeta(){
   var cat=document.getElementById('metaCat').value;
   if(!nombre||!objetivo){ toast('Completa nombre y objetivo','err'); return; }
   _metas.push({id:Date.now().toString(),nombre:nombre,objetivo:objetivo,actual:actual,fecha:fecha,cat:cat});
-  try{ await window._saveMetas(_metas); toast('Meta creada','ok'); }catch(e){ toast('Error guardando','err'); }
+  try{
+    await window._saveMetas(_metas);
+    toast('Meta creada','ok');
+    console.log('Meta saved, total metas:', _metas.length);
+  }catch(e){
+    console.error('Error saving meta:', e);
+    toast('Error: '+e.message,'err');
+  }
   hideMetaModal(); renderMetas();
 }
 async function actualizarMeta(id,v){
@@ -2010,14 +2017,15 @@ window.onAppReady = async function(){
   setSyncState('loading','Cargando...');
   handleResize();
 
-  var safe=function(p,def){return p?Promise.resolve(p).catch(function(){return def;}):Promise.resolve(def);};
+  var safe=function(fn,def){ return Promise.resolve().then(fn).catch(function(e){ console.error('load error:',e); return def; }); };
   var results=await Promise.all([
-    safe(window._loadPresupuestos(),{cats:{},subs:{}}),
-    safe(window._loadSettings(),{}),
-    safe(window._loadMetas(),[]),
-    safe(window._loadRecurrentes(),[]),
-    safe(window._loadPatrimonio(),{activos:[],pasivos:[],history:[]})
+    safe(function(){return window._loadPresupuestos();},{cats:{},subs:{}}),
+    safe(function(){return window._loadSettings();},{}),
+    safe(function(){return window._loadMetas();}, []),
+    safe(function(){return window._loadRecurrentes();}, []),
+    safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[]})
   ]);
+  console.log('Loaded: metas='+results[2].length+' recurrentes='+results[3].length);
   presupCat=results[0].cats||{};presupSub=results[0].subs||{};
   _settings=results[1];
   _metas=results[2];

@@ -466,52 +466,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   </div>
 </div>
 
-<div class="modal-ov" id="metaEditOv" onclick="if(event.target===this)hideMetaEditModal()">
-  <div class="modal-box">
-    <div class="modal-hdr"><span class="modal-hdr-txt">Editar meta</span><button class="modal-close" onclick="hideMetaEditModal()">&#x2715;</button></div>
-    <div class="m-field"><label>Nombre</label><input type="text" id="meNombre" maxlength="50"></div>
-    <div class="m-field"><label>Objetivo (S/)</label><input type="number" id="meObjetivo" min="1"></div>
-    <div class="m-field"><label>Monto actual ahorrado (S/)</label><input type="number" id="meActual" min="0"></div>
-    <div class="m-field"><label>Fecha limite</label><input type="date" id="meFecha"></div>
-    <div class="m-field"><label>Categoria</label>
-      <select id="meCat">
-        <option value="ahorro">Ahorro personal</option>
-        <option value="emergencia">Fondo de emergencia</option>
-        <option value="viaje">Viaje</option>
-        <option value="educacion">Educacion</option>
-        <option value="otro">Otro</option>
-      </select>
-    </div>
-    <div class="m-btns">
-      <button class="mbtn mbtn-save" onclick="confirmarMetaEdit()">Guardar</button>
-      <button class="mbtn mbtn-cancel" onclick="hideMetaEditModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-ov" id="metaOv" onclick="if(event.target===this)hideMetaModal()">
-  <div class="modal-box">
-    <div class="modal-hdr"><span class="modal-hdr-txt">Nueva meta de ahorro</span><button class="modal-close" onclick="hideMetaModal()">&#x2715;</button></div>
-    <div class="m-field"><label>Nombre</label><input type="text" id="metaNombre" placeholder="ej. Fondo de emergencia" maxlength="50"></div>
-    <div class="m-field"><label>Objetivo (S/)</label><input type="number" id="metaObjetivo" placeholder="5000" min="1"></div>
-    <div class="m-field"><label>Ahorro actual (S/)</label><input type="number" id="metaActualInp" placeholder="0" min="0"></div>
-    <div class="m-field"><label>Fecha limite</label><input type="date" id="metaFecha"></div>
-    <div class="m-field"><label>Categoria</label>
-      <select id="metaCat">
-        <option value="ahorro">Ahorro personal</option>
-        <option value="emergencia">Fondo de emergencia</option>
-        <option value="viaje">Viaje</option>
-        <option value="educacion">Educacion</option>
-        <option value="otro">Otro</option>
-      </select>
-    </div>
-    <div class="m-btns">
-      <button class="mbtn mbtn-save" onclick="guardarMeta()">Crear meta</button>
-      <button class="mbtn mbtn-cancel" onclick="hideMetaModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
-
 <div class="sb-overlay" id="sbOverlay" style="display:none;position:fixed;inset:0;z-index:45;" onclick="closeSidebar()"></div>
 
 <div class="app" id="app">
@@ -535,10 +489,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/></svg>
       Dashboard
     </div>
-    <div class="nav-item" onclick="showView('metas',this)">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1"/><path d="M7 1.5V3M7 11v1.5M1.5 7H3M11 7h1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-      Metas
-    </div>
+
     <div class="nav-item" onclick="showView('presupuesto',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 6h12M4 3V2M10 3V2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       Presupuesto
@@ -653,21 +604,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <div class="card"><div class="card-title">Top 5 categorias</div><div class="chart-wrap" style="height:180px"><canvas id="cTop"></canvas></div></div>
           <div class="card"><div class="card-title">Proyeccion ahorro</div><div class="chart-wrap" style="height:180px"><canvas id="cProyec"></canvas></div></div>
         </div>
-      </div>
-    </div>
-
-    <div id="vMetas" style="display:none">
-      <div class="page">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-          <div style="font-size:12px;color:var(--text2)">Progreso hacia tus metas</div>
-          <button class="tb-btn gold" onclick="showMetaModal()">+ Nueva meta</button>
-        </div>
-        <div class="metas-grid" id="metasGrid"></div>
-        <div class="row r2" style="margin-top:8px">
-          <div class="card"><div class="card-title">Resumen de metas</div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px" id="metasResumen"></div></div>
-          <div class="card"><div class="card-title">Progreso por meta</div><div class="chart-wrap" style="height:180px"><canvas id="cMetasBar"></canvas></div></div>
-        </div>
-        <div class="card" style="margin-top:8px"><div class="card-title">Cuanto necesitas ahorrar mensualmente para llegar a tiempo</div><div id="metasMensualNeeded"></div></div>
       </div>
     </div>
 
@@ -1080,8 +1016,8 @@ function setPeriod(m){
   if(allRows.length) renderVista();
 }
 
-var viewNames={dashboard:'Dashboard',metas:'Metas',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas',calendario:'Calendario',recurrentes:'Recurrentes',patrimonio:'Patrimonio',ajustes:'Ajustes'};
-var viewIds=['vDashboard','vMetas','vPresupuesto','vHistorial','vAlertas','vCalendario','vRecurrentes','vPatrimonio','vAjustes'];
+var viewNames={dashboard:'Dashboard',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas',calendario:'Calendario',recurrentes:'Recurrentes',patrimonio:'Patrimonio',ajustes:'Ajustes'};
+var viewIds=['vDashboard','vPresupuesto','vHistorial','vAlertas','vCalendario','vRecurrentes','vPatrimonio','vAjustes'];
 
 function showView(v,el){
   vistaActiva=v; currentPage=1;
@@ -1100,18 +1036,7 @@ function showView(v,el){
 function renderVista(){
   document.getElementById('loading').style.display='none';
   if(vistaActiva==='dashboard') renderDashboard();
-  else if(vistaActiva==='metas'){
-    // Always reload metas from Firestore to guarantee fresh data
-    if(window._loadMetas){
-      window._loadMetas().then(function(lista){
-        _metas=lista||[];
-        renderMetas();
-      }).catch(function(e){
-        console.error('reload metas error:',e);
-        renderMetas();
-      });
-    } else { renderMetas(); }
-  }
+
   else if(vistaActiva==='presupuesto') renderPresupuesto();
   else if(vistaActiva==='historial') renderHistorial();
   else if(vistaActiva==='alertas') renderAlertas();
@@ -1251,177 +1176,6 @@ function buildProyec(){
 }
 
 /* METAS */
-function showMetaModal(){ document.getElementById('metaNombre').value=''; document.getElementById('metaObjetivo').value=''; document.getElementById('metaActualInp').value=''; document.getElementById('metaFecha').value=''; document.getElementById('metaOv').classList.add('show'); }
-function hideMetaModal(){ document.getElementById('metaOv').classList.remove('show'); }
-async function guardarMeta(){
-  var nombre=document.getElementById('metaNombre').value.trim();
-  var objetivo=parseFloat(document.getElementById('metaObjetivo').value)||0;
-  var actual=parseFloat(document.getElementById('metaActualInp').value)||0;
-  var fecha=document.getElementById('metaFecha').value;
-  var cat=document.getElementById('metaCat').value;
-  if(!nombre||!objetivo){ toast('Completa nombre y objetivo','err'); return; }
-  _metas.push({id:Date.now().toString(),nombre:nombre,objetivo:objetivo,actual:actual,fecha:fecha,cat:cat});
-  try{
-    await window._saveMetas(_metas);
-    toast('Meta creada','ok');
-    console.log('Meta saved, total metas:', _metas.length);
-  }catch(e){
-    console.error('Error saving meta:', e);
-    toast('Error: '+e.message,'err');
-  }
-  hideMetaModal(); renderMetas();
-}
-async function actualizarMeta(id,v){
-  var m=_metas.find(function(x){return x.id===id;}); if(!m) return;
-  m.actual=v; try{ await window._saveMetas(_metas); toast('Meta actualizada','ok'); }catch(e){}
-  renderMetas();
-}
-async function eliminarMeta(id){
-  _metas=_metas.filter(function(m){return m.id!==id;});
-  try{ await window._saveMetas(_metas); toast('Meta eliminada','info'); }catch(e){}
-  renderMetas();
-}
-var _metaEditId=null;
-function showMetaEditModal(id){
-  var m=_metas.find(function(x){return x.id===id;}); if(!m) return;
-  _metaEditId=id;
-  document.getElementById('meNombre').value=m.nombre||'';
-  document.getElementById('meObjetivo').value=m.objetivo||'';
-  document.getElementById('meActual').value=m.actual||0;
-  document.getElementById('meFecha').value=m.fecha||'';
-  document.getElementById('meCat').value=m.cat||'ahorro';
-  document.getElementById('metaEditOv').classList.add('show');
-}
-function hideMetaEditModal(){ document.getElementById('metaEditOv').classList.remove('show'); _metaEditId=null; }
-async function confirmarMetaEdit(){
-  if(!_metaEditId) return;
-  var m=_metas.find(function(x){return x.id===_metaEditId;}); if(!m) return;
-  var n=document.getElementById('meNombre').value.trim(); if(n) m.nombre=n;
-  var o=parseFloat(document.getElementById('meObjetivo').value); if(o) m.objetivo=o;
-  m.actual=parseFloat(document.getElementById('meActual').value)||0;
-  var f=document.getElementById('meFecha').value; if(f) m.fecha=f;
-  m.cat=document.getElementById('meCat').value||m.cat;
-  try{await window._saveMetas(_metas);toast('Meta actualizada','ok');}catch(e){toast('Error','err');}
-  hideMetaEditModal(); renderMetas();
-}
-async function abonarMeta(id){
-  var inp=document.getElementById('mu_'+id);
-  var abono=parseFloat(inp?inp.value:0)||0;
-  if(!abono||abono<=0){toast('Ingresa un monto valido','err');return;}
-  var m=_metas.find(function(x){return x.id===id;}); if(!m) return;
-  m.actual=Math.min(m.objetivo,m.actual+abono);
-  try{await window._saveMetas(_metas);toast('+'+fmt(abono)+' abonado a '+m.nombre,'ok');}catch(e){toast('Error','err');}
-  renderMetas();
-}
-
-function renderMetas(){
-  var grid=document.getElementById('metasGrid'); if(!grid) return;
-  if(!_configLoaded){ console.log('[renderMetas] config not loaded yet, skipping'); return; }
-  grid.innerHTML='';
-  if(!_metas.length){ grid.innerHTML='<div style="grid-column:1/-1;background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:32px;text-align:center;color:var(--muted);font-size:12px">Sin metas. Crea tu primera meta de ahorro.</div>'; }
-  else _metas.forEach(function(m){
-    var pct=m.objetivo>0?Math.min(100,Math.round(m.actual/m.objetivo*100)):0;
-    var completa=pct>=100;
-    var barC=completa?'var(--green-tx)':pct>=70?'var(--gold)':'var(--blue-tx)';
-    var dias='';
-    if(m.fecha){ var diff=Math.ceil((new Date(m.fecha)-new Date())/(1000*60*60*24)); dias=diff>0?diff+' dias restantes':diff===0?'Vence hoy':'Vencida'; }
-    var card=document.createElement('div'); card.className='meta-card'+(completa?' completa':'');
-    // Build card with createElement to avoid HTML parser issues
-    var hdr=document.createElement('div'); hdr.className='meta-header';
-    var hL=document.createElement('div');
-    var hNm=document.createElement('div'); hNm.className='meta-nombre'; hNm.textContent=m.nombre;
-    var hTp=document.createElement('div'); hTp.className='meta-tipo'; hTp.textContent=m.cat;
-    hL.appendChild(hNm); hL.appendChild(hTp);
-    var btnD=document.createElement('button'); btnD.className='meta-del'; btnD.innerHTML='&#x2715;';
-    btnD.onclick=(function(id){return function(){eliminarMeta(id);};})(m.id);
-    var btnEd=document.createElement('button'); btnEd.className='meta-del';
-    btnEd.style.cssText='color:var(--muted);font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;background:none;cursor:pointer';
-    btnEd.textContent='Editar';
-    btnEd.onclick=(function(id){return function(){showMetaEditModal(id);};})(m.id);
-    var hR=document.createElement('div'); hR.style.cssText='display:flex;gap:6px';
-    hR.appendChild(btnEd); hR.appendChild(btnD);
-    hdr.appendChild(hL); hdr.appendChild(hR); card.appendChild(hdr);
-    // Montos
-    var mnt=document.createElement('div'); mnt.className='meta-montos';
-    var sp1=document.createElement('span'); sp1.className='meta-actual'; sp1.textContent=fmt(m.actual);
-    var sp2=document.createElement('span'); sp2.className='meta-objetivo'; sp2.textContent=' / '+fmt(m.objetivo);
-    mnt.appendChild(sp1); mnt.appendChild(sp2); card.appendChild(mnt);
-    // Track bar
-    var trk=document.createElement('div'); trk.className='meta-track';
-    var fl=document.createElement('div'); fl.className='meta-fill'; fl.style.width=pct+'%'; fl.style.background=barC;
-    trk.appendChild(fl); card.appendChild(trk);
-    // Footer
-    var ftr=document.createElement('div'); ftr.className='meta-footer';
-    var psp=document.createElement('span'); psp.className='meta-pct'; psp.style.color=barC; psp.textContent=pct+'%';
-    ftr.appendChild(psp);
-    if(diasInfo){var dsp=document.createElement('span');dsp.className='meta-fecha';dsp.textContent=diasInfo;ftr.appendChild(dsp);}
-    card.appendChild(ftr);
-    // Info falta
-    if(!completa){
-      var inf=document.createElement('div'); inf.style.cssText='font-size:10px;color:var(--muted);margin-top:6px';
-      var inHTML='Falta <span style="color:var(--text2);font-family:IBM Plex Mono,monospace">'+fmt(falta)+'</span>';
-      if(mensualNecesario>0) inHTML+=' - ahorrar <span style="color:var(--gold);font-family:IBM Plex Mono,monospace">'+fmt(mensualNecesario)+'</span>/mes';
-      inf.innerHTML=inHTML; card.appendChild(inf);
-    }
-    // Abonar input
-    var abr=document.createElement('div'); abr.style.cssText='margin-top:10px;display:flex;gap:6px';
-    var aInp=document.createElement('input'); aInp.type='number'; aInp.id='mu_'+m.id; aInp.placeholder='Agregar ahorro...';
-    aInp.style.cssText='flex:1;background:var(--s2);border:1px solid var(--border);border-radius:2px;padding:6px 8px;font-family:IBM Plex Sans,sans-serif;font-size:11px;color:var(--text);outline:none';
-    var aBt=document.createElement('button'); aBt.className='tb-btn gold'; aBt.style.cssText='padding:6px 10px;font-size:9px'; aBt.textContent='Abonar';
-    aBt.onclick=(function(id){return function(){abonarMeta(id);};})(m.id);
-    abr.appendChild(aInp); abr.appendChild(aBt); card.appendChild(abr);
-    grid.appendChild(card);
-  });
-  var res=document.getElementById('metasResumen'); if(!res) return;
-  var tO=_metas.reduce(function(s,m){return s+m.objetivo;},0);
-  var tA=_metas.reduce(function(s,m){return s+m.actual;},0);
-  var comp=_metas.filter(function(m){return m.actual>=m.objetivo;}).length;
-  res.innerHTML='<div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Total objetivo</div><div style="font-family:IBM Plex Mono,monospace;font-size:16px;color:var(--text)">'+fmt(tO)+'</div></div><div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Total ahorrado</div><div style="font-family:IBM Plex Mono,monospace;font-size:16px;color:var(--green-tx)">'+fmt(tA)+'</div></div><div style="background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px"><div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Completadas</div><div style="font-family:IBM Plex Mono,monospace;font-size:16px;color:var(--gold)">'+comp+' / '+_metas.length+'</div></div>';
-
-  // Grafico de barras de progreso por meta
-  destroyChart('cMetasBar');
-  var canv=document.getElementById('cMetasBar');
-  if(canv&&_metas.length){
-    var mLabels=_metas.map(function(m){return m.nombre.length>15?m.nombre.substring(0,15)+'...':m.nombre;});
-    var mPcts=_metas.map(function(m){return m.objetivo>0?Math.min(100,Math.round(m.actual/m.objetivo*100)):0;});
-    var mColors=mPcts.map(function(p){return p>=100?'rgba(90,170,128,.8)':p>=70?'rgba(201,168,76,.8)':'rgba(106,154,204,.8)';});
-    charts['cMetasBar']=new Chart(canv,{
-      type:'bar',
-      data:{labels:mLabels,datasets:[
-        {label:'Completado',data:mPcts,backgroundColor:mColors,borderRadius:3},
-        {label:'Restante',data:mPcts.map(function(p){return Math.max(0,100-p);}),backgroundColor:'rgba(255,255,255,.04)',borderRadius:3}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{stacked:true,grid:{color:gColor}},y:{stacked:true,max:100,grid:{color:gColor},ticks:{callback:function(v){return v+'%';}}}}}
-    });
-  }
-  // Cuanto necesitas ahorrar mensualmente
-  var mnEl=document.getElementById('metasMensualNeeded');
-  if(mnEl){
-    mnEl.innerHTML='';
-    var conFecha=_metas.filter(function(m){return m.fecha&&m.actual<m.objetivo;});
-    if(!conFecha.length){mnEl.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin metas pendientes con fecha limite</div>';return;}
-    conFecha.forEach(function(m){
-      var diff=Math.ceil((new Date(m.fecha)-new Date())/(1000*60*60*24));
-      var falta=m.objetivo-m.actual;
-      var meses=Math.max(1,Math.ceil(diff/30));
-      var mensual=Math.ceil(falta/meses);
-      var diario=Math.ceil(falta/Math.max(1,diff));
-      var urgente=diff<=30;
-      var mnRow=document.createElement('div');
-      mnRow.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px';
-      var mnL=document.createElement('div');
-      mnL.innerHTML='<div style="font-size:12px;font-weight:400;color:var(--text2)">'+m.nombre+'</div>'+
-        '<div style="font-size:9px;color:'+(urgente?'var(--red-tx)':'var(--muted)')+';margin-top:2px">'+diff+' dias restantes - faltan '+fmt(falta)+'</div>';
-      var mnR=document.createElement('div'); mnR.style.cssText='display:flex;gap:12px;flex-shrink:0';
-      mnR.innerHTML='<div style="text-align:right"><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Por mes</div>'+
-        '<div style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--gold)">'+fmt(mensual)+'</div></div>'+
-        '<div style="text-align:right"><div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Por dia</div>'+
-        '<div style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--blue-tx)">'+fmt(diario)+'</div></div>';
-      mnRow.appendChild(mnL); mnRow.appendChild(mnR); mnEl.appendChild(mnRow);
-    });
-  }
-}
-
 /* PRESUPUESTO */
 function diasMes(m){ return new Date(new Date().getFullYear(),m,0).getDate(); }
 async function savePresupuestos(){ try{ await window._savePresupuestos({cats:presupCat,subs:presupSub}); }catch(e){} }
@@ -2070,18 +1824,15 @@ window.onAppReady = async function(){
   var results=await Promise.all([
     safe(function(){return window._loadPresupuestos();},{cats:{},subs:{}}),
     safe(function(){return window._loadSettings();},{}),
-    safe(function(){return window._loadMetas();}, []),
     safe(function(){return window._loadRecurrentes();}, []),
     safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[]})
   ]);
   console.log('Loaded: metas='+results[2].length+' recurrentes='+results[3].length);
   presupCat=results[0].cats||{};presupSub=results[0].subs||{};
   _settings=results[1];
-  _metas=results[2];
-  _recurrentes=results[3];
-  _activos=results[4].activos||[];_pasivos=results[4].pasivos||[];_patrimonioHistory=results[4].history||[];
-  _configLoaded=true;
-  console.log('[onAppReady] config loaded: metas='+_metas.length+' recurrentes='+_recurrentes.length);
+  _recurrentes=results[2];
+  _activos=results[3].activos||[];_pasivos=results[4].pasivos||[];_patrimonioHistory=results[4].history||[];
+
 
   if(_settings.dashName) document.getElementById('dashName').textContent=_settings.dashName;
   if(_settings.moneda){window._moneda=_settings.moneda;var cm=document.getElementById('cfgMoneda');if(cm)cm.value=_settings.moneda;}

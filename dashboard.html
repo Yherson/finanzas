@@ -1827,11 +1827,10 @@ window.onAppReady = async function(){
     safe(function(){return window._loadRecurrentes();}, []),
     safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[]})
   ]);
-  console.log('Loaded: metas='+results[2].length+' recurrentes='+results[3].length);
   presupCat=results[0].cats||{};presupSub=results[0].subs||{};
   _settings=results[1];
   _recurrentes=results[2];
-  _activos=results[3].activos||[];_pasivos=results[4].pasivos||[];_patrimonioHistory=results[4].history||[];
+  _activos=results[3].activos||[];_pasivos=results[3].pasivos||[];_patrimonioHistory=results[3].history||[];
 
 
   if(_settings.dashName) document.getElementById('dashName').textContent=_settings.dashName;

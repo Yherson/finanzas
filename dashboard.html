@@ -106,7 +106,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'IBM Pl
 .alert-banner.show{display:flex;align-items:center;gap:8px;}
 
 /* METRICS */
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px;}
 .metric{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:18px 16px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;}
 .metric:hover{border-color:var(--border2);transform:translateY(-1px);}
 .m-accent{position:absolute;top:0;left:0;width:2px;height:100%;}
@@ -433,6 +433,51 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .sob-alert-sub{font-size:10px;color:var(--muted);line-height:1.5;}
 .sob-alert-amt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red-tx);flex-shrink:0;}
 
+
+/* ── SCORE FINANCIERO ── */
+.score-wrap{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:20px 22px;margin-bottom:14px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;}
+.score-circle{width:72px;height:72px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+.score-ring{position:absolute;inset:0;border-radius:50%;}
+.score-num{font-family:'IBM Plex Serif',serif;font-size:26px;font-weight:400;line-height:1;position:relative;z-index:1;}
+.score-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);position:relative;z-index:1;}
+.score-info{flex:1;}
+.score-title{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.score-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+.score-factors{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.score-factor{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);}
+.score-factor-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.score-factor-val{font-family:'IBM Plex Mono',monospace;color:var(--text2);}
+
+/* ── PROYECCION FINAL MES ── */
+.proyec-banner{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.proyec-item{flex:1;min-width:120px;}
+.proyec-lbl{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.proyec-val{font-family:'IBM Plex Mono',monospace;font-size:16px;}
+.proyec-val.pos{color:var(--green-tx);}
+.proyec-val.neg{color:var(--red-tx);}
+.proyec-val.warn{color:var(--gold);}
+.proyec-divider{width:1px;height:40px;background:var(--border);flex-shrink:0;}
+
+/* ── DEUDA SOBREGIRO EN METRICAS ── */
+.metric-deuda{background:var(--s1);border:1px solid rgba(192,112,112,0.3);border-radius:3px;padding:18px 16px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;}
+.metric-deuda:hover{transform:translateY(-1px);}
+.metric-deuda .m-accent{background:var(--red);}
+
+/* ── ALERTAS INTELIGENTES ── */
+.smart-alert{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:3px;margin-bottom:6px;border:1px solid;}
+.smart-alert.nivel-alto{background:var(--red-d);border-color:rgba(192,112,112,0.35);}
+.smart-alert.nivel-medio{background:var(--gold-d);border-color:var(--gold-b);}
+.smart-alert.nivel-bajo{background:var(--green-d);border-color:rgba(90,170,128,0.3);}
+.smart-alert.nivel-info{background:var(--s2);border-color:var(--border2);}
+.smart-alert-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.smart-alert-body{flex:1;}
+.smart-alert-title{font-size:11px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.smart-alert-sub{font-size:10px;color:var(--text2);line-height:1.5;}
+
+/* ── HEATMAP CALENDARIO ── */
+.heat-legend{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:9px;color:var(--muted);}
+.heat-sq{width:12px;height:12px;border-radius:2px;}
+
 </style>
 </head>
 <body>
@@ -597,6 +642,32 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="loading-wrap" id="loading"><div class="spinner"></div><div class="loading-txt">Cargando datos...</div></div>
       <div class="page" id="dashPage" style="display:none">
         <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
+        <!-- SCORE FINANCIERO -->
+        <div class="score-wrap" id="scoreWrap">
+          <div class="score-circle" id="scoreCircle">
+            <svg style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="32" fill="none" stroke="var(--border2)" stroke-width="4"/>
+              <circle cx="36" cy="36" r="32" fill="none" id="scoreArc" stroke="var(--gold)" stroke-width="4" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"/>
+            </svg>
+            <div class="score-num" id="scoreNum">--</div>
+            <div class="score-lbl">score</div>
+          </div>
+          <div class="score-info">
+            <div class="score-title">Score financiero del mes</div>
+            <div class="score-desc" id="scoreDesc">Calculando...</div>
+          </div>
+          <div class="score-factors" id="scoreFactors"></div>
+        </div>
+        <!-- PROYECCION FIN DE MES -->
+        <div class="proyec-banner" id="proyecBanner">
+          <div class="proyec-item"><div class="proyec-lbl">Gasto diario promedio</div><div class="proyec-val" id="pGastoDiario">--</div></div>
+          <div class="proyec-divider"></div>
+          <div class="proyec-item"><div class="proyec-lbl">Proyeccion fin de mes</div><div class="proyec-val" id="pProyeccion">--</div></div>
+          <div class="proyec-divider"></div>
+          <div class="proyec-item"><div class="proyec-lbl">Balance esperado</div><div class="proyec-val" id="pBalanceFinal">--</div></div>
+          <div class="proyec-divider"></div>
+          <div class="proyec-item"><div class="proyec-lbl">Deuda sobregiro</div><div class="proyec-val" id="pDeudaSob">--</div></div>
+        </div>
         <div class="pocket-wrap">
           <div class="pocket-lbl">Disponible para gastar</div>
           <div class="pocket-amt" id="pocketAmt">--</div>
@@ -623,6 +694,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <div class="metric"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Gastos</div><div class="m-value" style="color:var(--red-tx)" id="mGas">--</div><div class="m-delta" id="dGas"></div></div>
           <div class="metric"><div class="m-accent" style="background:var(--gold)"></div><div class="m-label">Balance neto</div><div class="m-value" style="color:var(--gold)" id="mBal">--</div><div class="m-delta" id="dBal"></div></div>
           <div class="metric"><div class="m-accent" style="background:#6a9acc"></div><div class="m-label">Tasa de ahorro</div><div class="m-value" style="color:var(--blue-tx)" id="mAho">--</div><div class="m-delta" id="dAho"></div></div>
+          <div class="metric metric-deuda" style="display:none" id="mDeudaWrap"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Deuda sobregiro</div><div class="m-value" style="color:var(--red-tx)" id="mDeuda">--</div><div class="m-delta" id="dDeuda"></div></div>
         </div>
         <div class="row r2">
           <div class="card"><div class="card-title">Evolucion mensual ? <span id="lblEvol">anio</span></div><div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div><div class="legend"><div class="leg-item"><div class="leg-sq" style="background:#3d7a5c"></div>Ingresos</div><div class="leg-item"><div class="leg-sq" style="background:#8a3a3a"></div>Gastos</div><div class="leg-item"><div class="leg-sq" style="background:#c9a84c"></div>Balance</div></div></div>
@@ -701,6 +773,11 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 
     <div id="vAlertas" style="display:none">
       <div class="page">
+        <!-- ALERTAS INTELIGENTES -->
+        <div class="card" style="margin-bottom:8px" id="smartAlertsCard">
+          <div class="card-title">Alertas inteligentes</div>
+          <div id="smartAlertsList"><div style="color:var(--muted);font-size:12px;padding:8px 0">Analizando tus finanzas...</div></div>
+        </div>
         <div class="row r2" style="margin-bottom:8px">
           <div class="card"><div class="card-title">Gasto por categoria</div><div class="chart-wrap" style="height:220px"><canvas id="cAlertDonut"></canvas></div><div class="legend" id="legAlertDonut"></div></div>
           <div class="card"><div class="card-title">Evolucion 6 meses</div><div class="chart-wrap" style="height:220px"><canvas id="cAlertBar"></canvas></div></div>
@@ -1227,6 +1304,274 @@ async function pagarSobregiro(id){
   toast('Credito de penalizacion marcado como pagado','ok');
 }
 
+
+/* ===================================================
+   SCORE FINANCIERO (0-100)
+   Factores: ahorro(40) + sobregiro(30) + estabilidad(20) + presupuesto(10)
+=================================================== */
+function calcularScore(rows, mes){
+  var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var bal  = ing - gas;
+  var score = 0;
+  var factores = [];
+
+  // Factor 1: Ahorro (40pts) - % de ingresos ahorrados
+  var tasaAhorro = ing > 0 ? bal/ing : 0;
+  var ptAhorro = Math.min(40, Math.max(0, Math.round(tasaAhorro * 40 / 0.3))); // 30% ahorro = 40pts
+  factores.push({lbl:'Ahorro', pts:ptAhorro, max:40,
+    desc: ptAhorro>=35?ptAhorro>=35?'Excelente':ptAhorro>=20?'Bueno':'Mejorable'});
+  score += ptAhorro;
+
+  // Factor 2: Sin sobregiro (30pts)
+  var sobMes = _sobregiros.filter(function(s){
+    if(!s.fecha) return false;
+    var m = parseInt((s.fecha||'').split('-')[1]||0);
+    return m === mes && s.tipo==='SUELDO BBVA';
+  });
+  var totalSob = sobMes.reduce(function(s,x){return s+x.monto;},0);
+  var ratioSob = ing > 0 ? totalSob/ing : 0;
+  var ptSob = ratioSob===0?30:Math.max(0, Math.round(30*(1-ratioSob*2)));
+  factores.push({lbl:'Sin sobregiro', pts:ptSob, max:30,
+    desc: ptSob===30?'Perfecto':ptSob>15?'Moderado':'Alto riesgo'});
+  score += ptSob;
+
+  // Factor 3: Estabilidad (20pts) - gasto uniforme en el mes
+  var gastosPorDia = {};
+  rows.filter(function(r){return r.tipo==='gasto'&&r.fecha;}).forEach(function(r){
+    var d=r.fecha.split('-')[2]||'01';
+    gastosPorDia[d]=(gastosPorDia[d]||0)+r.monto;
+  });
+  var vals = Object.values(gastosPorDia);
+  var estabilidad = 20;
+  if(vals.length > 1){
+    var avg2 = vals.reduce(function(s,v){return s+v;},0)/vals.length;
+    var variance = vals.reduce(function(s,v){return s+Math.pow(v-avg2,2);},0)/vals.length;
+    var cv = avg2>0?Math.sqrt(variance)/avg2:0;
+    estabilidad = Math.max(0, Math.round(20*(1-Math.min(cv,1))));
+  }
+  factores.push({lbl:'Estabilidad', pts:estabilidad, max:20,
+    desc: estabilidad>=16?'Estable':estabilidad>=8?'Variable':'Irregular'});
+  score += estabilidad;
+
+  // Factor 4: Presupuesto (10pts) - cumple presupuestos
+  var catsConP = Object.keys(presupCat);
+  if(catsConP.length > 0){
+    var byCat={};
+    rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto;});
+    var cumplidos = catsConP.filter(function(c){return (byCat[c]||0)<=(presupCat[c].mensual||0);}).length;
+    var ptPres = Math.round(10*cumplidos/catsConP.length);
+    factores.push({lbl:'Presupuesto', pts:ptPres, max:10,
+      desc: ptPres>=8?'Cumplido':ptPres>=5?'Parcial':'Excedido'});
+    score += ptPres;
+  } else {
+    factores.push({lbl:'Presupuesto', pts:5, max:10, desc:'Sin configurar'});
+    score += 5;
+  }
+
+  return {score:Math.min(100,score), factores:factores, tasaAhorro:tasaAhorro,
+          totalSob:totalSob, ing:ing, gas:gas};
+}
+
+function renderScore(rows, mes){
+  var data = calcularScore(rows, mes);
+  var s = data.score;
+  var el = document.getElementById('scoreNum');
+  var arc = document.getElementById('scoreArc');
+  var desc = document.getElementById('scoreDesc');
+  var factors = document.getElementById('scoreFactors');
+  if(!el) return;
+
+  el.textContent = s;
+  var color = s>=75?'var(--green-tx)':s>=50?'var(--gold)':'var(--red-tx)';
+  el.style.color = color;
+
+  // SVG arc: circumference=201, offset=201 means 0%, offset=0 means 100%
+  if(arc) arc.style.strokeDashoffset = Math.round(201*(1-s/100));
+  if(arc) arc.style.stroke = color;
+
+  var descTxt = s>=80?'Finanzas excelentes. Sigues en el camino correcto.':
+                s>=65?'Finanzas saludables. Algunos aspectos a mejorar.':
+                s>=45?'Finanzas en riesgo. Revisa tu comportamiento de gasto.':
+                'Finanzas criticas. Es urgente reducir gastos y sobregiros.';
+  if(desc) desc.textContent = descTxt;
+
+  if(factors){
+    factors.innerHTML='';
+    data.factores.forEach(function(f){
+      var color2=f.pts/f.max>=0.75?'var(--green-tx)':f.pts/f.max>=0.5?'var(--gold)':'var(--red-tx)';
+      factors.innerHTML+='<div class="score-factor"><div class="score-factor-dot" style="background:'+color2+'"></div>'+
+        '<span>'+f.lbl+'</span><span class="score-factor-val">'+f.pts+'/'+f.max+'</span></div>';
+    });
+  }
+}
+
+/* ===================================================
+   PROYECCION FIN DE MES
+=================================================== */
+function renderProyeccion(rows, mes){
+  var hoy = new Date().getDate();
+  var totalDias2 = new Date(new Date().getFullYear(), mes, 0).getDate();
+  var diasTransc = Math.max(1, hoy);
+  var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var gastoDiario = gas / diasTransc;
+  var proyeccion  = gastoDiario * totalDias2;
+  var balFinal    = ing - proyeccion;
+
+  // Deuda sobregiro pendiente de este mes
+  var deudaSob = _sobregiros.filter(function(s){
+    return !s.pagado && s.tipo==='SUELDO BBVA';
+  }).reduce(function(s,x){return s+x.creditoDeuda;},0);
+
+  var pGD  = document.getElementById('pGastoDiario');
+  var pProy= document.getElementById('pProyeccion');
+  var pBF  = document.getElementById('pBalanceFinal');
+  var pDS  = document.getElementById('pDeudaSob');
+  if(!pGD) return;
+
+  pGD.textContent  = fmt(gastoDiario)+'/dia';
+  pGD.className    = 'proyec-val';
+
+  pProy.textContent= fmt(proyeccion);
+  pProy.className  = 'proyec-val '+(proyeccion>ing?'neg':'warn');
+
+  pBF.textContent  = fmt(balFinal);
+  pBF.className    = 'proyec-val '+(balFinal>0?'pos':'neg');
+
+  pDS.textContent  = deudaSob>0?fmt(deudaSob):'S/ 0.00';
+  pDS.className    = 'proyec-val '+(deudaSob>0?'neg':'pos');
+
+  // Deuda metric card
+  var deudaWrap = document.getElementById('mDeudaWrap');
+  var deudaEl   = document.getElementById('mDeuda');
+  var dDeuda    = document.getElementById('dDeuda');
+  if(deudaWrap){
+    var sobTotal = _sobregiros.filter(function(s){
+      return !s.pagado && s.tipo==='SUELDO BBVA';
+    }).reduce(function(s,x){return s+x.monto;},0);
+    if(sobTotal>0){
+      deudaWrap.style.display='block';
+      if(deudaEl) deudaEl.textContent = fmt(sobTotal);
+      if(dDeuda) dDeuda.textContent = _sobregiros.filter(function(s){return !s.pagado&&s.tipo==='SUELDO BBVA';}).length+' sobregiro(s) pendientes';
+    } else {
+      deudaWrap.style.display='none';
+    }
+  }
+}
+
+/* ===================================================
+   ALERTAS INTELIGENTES
+=================================================== */
+function generarSmartAlerts(rows, mes){
+  var alerts = [];
+  var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var bal  = ing-gas;
+
+  // 1. Sobregiro > 30% ingresos
+  var sobMes = _sobregiros.filter(function(s){
+    var m=parseInt((s.fecha||'').split('-')[1]||0);
+    return m===mes && s.tipo==='SUELDO BBVA' && !s.pagado;
+  });
+  var totalSob = sobMes.reduce(function(s,x){return s+x.monto;},0);
+  if(totalSob>0){
+    var ratioSob = ing>0?totalSob/ing:1;
+    alerts.push({
+      nivel: ratioSob>0.3?'alto':'medio',
+      icon: ratioSob>0.3?'!!':'!',
+      title: 'Sobregiro del '+(Math.round(ratioSob*100))+'% de tus ingresos',
+      sub: 'Usaste '+fmt(totalSob)+' del sueldo del mes siguiente. '+(ratioSob>0.3?'Riesgo financiero alto.':'Modera el uso de dinero futuro.')
+    });
+  }
+
+  // 2. Gasto > 90% ingresos
+  if(ing>0 && gas/ing>0.9){
+    alerts.push({
+      nivel:'alto', icon:'!!',
+      title:'Gastos al '+(Math.round(gas/ing*100))+'% de tus ingresos',
+      sub:'Te quedan solo '+fmt(bal)+' de margen. Reduce gastos no esenciales esta semana.'
+    });
+  }
+
+  // 3. Proyeccion deficit
+  var hoy2=new Date().getDate();
+  var totalDias3=new Date(new Date().getFullYear(),mes,0).getDate();
+  var gastoDiario2=gas/Math.max(1,hoy2);
+  var proyeccion2=gastoDiario2*totalDias3;
+  if(proyeccion2>ing && ing>0){
+    alerts.push({
+      nivel:'medio', icon:'!',
+      title:'Proyeccion: deficit de '+fmt(proyeccion2-ing)+' al fin de mes',
+      sub:'Al ritmo actual gastas '+fmt(gastoDiario2)+'/dia. Necesitas reducir a '+fmt(ing/totalDias3)+'/dia para equilibrar.'
+    });
+  }
+
+  // 4. Presupuesto excedido
+  var byCat2={};
+  rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat2[r.categoria]=(byCat2[r.categoria]||0)+r.monto;});
+  Object.keys(presupCat).forEach(function(cat){
+    var pm=presupCat[cat].mensual||0;
+    if(pm>0&&(byCat2[cat]||0)>pm){
+      alerts.push({
+        nivel:'medio', icon:'!',
+        title:'Presupuesto de '+cat+' excedido',
+        sub:'Gastaste '+fmt(byCat2[cat]||0)+' de un limite de '+fmt(pm)+' (+'+fmt((byCat2[cat]||0)-pm)+')'
+      });
+    }
+  });
+
+  // 5. Limite de alertas excedido
+  var limites2=getLimites();
+  Object.keys(limites2).forEach(function(cat){
+    if((byCat2[cat]||0)>limites2[cat]){
+      alerts.push({
+        nivel:'alto', icon:'!!',
+        title:'Limite de '+cat+' superado',
+        sub:'Limite: '+fmt(limites2[cat])+' ? Gastado: '+fmt(byCat2[cat]||0)
+      });
+    }
+  });
+
+  // 6. Penalizaciones activas
+  var hoyStr=new Date().toISOString().split('T')[0];
+  var pendPen=_sobregiros.filter(function(s){return !s.pagado&&s.tipo==='SUELDO BBVA'&&s.fechaAlerta<=hoyStr;});
+  if(pendPen.length){
+    var totalCred=pendPen.reduce(function(s,x){return s+x.creditoDeuda;},0);
+    alerts.push({
+      nivel:'medio', icon:'S/',
+      title:pendPen.length+' penalizacion(es) de ahorro activa(s)',
+      sub:'Debes ahorrar '+fmt(totalCred)+' como compensacion por sobregiros anteriores.'
+    });
+  }
+
+  // 7. Todo bien
+  if(!alerts.length){
+    alerts.push({
+      nivel:'bajo', icon:'ok',
+      title:'Finanzas en orden este mes',
+      sub:'Sin alertas criticas. Sigue con este comportamiento financiero.'
+    });
+  }
+
+  return alerts;
+}
+
+function renderSmartAlerts(rows, mes){
+  var cont=document.getElementById('smartAlertsList');
+  if(!cont) return;
+  var alerts=generarSmartAlerts(rows,mes);
+  cont.innerHTML='';
+  alerts.forEach(function(a){
+    var div=document.createElement('div');
+    div.className='smart-alert nivel-'+(a.nivel==='alto'?'alto':a.nivel==='medio'?'medio':a.nivel==='bajo'?'bajo':'info');
+    div.innerHTML='<div class="smart-alert-icon">'+a.icon+'</div>'+
+      '<div class="smart-alert-body"><div class="smart-alert-title">'+a.title+'</div>'+
+      '<div class="smart-alert-sub">'+a.sub+'</div></div>';
+    cont.appendChild(div);
+  });
+}
+
 /* SIDEBAR */
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sbOverlay').classList.toggle('show'); }
 function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sbOverlay').classList.remove('show'); }
@@ -1379,6 +1724,9 @@ function renderDashboard(){
   checkAlertas(rows);
   renderPocket(getRows(periodoActivo||mesActual));
   renderWeekly();
+  var mesDash=periodoActivo||mesActual;
+  renderScore(getRows(mesDash), mesDash);
+  renderProyeccion(getRows(mesDash), mesDash);
   buildEvol(); buildDonut(rows); buildComp(); buildTop(rows); buildProyec();
 }
 
@@ -1668,7 +2016,9 @@ function checkAlertas(rows){
   else banner.classList.remove('show');
 }
 function renderAlertas(){
-  var rows=getRows(periodoActivo),gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
+  var rows=getRows(periodoActivo);
+  var mesAl=periodoActivo||mesActual;
+  renderSmartAlerts(rows, mesAl);,gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
   gas.forEach(function(r){bc[r.categoria]=(bc[r.categoria]||0)+r.monto;});
   var limites=getLimites();
   var cats=[];var catSet={};

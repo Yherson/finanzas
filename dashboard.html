@@ -389,6 +389,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   .page{padding:14px 16px 32px!important;}
   .weekly-wrap{grid-template-columns:1fr!important;}
   .neto-summary{grid-template-columns:1fr 1fr!important;}
+  .patri-layout{grid-template-columns:1fr!important;}
   .table-wrap table thead{display:none;}
   .table-wrap table,.table-wrap tbody,.table-wrap tr{display:block;width:100%;}
   .table-wrap tr{background:var(--s2);border:1px solid var(--border);border-radius:3px;margin-bottom:8px;padding:12px 14px;}
@@ -402,6 +403,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   .metrics{grid-template-columns:1fr!important;}
   .neto-summary{grid-template-columns:1fr!important;}
   .m-value{font-size:18px!important;}
+  .patri-layout{grid-template-columns:1fr!important;}
 }
 
 
@@ -477,6 +479,24 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 /* ── HEATMAP CALENDARIO ── */
 .heat-legend{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:9px;color:var(--muted);}
 .heat-sq{width:12px;height:12px;border-radius:2px;}
+
+/* PATRIMONIO */
+.patri-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:12px;align-items:start;}
+.patri-main{display:flex;flex-direction:column;gap:12px;}
+.patri-side{display:flex;flex-direction:column;gap:12px;}
+.patri-history{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow:auto;padding-right:2px;}
+.patri-mov{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:3px;background:var(--s2);}
+.patri-mov-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;background:var(--gold);}
+.patri-mov-dot.pos{background:var(--green-tx);}
+.patri-mov-dot.neg{background:var(--red-tx);}
+.patri-mov-body{flex:1;min-width:0;}
+.patri-mov-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:4px;}
+.patri-mov-title{font-size:11px;color:var(--text);line-height:1.45;}
+.patri-mov-sub{font-size:10px;color:var(--muted);line-height:1.45;}
+.patri-mov-amt{font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap;}
+.patri-mov-amt.pos{color:var(--green-tx);}
+.patri-mov-amt.neg{color:var(--red-tx);}
+.patri-empty{color:var(--muted);font-size:11px;padding:10px 0;line-height:1.6;}
 
 </style>
 </head>
@@ -642,22 +662,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="loading-wrap" id="loading"><div class="spinner"></div><div class="loading-txt">Cargando datos...</div></div>
       <div class="page" id="dashPage" style="display:none">
         <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
-        <!-- SCORE FINANCIERO -->
-        <div class="score-wrap" id="scoreWrap">
-          <div class="score-circle" id="scoreCircle">
-            <svg style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)" viewBox="0 0 72 72">
-              <circle cx="36" cy="36" r="32" fill="none" stroke="var(--border2)" stroke-width="4"/>
-              <circle cx="36" cy="36" r="32" fill="none" id="scoreArc" stroke="var(--gold)" stroke-width="4" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"/>
-            </svg>
-            <div class="score-num" id="scoreNum">--</div>
-            <div class="score-lbl">score</div>
-          </div>
-          <div class="score-info">
-            <div class="score-title">Score financiero del mes</div>
-            <div class="score-desc" id="scoreDesc">Calculando...</div>
-          </div>
-          <div class="score-factors" id="scoreFactors"></div>
-        </div>
         <!-- PROYECCION FIN DE MES -->
         <div class="proyec-banner" id="proyecBanner">
           <div class="proyec-item"><div class="proyec-lbl">Gasto diario promedio</div><div class="proyec-val" id="pGastoDiario">--</div></div>
@@ -844,29 +848,39 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
     <div id="vPatrimonio" style="display:none">
       <div class="page">
         <div class="neto-summary" id="netoSummary"></div>
-        <div class="row r2">
-          <div class="card">
-            <div class="card-title">Activos</div>
-            <div class="neto-list" id="activosList"></div>
-            <div class="neto-form">
-              <input id="activoNombre" placeholder="Nombre (ej. Ahorros BCP)" maxlength="40">
-              <input id="activoMonto" type="number" placeholder="S/ monto" min="0">
-              <button class="tb-btn gold" onclick="agregarActivo()" style="padding:8px 12px">+</button>
+        <div class="patri-layout">
+          <div class="patri-main">
+            <div class="row r2">
+              <div class="card">
+                <div class="card-title">Activos</div>
+                <div class="neto-list" id="activosList"></div>
+                <div class="neto-form">
+                  <input id="activoNombre" placeholder="Nombre (ej. Ahorros BCP)" maxlength="40">
+                  <input id="activoMonto" type="number" placeholder="S/ monto" min="0">
+                  <button class="tb-btn gold" onclick="agregarActivo()" style="padding:8px 12px">+</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">Pasivos</div>
+                <div class="neto-list" id="pasivosList"></div>
+                <div class="neto-form">
+                  <input id="pasivoNombre" placeholder="Nombre (ej. Deuda tarjeta)" maxlength="40">
+                  <input id="pasivoMonto" type="number" placeholder="S/ monto" min="0">
+                  <button class="tb-btn gold" onclick="agregarPasivo()" style="padding:8px 12px">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Evolucion del patrimonio</div>
+              <div class="chart-wrap" style="height:200px"><canvas id="cPatrimonio"></canvas></div>
             </div>
           </div>
-          <div class="card">
-            <div class="card-title">Pasivos</div>
-            <div class="neto-list" id="pasivosList"></div>
-            <div class="neto-form">
-              <input id="pasivoNombre" placeholder="Nombre (ej. Deuda tarjeta)" maxlength="40">
-              <input id="pasivoMonto" type="number" placeholder="S/ monto" min="0">
-              <button class="tb-btn gold" onclick="agregarPasivo()" style="padding:8px 12px">+</button>
+          <div class="patri-side">
+            <div class="card">
+              <div class="card-title">Historial de movimientos</div>
+              <div id="patrimonioMovimientos" class="patri-history"></div>
             </div>
           </div>
-        </div>
-        <div class="card" style="margin-top:8px">
-          <div class="card-title">Evolucion del patrimonio</div>
-          <div class="chart-wrap" style="height:200px"><canvas id="cPatrimonio"></canvas></div>
         </div>
       </div>
     </div>
@@ -1020,7 +1034,7 @@ window._loadMetas        = async ()    => { const d = await loadDoc(up('config/m
 window._saveMetas        = async (l)   => { console.log('[FB] _saveMetas called, count:', l.length); await saveDoc(up('config/metas'), {lista: l}); };
 window._loadRecurrentes  = async ()    => { const d = await loadDoc(up('config/recurrentes'), {lista:[]}); return d.lista || []; };
 window._saveRecurrentes  = (l)         => saveDoc(up('config/recurrentes'), {lista: l});
-window._loadPatrimonio   = ()          => loadDoc(up('config/patrimonio'), {activos:[], pasivos:[], history:[]});
+window._loadPatrimonio   = ()          => loadDoc(up('config/patrimonio'), {activos:[], pasivos:[], history:[], movimientos:[]});
 window._savePatrimonio   = (d)         => saveDoc(up('config/patrimonio'), d);
 window._loadSobregiros   = async ()    => { const d = await loadDoc(up('config/sobregiros'), {lista:[]}); return d.lista||[]; };
 window._saveSobregiros   = async (l)   => { await saveDoc(up('config/sobregiros'), {lista:l}); };
@@ -1059,7 +1073,7 @@ onAuthStateChanged(auth, user => {
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={};
 var _configLoaded=false;
-var _activos=[], _pasivos=[], _patrimonioHistory=[];
+var _activos=[], _pasivos=[], _patrimonioHistory=[], _patrimonioMovimientos=[];
 var _etiquetas=['trabajo','familia','viaje','salud','ocio','urgente'], _etiquetasActivas=[];
 var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 var mesesFull=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1167,6 +1181,18 @@ function detectarSobregiro(row){
     if(idx2>=0){
       var antes=_activos[idx2].monto;
       _activos[idx2].monto=Math.max(0, Math.round((_activos[idx2].monto - row.monto)*100)/100);
+      registrarMovimientoPatrimonio({
+        id:'sob-ahorro-'+row.id,
+        fecha:row.fecha||getTodayPatrimonio(),
+        tipo:'sobregiro',
+        entidad:'activo',
+        nombre:_activos[idx2].nombre,
+        monto:-row.monto,
+        motivo:'Salida por sobregiro desde ahorro',
+        categoria:'SOBREGIRO',
+        subcategoria:'AHORRO AGORA',
+        registroId:row.id
+      });
       savePatrimonio();
       toast('Patrimonio actualizado: AHORRO AGORA '+fmt(antes)+' ? '+fmt(_activos[idx2].monto),'info',6000);
     } else {
@@ -1176,7 +1202,8 @@ function detectarSobregiro(row){
     _sobregiros.push({
       id:Date.now().toString(), registroId:row.id,
       fecha:row.fecha, monto:row.monto, tipo:'AHORRO AGORA',
-      creditoDeuda:0, fechaAlerta:null, fechaVence:null, pagado:true
+      creditoDeuda:0, fechaAlerta:null, fechaVence:null, pagado:true,
+      mostrarAlerta:false
     });
     window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
 
@@ -1226,7 +1253,8 @@ function detectarSobregiro(row){
       fechaAlerta: alertStart.toISOString().split('T')[0],
       fechaVence: alertEnd.toISOString().split('T')[0],
       descripcion: row.descripcion||'',
-      pagado: false
+      pagado: false,
+      mostrarAlerta: true
     };
     _sobregiros.push(sob);
     window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
@@ -1239,10 +1267,14 @@ function renderSobregiroAlertas(){
   var lista=document.getElementById('sobregiroList');
   if(!seccion||!lista) return;
 
-  var hoy=new Date().toISOString().split('T')[0];
-  // Show ALL unpaid SUELDO BBVA sobregiros (future and active)
+  var hoyDate=new Date();
+  var hoy=hoyDate.toISOString().split('T')[0];
+  var mesActual=hoyDate.getMonth()+1;
+  var anioActual=hoyDate.getFullYear();
   var pendientes=_sobregiros.filter(function(s){
-    return !s.pagado && s.tipo==='SUELDO BBVA';
+    if(s.pagado||s.tipo!=='SUELDO BBVA'||s.mostrarAlerta===false||!s.fechaAlerta) return false;
+    var partes=s.fechaAlerta.split('-');
+    return parseInt(partes[0]||0)===anioActual && parseInt(partes[1]||0)===mesActual;
   }).sort(function(a,b){ return a.fechaAlerta>b.fechaAlerta?1:-1; });
 
   if(!pendientes.length){ seccion.style.display='none'; return; }
@@ -1269,13 +1301,13 @@ function renderSobregiroAlertas(){
 
     var title=document.createElement('div'); title.className='sob-alert-title';
     title.style.color=color;
-    title.textContent=estado+' ? Penalizacion de sobregiro ('+fmt(s.creditoDeuda)+')';
+    title.textContent=estado+' - Penalizacion de sobregiro ('+fmt(s.creditoDeuda)+')';
 
     var sub2=document.createElement('div'); sub2.className='sob-alert-sub';
-    var info='Sobregiro del '+s.fecha+' ? '+fmt(s.monto)+' usados de Sueldo BBVA';
-    if(vencida) info+=' ? Vencio el '+s.fechaVence;
-    else if(activa) info+=' ? Vence en '+diasRestantes+' dias ('+s.fechaVence+')';
-    else info+=' ? Se activa el '+s.fechaAlerta+' (en '+diasParaAlerta+' dias)';
+    var info='Registro '+(s.registroId||s.id)+' del '+s.fecha+' - '+fmt(s.monto)+' usados de Sueldo BBVA';
+    if(vencida) info+=' - Vencio el '+s.fechaVence;
+    else if(activa) info+=' - Vence en '+diasRestantes+' dias ('+s.fechaVence+')';
+    else info+=' - Se activa el '+s.fechaAlerta+' (en '+diasParaAlerta+' dias)';
     sub2.textContent=info;
 
     var btnPag=document.createElement('button'); btnPag.className='row-btn';
@@ -1304,118 +1336,6 @@ async function pagarSobregiro(id){
   toast('Credito de penalizacion marcado como pagado','ok');
 }
 
-
-/* ===================================================
-   SCORE FINANCIERO (0-100)
-   Factores: ahorro(40) + sobregiro(30) + estabilidad(20) + presupuesto(10)
-=================================================== */
-function calcularScore(rows, mes){
-  var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
-  var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
-  var bal  = ing - gas;
-  var score = 0;
-  var factores = [];
-
-  // Factor 1: Ahorro (40pts) - % de ingresos ahorrados
-  // Factor 1: Ahorro (40pts) - % de ingresos ahorrados
-var tasaAhorro = ing > 0 ? bal/ing : 0;
-var ptAhorro = Math.min(40, Math.max(0, Math.round(tasaAhorro * 40 / 0.3))); // 30% ahorro = 40pts
-
-factores.push({
-  lbl:'Ahorro',
-  pts: ptAhorro,
-  max: 40,
-  desc: ptAhorro >= 35 
-    ? 'Excelente' 
-    : ptAhorro >= 20 
-      ? 'Bueno' 
-      : 'Mejorable'
-});
-
-score += ptAhorro;
-
-  // Factor 2: Sin sobregiro (30pts)
-  var sobMes = _sobregiros.filter(function(s){
-    if(!s.fecha) return false;
-    var m = parseInt((s.fecha||'').split('-')[1]||0);
-    return m === mes && s.tipo==='SUELDO BBVA';
-  });
-  var totalSob = sobMes.reduce(function(s,x){return s+x.monto;},0);
-  var ratioSob = ing > 0 ? totalSob/ing : 0;
-  var ptSob = ratioSob===0?30:Math.max(0, Math.round(30*(1-ratioSob*2)));
-  factores.push({lbl:'Sin sobregiro', pts:ptSob, max:30,
-    desc: ptSob===30?'Perfecto':ptSob>15?'Moderado':'Alto riesgo'});
-  score += ptSob;
-
-  // Factor 3: Estabilidad (20pts) - gasto uniforme en el mes
-  var gastosPorDia = {};
-  rows.filter(function(r){return r.tipo==='gasto'&&r.fecha;}).forEach(function(r){
-    var d=r.fecha.split('-')[2]||'01';
-    gastosPorDia[d]=(gastosPorDia[d]||0)+r.monto;
-  });
-  var vals = Object.values(gastosPorDia);
-  var estabilidad = 20;
-  if(vals.length > 1){
-    var avg2 = vals.reduce(function(s,v){return s+v;},0)/vals.length;
-    var variance = vals.reduce(function(s,v){return s+Math.pow(v-avg2,2);},0)/vals.length;
-    var cv = avg2>0?Math.sqrt(variance)/avg2:0;
-    estabilidad = Math.max(0, Math.round(20*(1-Math.min(cv,1))));
-  }
-  factores.push({lbl:'Estabilidad', pts:estabilidad, max:20,
-    desc: estabilidad>=16?'Estable':estabilidad>=8?'Variable':'Irregular'});
-  score += estabilidad;
-
-  // Factor 4: Presupuesto (10pts) - cumple presupuestos
-  var catsConP = Object.keys(presupCat);
-  if(catsConP.length > 0){
-    var byCat={};
-    rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto;});
-    var cumplidos = catsConP.filter(function(c){return (byCat[c]||0)<=(presupCat[c].mensual||0);}).length;
-    var ptPres = Math.round(10*cumplidos/catsConP.length);
-    factores.push({lbl:'Presupuesto', pts:ptPres, max:10,
-      desc: ptPres>=8?'Cumplido':ptPres>=5?'Parcial':'Excedido'});
-    score += ptPres;
-  } else {
-    factores.push({lbl:'Presupuesto', pts:5, max:10, desc:'Sin configurar'});
-    score += 5;
-  }
-
-  return {score:Math.min(100,score), factores:factores, tasaAhorro:tasaAhorro,
-          totalSob:totalSob, ing:ing, gas:gas};
-}
-
-function renderScore(rows, mes){
-  var data = calcularScore(rows, mes);
-  var s = data.score;
-  var el = document.getElementById('scoreNum');
-  var arc = document.getElementById('scoreArc');
-  var desc = document.getElementById('scoreDesc');
-  var factors = document.getElementById('scoreFactors');
-  if(!el) return;
-
-  el.textContent = s;
-  var color = s>=75?'var(--green-tx)':s>=50?'var(--gold)':'var(--red-tx)';
-  el.style.color = color;
-
-  // SVG arc: circumference=201, offset=201 means 0%, offset=0 means 100%
-  if(arc) arc.style.strokeDashoffset = Math.round(201*(1-s/100));
-  if(arc) arc.style.stroke = color;
-
-  var descTxt = s>=80?'Finanzas excelentes. Sigues en el camino correcto.':
-                s>=65?'Finanzas saludables. Algunos aspectos a mejorar.':
-                s>=45?'Finanzas en riesgo. Revisa tu comportamiento de gasto.':
-                'Finanzas criticas. Es urgente reducir gastos y sobregiros.';
-  if(desc) desc.textContent = descTxt;
-
-  if(factors){
-    factors.innerHTML='';
-    data.factores.forEach(function(f){
-      var color2=f.pts/f.max>=0.75?'var(--green-tx)':f.pts/f.max>=0.5?'var(--gold)':'var(--red-tx)';
-      factors.innerHTML+='<div class="score-factor"><div class="score-factor-dot" style="background:'+color2+'"></div>'+
-        '<span>'+f.lbl+'</span><span class="score-factor-val">'+f.pts+'/'+f.max+'</span></div>';
-    });
-  }
-}
 
 /* ===================================================
    PROYECCION FIN DE MES
@@ -1544,19 +1464,7 @@ function generarSmartAlerts(rows, mes){
     }
   });
 
-  // 6. Penalizaciones activas
-  var hoyStr=new Date().toISOString().split('T')[0];
-  var pendPen=_sobregiros.filter(function(s){return !s.pagado&&s.tipo==='SUELDO BBVA'&&s.fechaAlerta<=hoyStr;});
-  if(pendPen.length){
-    var totalCred=pendPen.reduce(function(s,x){return s+x.creditoDeuda;},0);
-    alerts.push({
-      nivel:'medio', icon:'S/',
-      title:pendPen.length+' penalizacion(es) de ahorro activa(s)',
-      sub:'Debes ahorrar '+fmt(totalCred)+' como compensacion por sobregiros anteriores.'
-    });
-  }
-
-  // 7. Todo bien
+  // 6. Todo bien
   if(!alerts.length){
     alerts.push({
       nivel:'bajo', icon:'ok',
@@ -1658,7 +1566,10 @@ function renderVista(){
   else if(vistaActiva==='patrimonio'){
     if(window._loadPatrimonio){
       window._loadPatrimonio().then(function(d){
-        _activos=d.activos||[];_pasivos=d.pasivos||[];_patrimonioHistory=d.history||[];
+        _activos=d.activos||[];
+        _pasivos=d.pasivos||[];
+        _patrimonioHistory=d.history||[];
+        _patrimonioMovimientos=d.movimientos||[];
         renderPatrimonio();
       }).catch(function(){ renderPatrimonio(); });
     } else { renderPatrimonio(); }
@@ -1736,7 +1647,6 @@ function renderDashboard(){
   renderPocket(getRows(periodoActivo||mesActual));
   renderWeekly();
   var mesDash=periodoActivo||mesActual;
-  renderScore(getRows(mesDash), mesDash);
   renderProyeccion(getRows(mesDash), mesDash);
   buildEvol(); buildDonut(rows); buildComp(); buildTop(rows); buildProyec();
 }
@@ -2176,20 +2086,63 @@ function checkRecurrentes(){
 }
 
 /* PATRIMONIO */
-async function savePatrimonio(){
+function getTodayPatrimonio(){
+  return new Date().toISOString().split('T')[0];
+}
+function getPatrimonioNeto(){
   var tA=_activos.reduce(function(s,a){return s+a.monto;},0);
   var tP=_pasivos.reduce(function(s,p){return s+p.monto;},0);
-  var today=new Date().toISOString().split('T')[0];
+  return {activos:tA,pasivos:tP,neto:tA-tP};
+}
+function registrarMovimientoPatrimonio(data){
+  var netoInfo=getPatrimonioNeto();
+  var mov={
+    id:data.id||Date.now().toString()+Math.random().toString(16).slice(2,8),
+    fecha:data.fecha||getTodayPatrimonio(),
+    tipo:data.tipo||'ajuste',
+    entidad:data.entidad||'activo',
+    nombre:data.nombre||'Patrimonio',
+    monto:Math.round((parseFloat(data.monto)||0)*100)/100,
+    motivo:data.motivo||'Movimiento manual',
+    categoria:data.categoria||'PATRIMONIO',
+    subcategoria:data.subcategoria||'',
+    registroId:data.registroId||null,
+    saldoPosterior:data.saldoPosterior===undefined?netoInfo.neto:data.saldoPosterior
+  };
+  _patrimonioMovimientos.unshift(mov);
+  _patrimonioMovimientos=_patrimonioMovimientos.slice(0,120);
+}
+function getImpactoMovimientoPatrimonio(mov){
+  var monto=Math.abs(parseFloat(mov.monto)||0);
+  if(mov.entidad==='pasivo'){
+    if(mov.tipo==='agrega') return -monto;
+    if(mov.tipo==='elimina') return monto;
+    return parseFloat(mov.monto)||0;
+  }
+  if(mov.tipo==='elimina') return -monto;
+  return parseFloat(mov.monto)||0;
+}
+async function savePatrimonio(){
+  var netoInfo=getPatrimonioNeto();
+  var today=getTodayPatrimonio();
   var existing=_patrimonioHistory.findIndex(function(h){return h.fecha===today;});
-  if(existing>=0) _patrimonioHistory[existing].valor=tA-tP;
-  else _patrimonioHistory.push({fecha:today,valor:tA-tP});
+  if(existing>=0) _patrimonioHistory[existing].valor=netoInfo.neto;
+  else _patrimonioHistory.push({fecha:today,valor:netoInfo.neto});
   _patrimonioHistory=_patrimonioHistory.slice(-24);
-  try{await window._savePatrimonio({activos:_activos,pasivos:_pasivos,history:_patrimonioHistory});}catch(e){}
+  try{
+    await window._savePatrimonio({
+      activos:_activos,
+      pasivos:_pasivos,
+      history:_patrimonioHistory,
+      movimientos:_patrimonioMovimientos
+    });
+  }catch(e){}
 }
 async function agregarActivo(){
   var n=document.getElementById('activoNombre').value.trim(),m=parseFloat(document.getElementById('activoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   _activos.push({id:Date.now().toString(),nombre:n,monto:m});
+  registrarMovimientoPatrimonio({tipo:'agrega',entidad:'activo',nombre:n,monto:m,motivo:'Activo agregado manualmente'});
   await savePatrimonio(); toast(n+' agregado','ok');
   document.getElementById('activoNombre').value='';document.getElementById('activoMonto').value='';
   renderPatrimonio();
@@ -2198,6 +2151,7 @@ async function agregarPasivo(){
   var n=document.getElementById('pasivoNombre').value.trim(),m=parseFloat(document.getElementById('pasivoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   _pasivos.push({id:Date.now().toString(),nombre:n,monto:m});
+  registrarMovimientoPatrimonio({tipo:'agrega',entidad:'pasivo',nombre:n,monto:m,motivo:'Pasivo agregado manualmente'});
   await savePatrimonio(); toast(n+' agregado','ok');
   document.getElementById('pasivoNombre').value='';document.getElementById('pasivoMonto').value='';
   renderPatrimonio();
@@ -2217,15 +2171,40 @@ async function confirmarPatriEdit(){
   if(!_patriEditType||!_patriEditId) return;
   var lista=_patriEditType==='activo'?_activos:_pasivos;
   var item=lista.find(function(x){return x.id===_patriEditId;}); if(!item) return;
+  var nombreAnterior=item.nombre;
+  var montoAnterior=item.monto;
   item.nombre=document.getElementById('peNombre').value.trim()||item.nombre;
   item.monto=parseFloat(document.getElementById('peMonto').value)||item.monto;
+  registrarMovimientoPatrimonio({
+    tipo:'edita',
+    entidad:_patriEditType,
+    nombre:item.nombre,
+    monto:item.monto-montoAnterior,
+    motivo:'Actualizacion manual de '+nombreAnterior,
+    categoria:'PATRIMONIO',
+    subcategoria:item.nombre
+  });
   await savePatrimonio();
   toast(item.nombre+' actualizado','ok');
   hidePatriEditModal(); renderPatrimonio();
 }
 
-async function eliminarActivo(id){_activos=_activos.filter(function(a){return a.id!==id;});await savePatrimonio();renderPatrimonio();}
-async function eliminarPasivo(id){_pasivos=_pasivos.filter(function(p){return p.id!==id;});await savePatrimonio();renderPatrimonio();}
+async function eliminarActivo(id){
+  var item=_activos.find(function(a){return a.id===id;});
+  if(!item) return;
+  _activos=_activos.filter(function(a){return a.id!==id;});
+  registrarMovimientoPatrimonio({tipo:'elimina',entidad:'activo',nombre:item.nombre,monto:-item.monto,motivo:'Activo eliminado manualmente'});
+  await savePatrimonio();
+  renderPatrimonio();
+}
+async function eliminarPasivo(id){
+  var item=_pasivos.find(function(p){return p.id===id;});
+  if(!item) return;
+  _pasivos=_pasivos.filter(function(p){return p.id!==id;});
+  registrarMovimientoPatrimonio({tipo:'elimina',entidad:'pasivo',nombre:item.nombre,monto:-item.monto,motivo:'Pasivo eliminado manualmente'});
+  await savePatrimonio();
+  renderPatrimonio();
+}
 function renderPatrimonio(){
   var tA=_activos.reduce(function(s,a){return s+a.monto;},0);
   var tP=_pasivos.reduce(function(s,p){return s+p.monto;},0);
@@ -2279,6 +2258,35 @@ function renderPatrimonio(){
   var canv=document.getElementById('cPatrimonio');
   if(canv&&_patrimonioHistory.length>1){
     charts['cPatrimonio']=new Chart(canv,{type:'line',data:{labels:_patrimonioHistory.map(function(h){return h.fecha.substring(5);}),datasets:[{label:'Patrimonio',data:_patrimonioHistory.map(function(h){return h.valor;}),borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.06)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:'#c9a84c',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var m=els[0].index+1;var ds=els[0].datasetIndex;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===m&&(ds===0?r.tipo==='ingreso':ds===1?r.tipo==='gasto':true);},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+  }
+  var movWrap=document.getElementById('patrimonioMovimientos');
+  if(movWrap){
+    movWrap.innerHTML='';
+    if(!_patrimonioMovimientos.length){
+      movWrap.innerHTML='<div class="patri-empty">Cada cambio manual o automatico del patrimonio aparecera aqui. Esto incluye movimientos por SOBREGIRO con subcategoria AHORRO AGORA.</div>';
+    } else {
+      _patrimonioMovimientos.forEach(function(mov){
+        var impacto=getImpactoMovimientoPatrimonio(mov);
+        var cls=impacto>=0?'pos':'neg';
+        var row=document.createElement('div'); row.className='patri-mov';
+        var dot=document.createElement('div'); dot.className='patri-mov-dot '+cls;
+        var body=document.createElement('div'); body.className='patri-mov-body';
+        var top=document.createElement('div'); top.className='patri-mov-top';
+        var title=document.createElement('div'); title.className='patri-mov-title';
+        title.textContent=(mov.nombre||'Patrimonio')+' - '+(mov.motivo||'Movimiento');
+        var amt=document.createElement('div'); amt.className='patri-mov-amt '+cls;
+        amt.textContent=(impacto>=0?'+ ':'- ')+fmt(Math.abs(impacto));
+        var sub=document.createElement('div'); sub.className='patri-mov-sub';
+        var detalles=[mov.fecha||'', mov.categoria||'PATRIMONIO'];
+        if(mov.subcategoria) detalles.push(mov.subcategoria);
+        if(mov.saldoPosterior!==undefined&&mov.saldoPosterior!==null) detalles.push('Patrimonio neto: '+fmt(mov.saldoPosterior));
+        sub.textContent=detalles.filter(Boolean).join(' • ');
+        top.appendChild(title); top.appendChild(amt);
+        body.appendChild(top); body.appendChild(sub);
+        row.appendChild(dot); row.appendChild(body);
+        movWrap.appendChild(row);
+      });
+    }
   }
 }
 
@@ -2449,13 +2457,16 @@ window.onAppReady = async function(){
     safe(function(){return window._loadPresupuestos();},{cats:{},subs:{}}),
     safe(function(){return window._loadSettings();},{}),
     safe(function(){return window._loadRecurrentes();}, []),
-    safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[]}),
+    safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[],movimientos:[]}),
     safe(function(){return window._loadSobregiros();}, [])
   ]);
   presupCat=results[0].cats||{};presupSub=results[0].subs||{};
   _settings=results[1];
   _recurrentes=results[2];
-  _activos=results[3].activos||[];_pasivos=results[3].pasivos||[];_patrimonioHistory=results[3].history||[];
+  _activos=results[3].activos||[];
+  _pasivos=results[3].pasivos||[];
+  _patrimonioHistory=results[3].history||[];
+  _patrimonioMovimientos=results[3].movimientos||[];
   _sobregiros=results[4]||[];
 
 

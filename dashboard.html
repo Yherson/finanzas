@@ -1076,80 +1076,84 @@ function closeDrill(){
 
 /* ===== SISTEMA DE SOBREGIRO ===== */
 function detectarSobregiro(row){
-  // Called when a new row is processed ? check if it's a sobregiro ingreso
   if(row.tipo!=='ingreso') return;
-  var cat=(row.categoria||'').toUpperCase();
-  var sub=(row.subcategoria||'').toUpperCase();
+  var cat=(row.categoria||'').toUpperCase().trim();
+  var sub=(row.subcategoria||'').toUpperCase().trim();
   if(cat!=='SOBREGIRO') return;
-
-  console.log('[SOBREGIRO] detected:', sub, row.monto);
+  console.log('[SOBREGIRO] processing:', sub, row.monto, row.id);
 
   if(sub==='AHORRO AGORA'){
-    // Auto-deduct from AHORRO AGORA activo in patrimonio
-    var idx=_activos.findIndex(function(a){
-      return a.nombre.toUpperCase().includes('AGORA')||a.nombre.toUpperCase().includes('AHORRO AGORA');
+    // Descuenta del activo AHORRO AGORA en Patrimonio
+    var idx2=_activos.findIndex(function(a){
+      return a.nombre.toUpperCase().replace(/\s+/g,'').includes('AGORA');
     });
-    if(idx>=0){
-      var oldMonto=_activos[idx].monto;
-      _activos[idx].monto=Math.max(0,_activos[idx].monto-row.monto);
+    if(idx2>=0){
+      var antes=_activos[idx2].monto;
+      _activos[idx2].monto=Math.max(0, Math.round((_activos[idx2].monto - row.monto)*100)/100);
       savePatrimonio();
-      toast('AHORRO AGORA: '+fmt(oldMonto)+' ? '+fmt(_activos[idx].monto),'info',5000);
+      toast('Patrimonio actualizado: AHORRO AGORA '+fmt(antes)+' ? '+fmt(_activos[idx2].monto),'info',6000);
     } else {
-      toast('No se encontro "AHORRO AGORA" en Patrimonio','err',5000);
+      toast('Activo AHORRO AGORA no encontrado en Patrimonio','err',6000);
     }
+    // Register in sobregiros log with registroId to prevent re-processing
+    _sobregiros.push({
+      id:Date.now().toString(), registroId:row.id,
+      fecha:row.fecha, monto:row.monto, tipo:'AHORRO AGORA',
+      creditoDeuda:0, fechaAlerta:null, fechaVence:null, pagado:true
+    });
+    window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
 
   } else if(sub==='SUELDO BBVA'){
-    // 1. Register expense for 01 of next month
-    var fechaActual=new Date();
-    var nextMonth=new Date(fechaActual.getFullYear(), fechaActual.getMonth()+1, 1);
-    var yyyy=nextMonth.getFullYear();
-    var mm=String(nextMonth.getMonth()+1).padStart(2,'0');
-    var fechaGasto=yyyy+'-'+mm+'-01';
+    // 1. Calcular fecha: dia 01 del mes siguiente al mes del registro
+    var partesFecha=(row.fecha||new Date().toISOString().split('T')[0]).split('-');
+    var anioUso=parseInt(partesFecha[0]);
+    var mesUso=parseInt(partesFecha[1]); // 1-12
+    var anioSig = mesUso===12 ? anioUso+1 : anioUso;
+    var mesSig  = mesUso===12 ? 1 : mesUso+1;
+    var fechaGasto = anioSig+'-'+String(mesSig).padStart(2,'0')+'-01';
 
-    // Create the future expense record in Firestore
-    if(window._addRegistroFuturo){
-      var gastoFuturo={
-        fecha:fechaGasto,
-        fecha_ingreso:new Date().toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
-        hora_ingreso:new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-        fechahora:new Date().toLocaleString('es-PE'),
-        tipo:'gasto',
-        monto:row.monto,
-        categoria:'Sobregiro',
-        subcategoria:'Descuento sueldo '+mm+'/'+yyyy,
-        descripcion:'Sobregiro usado '+new Date().toLocaleDateString('es-PE'),
-        createdAt:null // will be set by server
-      };
-      window._addRegistroFuturo(gastoFuturo).then(function(){
-        toast('Gasto de S/'+row.monto+' registrado para el 01/'+mm+'/'+yyyy,'info',6000);
-      }).catch(function(e){
-        console.error('addRegistroFuturo error:',e);
-      });
-    }
+    // 2. Registrar el gasto en Firestore con fecha del 01 del mes siguiente
+    var ahora=new Date();
+    var gastoFuturo={
+      fecha: fechaGasto,
+      fecha_ingreso: ahora.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
+      hora_ingreso: ahora.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+      fechahora: ahora.toLocaleString('es-PE'),
+      tipo: 'gasto',
+      monto: row.monto,
+      categoria: 'Sobregiro',
+      subcategoria: 'Sueldo BBVA',
+      descripcion: 'Descuento sobregiro del '+row.fecha
+    };
+    window._addRegistroFuturo(gastoFuturo)
+      .then(function(){
+        toast('Gasto de '+fmt(row.monto)+' registrado para el '+fechaGasto,'info',6000);
+      })
+      .catch(function(e){ console.error('addRegistroFuturo error:',e); toast('Error creando gasto futuro','err'); });
 
-    // 2. Calculate credit/penalty: 10% of amount used
+    // 3. Penalizacion: 10% como credito de deuda de ahorro
     var credito=Math.round(row.monto*0.10*100)/100;
 
-    // 3. Calculate alert dates
-    var fechaUso=row.fecha||new Date().toISOString().split('T')[0];
-    var partes=fechaUso.split('-');
-    var alertStart=new Date(parseInt(partes[0]), parseInt(partes[1])-1+1, parseInt(partes[2])); // same day next month
+    // 4. Fechas de alerta: mismo dia pero del mes siguiente, plazo 30 dias
+    var diaUso=parseInt(partesFecha[2]);
+    var alertStart=new Date(anioSig, mesSig-1, diaUso);
     var alertEnd=new Date(alertStart); alertEnd.setDate(alertEnd.getDate()+30);
 
     var sob={
       id:Date.now().toString(),
-      fecha:fechaUso,
-      monto:row.monto,
-      tipo:'SUELDO BBVA',
-      creditoDeuda:credito,
-      fechaAlerta:alertStart.toISOString().split('T')[0],
-      fechaVence:alertEnd.toISOString().split('T')[0],
-      descripcion:row.descripcion||'',
-      pagado:false
+      registroId: row.id,
+      fecha: row.fecha,
+      monto: row.monto,
+      tipo: 'SUELDO BBVA',
+      creditoDeuda: credito,
+      fechaAlerta: alertStart.toISOString().split('T')[0],
+      fechaVence: alertEnd.toISOString().split('T')[0],
+      descripcion: row.descripcion||'',
+      pagado: false
     };
     _sobregiros.push(sob);
-    window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSobregiros:',e);});
-    toast('Credito de penalizacion: '+fmt(credito)+' acumulado','info',5000);
+    window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+    toast('Penalizacion de ahorro: '+fmt(credito)+' registrada','info',5000);
   }
 }
 
@@ -1159,37 +1163,55 @@ function renderSobregiroAlertas(){
   if(!seccion||!lista) return;
 
   var hoy=new Date().toISOString().split('T')[0];
-  // Show active: fechaAlerta <= hoy <= fechaVence, not pagado
-  var activos=_sobregiros.filter(function(s){
-    return !s.pagado && s.tipo==='SUELDO BBVA' && s.fechaAlerta<=hoy;
-  });
+  // Show ALL unpaid SUELDO BBVA sobregiros (future and active)
+  var pendientes=_sobregiros.filter(function(s){
+    return !s.pagado && s.tipo==='SUELDO BBVA';
+  }).sort(function(a,b){ return a.fechaAlerta>b.fechaAlerta?1:-1; });
 
-  if(!activos.length){ seccion.style.display='none'; return; }
+  if(!pendientes.length){ seccion.style.display='none'; return; }
   seccion.style.display='block';
   lista.innerHTML='';
 
-  activos.forEach(function(s){
-    var vencido=s.fechaVence<hoy;
+  pendientes.forEach(function(s){
+    var activa=s.fechaAlerta<=hoy;
+    var vencida=s.fechaVence<hoy;
+    var diasParaAlerta=Math.ceil((new Date(s.fechaAlerta)-new Date())/(1000*60*60*24));
     var diasRestantes=Math.ceil((new Date(s.fechaVence)-new Date())/(1000*60*60*24));
+
+    var estado=vencida?'VENCIDA':activa?'ACTIVA':'PROXIMA';
+    var color=vencida?'var(--red-tx)':activa?'var(--gold)':'var(--muted)';
+
     var div=document.createElement('div'); div.className='sob-alert';
+    div.style.borderColor=vencida?'rgba(192,112,112,0.4)':activa?'rgba(201,168,76,0.3)':'var(--border)';
+    div.style.background=vencida?'var(--red-d)':activa?'var(--gold-d)':'var(--s2)';
+
     var dot=document.createElement('div'); dot.className='sob-alert-dot';
-    if(vencido) dot.style.background='var(--red-tx)';
+    dot.style.background=color;
+
     var body2=document.createElement('div'); body2.className='sob-alert-body';
+
     var title=document.createElement('div'); title.className='sob-alert-title';
-    title.textContent=(vencido?'VENCIDO ? ':'PENDIENTE ? ')+'Credito de penalizacion';
+    title.style.color=color;
+    title.textContent=estado+' ? Penalizacion de sobregiro ('+fmt(s.creditoDeuda)+')';
+
     var sub2=document.createElement('div'); sub2.className='sob-alert-sub';
-    sub2.textContent='Sobregiro del '+s.fecha+' ? S/'+s.monto+' usados'+
-      (vencido?' ? Vencio el '+s.fechaVence:' ? Vence en '+diasRestantes+' dias ('+s.fechaVence+')');
-    var amt=document.createElement('div'); amt.className='sob-alert-amt';
-    amt.textContent=fmt(s.creditoDeuda);
-    var btnPag=document.createElement('button');
-    btnPag.className='row-btn'; btnPag.textContent='Marcar pagado';
-    btnPag.style.cssText='margin-top:6px;display:inline-block;';
-    btnPag.onclick=(function(id){return function(){
+    var info='Sobregiro del '+s.fecha+' ? '+fmt(s.monto)+' usados de Sueldo BBVA';
+    if(vencida) info+=' ? Vencio el '+s.fechaVence;
+    else if(activa) info+=' ? Vence en '+diasRestantes+' dias ('+s.fechaVence+')';
+    else info+=' ? Se activa el '+s.fechaAlerta+' (en '+diasParaAlerta+' dias)';
+    sub2.textContent=info;
+
+    var btnPag=document.createElement('button'); btnPag.className='row-btn';
+    btnPag.textContent='Marcar como pagado'; btnPag.style.marginTop='6px';
+    btnPag.onclick=(function(id){ return function(){
       var found=_sobregiros.find(function(x){return x.id===id;});
-      if(found){found.pagado=true;window._saveSobregiros(_sobregiros).catch(function(){});}
-      renderSobregiroAlertas(); toast('Credito marcado como pagado','ok');
+      if(found){ found.pagado=true; window._saveSobregiros(_sobregiros).catch(function(){}); }
+      renderSobregiroAlertas(); toast('Penalizacion marcada como pagada','ok');
     };})(s.id);
+
+    var amt=document.createElement('div'); amt.className='sob-alert-amt';
+    amt.style.color=color; amt.textContent=fmt(s.creditoDeuda);
+
     body2.appendChild(title); body2.appendChild(sub2); body2.appendChild(btnPag);
     div.appendChild(dot); div.appendChild(body2); div.appendChild(amt);
     lista.appendChild(div);
@@ -1531,7 +1553,12 @@ function renderPresupuesto(){
         var spG=spm>0?Math.min(sg/spm*100,100):0,spE=Math.min(rf*100,100);
         var scls=sg>spm?'bad':sg>se*1.05?'warn':'ok';
         var sbar=scls==='bad'?'var(--red-tx)':scls==='warn'?'var(--gold)':'var(--green-tx)';
-        html+='<div class="p-sub-row"><div class="p-sub-name">'+sn+'</div><div class="p-sub-bars"><div class="p-sub-brow"><span class="p-sub-lbl">Gastado</span><div class="p-sub-track"><div class="p-sub-fill" style="width:'+spG+'%;background:'+sbar+'"></div><div class="p-sub-mk" style="left:'+spE+'%"></div></div><span class="p-sub-amt" style="color:'+sbar+'">'+fmt(sg)+'/'+fmt(spm)+'</span></div></div></div>';
+        var sdiff2=Math.round((sg-se)*100)/100;
+        var sdiffTxt=(sdiff2>0?'+':'')+sdiff2.toFixed(2)+' '+(sdiff2>0?'sobre':'bajo')+' ritmo';
+        html+='<div class="p-sub-row"><div class="p-sub-name">'+sn+'</div><div class="p-sub-bars">'+
+          '<div class="p-sub-brow"><span class="p-sub-lbl">Gastado</span><div class="p-sub-track"><div class="p-sub-fill" style="width:'+spG+'%;background:'+sbar+'"></div><div class="p-sub-mk" style="left:'+spE+'%"></div></div><span class="p-sub-amt" style="color:'+sbar+'">'+fmt(sg)+' / '+fmt(spm)+'</span></div>'+
+          '<div class="p-sub-brow"><span class="p-sub-lbl">Esperado</span><div class="p-sub-track"><div class="p-sub-fill" style="width:'+spE+'%;background:var(--muted);opacity:.6"></div></div><span class="p-sub-amt" style="color:var(--muted)">'+sdiffTxt+'</span></div>'+
+          '</div></div>';
       });
       html+='</div>';
     }
@@ -2079,14 +2106,19 @@ window.onAppReady = async function(){
   if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var wsEl=document.getElementById('cfgWeekStart');if(wsEl)wsEl.value=String(_settings.weekStart);}
 
   window._startListener(function(rows){
-    var prevIds=new Set(allRows.map(function(r){return r.id;}));
+      var prevIds=new Set(allRows.map(function(r){return r.id;}));
+    var isFirstLoad = allRows.length === 0;
     allRows=processRows(rows);
-    // Detect newly added sobregiro rows
-    allRows.forEach(function(r){
-      if(!prevIds.has(r.id) && r.tipo==='ingreso' && (r.categoria||'').toUpperCase()==='SOBREGIRO'){
-        detectarSobregiro(r);
-      }
-    });
+    // Only detect sobregiro on genuinely NEW rows (not first load, not already processed)
+    if(!isFirstLoad){
+      allRows.forEach(function(r){
+        if(!prevIds.has(r.id) && r.tipo==='ingreso' && (r.categoria||'').toUpperCase()==='SOBREGIRO'){
+          // Check not already in _sobregiros
+          var alreadyHandled = _sobregiros.some(function(s){ return s.registroId===r.id; });
+          if(!alreadyHandled) detectarSobregiro(r);
+        }
+      });
+    }
     setSyncState('live','Sincronizado');
     document.getElementById('lastSync').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('loading').style.display='none';

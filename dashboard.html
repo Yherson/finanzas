@@ -1317,11 +1317,22 @@ function calcularScore(rows, mes){
   var factores = [];
 
   // Factor 1: Ahorro (40pts) - % de ingresos ahorrados
-  var tasaAhorro = ing > 0 ? bal/ing : 0;
-  var ptAhorro = Math.min(40, Math.max(0, Math.round(tasaAhorro * 40 / 0.3))); // 30% ahorro = 40pts
-  factores.push({lbl:'Ahorro', pts:ptAhorro, max:40,
-    desc: ptAhorro>=35?ptAhorro>=35?'Excelente':ptAhorro>=20?'Bueno':'Mejorable'});
-  score += ptAhorro;
+  // Factor 1: Ahorro (40pts) - % de ingresos ahorrados
+var tasaAhorro = ing > 0 ? bal/ing : 0;
+var ptAhorro = Math.min(40, Math.max(0, Math.round(tasaAhorro * 40 / 0.3))); // 30% ahorro = 40pts
+
+factores.push({
+  lbl:'Ahorro',
+  pts: ptAhorro,
+  max: 40,
+  desc: ptAhorro >= 35 
+    ? 'Excelente' 
+    : ptAhorro >= 20 
+      ? 'Bueno' 
+      : 'Mejorable'
+});
+
+score += ptAhorro;
 
   // Factor 2: Sin sobregiro (30pts)
   var sobMes = _sobregiros.filter(function(s){
@@ -2018,7 +2029,7 @@ function checkAlertas(rows){
 function renderAlertas(){
   var rows=getRows(periodoActivo);
   var mesAl=periodoActivo||mesActual;
-  renderSmartAlerts(rows, mesAl);,gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
+  renderSmartAlerts(rows, mesAl);gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
   gas.forEach(function(r){bc[r.categoria]=(bc[r.categoria]||0)+r.monto;});
   var limites=getLimites();
   var cats=[];var catSet={};

@@ -1166,19 +1166,63 @@ function closeDrill(){
 
 
 /* ===== SISTEMA DE SOBREGIRO ===== */
-function detectarSobregiro(row){
-  if(row.tipo!=='ingreso') return;
+function getSobregiroKey(rowOrSob, tipo){
+  var regId=rowOrSob&&rowOrSob.registroId ? rowOrSob.registroId : rowOrSob&&rowOrSob.id ? rowOrSob.id : '';
+  return (tipo||rowOrSob.tipo||'')+'::'+regId;
+}
+function dedupeSobregirosLista(lista){
+  var map={};
+  (lista||[]).forEach(function(item){
+    var key=getSobregiroKey(item, item.tipo||'');
+    if(!key) return;
+    if(!map[key]) map[key]=item;
+    else if(map[key].pagado && !item.pagado) map[key]=item;
+  });
+  return Object.keys(map).map(function(k){return map[k];});
+}
+function existeMovimientoPatrimonioSobregiro(registroId){
+  return _patrimonioMovimientos.some(function(m){
+    return m.registroId===registroId && m.categoria==='SOBREGIRO' && (m.subcategoria||'').toUpperCase()==='AHORRO AGORA';
+  });
+}
+function existeGastoAutomaticoSobregiro(row, rows){
+  var partesFecha=(row.fecha||'').split('-');
+  var anioUso=parseInt(partesFecha[0]||0);
+  var mesUso=parseInt(partesFecha[1]||0);
+  if(!anioUso||!mesUso) return false;
+  var anioSig = mesUso===12 ? anioUso+1 : anioUso;
+  var mesSig  = mesUso===12 ? 1 : mesUso+1;
+  var fechaGasto = anioSig+'-'+String(mesSig).padStart(2,'0')+'-01';
+  return (rows||allRows||[]).some(function(r){
+    var cat=(r.categoria||'').toUpperCase().trim();
+    var sub=(r.subcategoria||'').toUpperCase().trim();
+    var desc=(r.descripcion||'').toUpperCase();
+    return r.tipo==='gasto'
+      && cat==='SOBREGIRO'
+      && sub==='SUELDO BBVA'
+      && r.fecha===fechaGasto
+      && Math.abs((parseFloat(r.monto)||0)-(parseFloat(row.monto)||0))<0.001
+      && (r.sobregiroSourceId===row.id || desc.indexOf((row.fecha||'').toUpperCase())>=0);
+  });
+}
+async function detectarSobregiro(row, rows, opts){
+  opts=opts||{};
+  if(row.tipo!=='ingreso') return false;
   var cat=(row.categoria||'').toUpperCase().trim();
   var sub=(row.subcategoria||'').toUpperCase().trim();
-  if(cat!=='SOBREGIRO') return;
+  if(cat!=='SOBREGIRO') return false;
   console.log('[SOBREGIRO] processing:', sub, row.monto, row.id);
+  var cambios=false;
 
   if(sub==='AHORRO AGORA'){
+    var yaLog=_sobregiros.some(function(s){ return s.registroId===row.id && s.tipo==='AHORRO AGORA'; });
+    var yaMov=existeMovimientoPatrimonioSobregiro(row.id);
+    if(yaLog&&yaMov) return false;
     // Descuenta del activo AHORRO AGORA en Patrimonio
     var idx2=_activos.findIndex(function(a){
       return a.nombre.toUpperCase().replace(/\s+/g,'').includes('AGORA');
     });
-    if(idx2>=0){
+    if(idx2>=0 && !yaMov){
       var antes=_activos[idx2].monto;
       _activos[idx2].monto=Math.max(0, Math.round((_activos[idx2].monto - row.monto)*100)/100);
       registrarMovimientoPatrimonio({
@@ -1193,21 +1237,27 @@ function detectarSobregiro(row){
         subcategoria:'AHORRO AGORA',
         registroId:row.id
       });
-      savePatrimonio();
-      toast('Patrimonio actualizado: AHORRO AGORA '+fmt(antes)+' ? '+fmt(_activos[idx2].monto),'info',6000);
+      await savePatrimonio();
+      cambios=true;
+      if(!opts.silent) toast('Patrimonio actualizado: AHORRO AGORA '+fmt(antes)+' ? '+fmt(_activos[idx2].monto),'info',6000);
     } else {
-      toast('Activo AHORRO AGORA no encontrado en Patrimonio','err',6000);
+      if(!yaMov && !opts.silent) toast('Activo AHORRO AGORA no encontrado en Patrimonio','err',6000);
     }
-    // Register in sobregiros log with registroId to prevent re-processing
-    _sobregiros.push({
-      id:Date.now().toString(), registroId:row.id,
-      fecha:row.fecha, monto:row.monto, tipo:'AHORRO AGORA',
-      creditoDeuda:0, fechaAlerta:null, fechaVence:null, pagado:true,
-      mostrarAlerta:false
-    });
-    window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+    if(!yaLog){
+      // Register in sobregiros log with registroId to prevent re-processing
+      _sobregiros.push({
+        id:Date.now().toString(), registroId:row.id,
+        fecha:row.fecha, monto:row.monto, tipo:'AHORRO AGORA',
+        creditoDeuda:0, fechaAlerta:null, fechaVence:null, pagado:true,
+        mostrarAlerta:false
+      });
+      _sobregiros=dedupeSobregirosLista(_sobregiros);
+      await window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+      cambios=true;
+    }
 
   } else if(sub==='SUELDO BBVA'){
+    var yaLog2=_sobregiros.some(function(s){ return s.registroId===row.id && s.tipo==='SUELDO BBVA'; });
     // 1. Calcular fecha: dia 01 del mes siguiente al mes del registro
     var partesFecha=(row.fecha||new Date().toISOString().split('T')[0]).split('-');
     var anioUso=parseInt(partesFecha[0]);
@@ -1216,24 +1266,28 @@ function detectarSobregiro(row){
     var mesSig  = mesUso===12 ? 1 : mesUso+1;
     var fechaGasto = anioSig+'-'+String(mesSig).padStart(2,'0')+'-01';
 
-    // 2. Registrar el gasto en Firestore con fecha del 01 del mes siguiente
-    var ahora=new Date();
-    var gastoFuturo={
-      fecha: fechaGasto,
-      fecha_ingreso: ahora.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
-      hora_ingreso: ahora.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-      fechahora: ahora.toLocaleString('es-PE'),
-      tipo: 'gasto',
-      monto: row.monto,
-      categoria: 'Sobregiro',
-      subcategoria: 'Sueldo BBVA',
-      descripcion: 'Descuento sobregiro del '+row.fecha
-    };
-    window._addRegistroFuturo(gastoFuturo)
-      .then(function(){
-        toast('Gasto de '+fmt(row.monto)+' registrado para el '+fechaGasto,'info',6000);
-      })
-      .catch(function(e){ console.error('addRegistroFuturo error:',e); toast('Error creando gasto futuro','err'); });
+    if(!existeGastoAutomaticoSobregiro(row, rows)){
+      // 2. Registrar el gasto en Firestore con fecha del 01 del mes siguiente
+      var ahora=new Date();
+      var gastoFuturo={
+        fecha: fechaGasto,
+        fecha_ingreso: ahora.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
+        hora_ingreso: ahora.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+        fechahora: ahora.toLocaleString('es-PE'),
+        tipo: 'gasto',
+        monto: row.monto,
+        categoria: 'Sobregiro',
+        subcategoria: 'Sueldo BBVA',
+        descripcion: 'Descuento sobregiro del '+row.fecha,
+        sobregiroSourceId: row.id
+      };
+      await window._addRegistroFuturo(gastoFuturo)
+        .then(function(){
+          cambios=true;
+          if(!opts.silent) toast('Gasto de '+fmt(row.monto)+' registrado para el '+fechaGasto,'info',6000);
+        })
+        .catch(function(e){ console.error('addRegistroFuturo error:',e); if(!opts.silent) toast('Error creando gasto futuro','err'); });
+    }
 
     // 3. Penalizacion: 10% como credito de deuda de ahorro
     var credito=Math.round(row.monto*0.10*100)/100;
@@ -1256,9 +1310,33 @@ function detectarSobregiro(row){
       pagado: false,
       mostrarAlerta: true
     };
-    _sobregiros.push(sob);
-    window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
-    toast('Penalizacion de ahorro: '+fmt(credito)+' registrada','info',5000);
+    if(!yaLog2){
+      _sobregiros.push(sob);
+      _sobregiros=dedupeSobregirosLista(_sobregiros);
+      await window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+      cambios=true;
+      if(!opts.silent) toast('Penalizacion de ahorro: '+fmt(credito)+' registrada','info',5000);
+    }
+  }
+  return cambios;
+}
+async function reconciliarSobregiros(rows, prevIds, isFirstLoad){
+  var candidatos=(rows||[]).filter(function(r){
+    return r.tipo==='ingreso' && (r.categoria||'').toUpperCase()==='SOBREGIRO';
+  });
+  var changed=false;
+  for(var i=0;i<candidatos.length;i++){
+    var r=candidatos[i];
+    var esNuevo=!prevIds || !prevIds.has(r.id);
+    if(isFirstLoad || esNuevo){
+      var applied=await detectarSobregiro(r, rows, {silent:isFirstLoad});
+      if(applied) changed=true;
+    }
+  }
+  if(changed){
+    _sobregiros=dedupeSobregirosLista(_sobregiros);
+    renderPatrimonio();
+    renderSobregiroAlertas();
   }
 }
 
@@ -1271,7 +1349,7 @@ function renderSobregiroAlertas(){
   var hoy=hoyDate.toISOString().split('T')[0];
   var mesActual=hoyDate.getMonth()+1;
   var anioActual=hoyDate.getFullYear();
-  var pendientes=_sobregiros.filter(function(s){
+  var pendientes=dedupeSobregirosLista(_sobregiros).filter(function(s){
     if(s.pagado||s.tipo!=='SUELDO BBVA'||s.mostrarAlerta===false||!s.fechaAlerta) return false;
     var partes=s.fechaAlerta.split('-');
     return parseInt(partes[0]||0)===anioActual && parseInt(partes[1]||0)===mesActual;
@@ -2467,7 +2545,7 @@ window.onAppReady = async function(){
   _pasivos=results[3].pasivos||[];
   _patrimonioHistory=results[3].history||[];
   _patrimonioMovimientos=results[3].movimientos||[];
-  _sobregiros=results[4]||[];
+  _sobregiros=dedupeSobregirosLista(results[4]||[]);
 
 
   if(_settings.dashName) document.getElementById('dashName').textContent=_settings.dashName;
@@ -2477,20 +2555,11 @@ window.onAppReady = async function(){
   if(_settings.accentColor) applyAccent(_settings.accentColor);
   if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var wsEl=document.getElementById('cfgWeekStart');if(wsEl)wsEl.value=String(_settings.weekStart);}
 
-  window._startListener(function(rows){
+  window._startListener(async function(rows){
       var prevIds=new Set(allRows.map(function(r){return r.id;}));
     var isFirstLoad = allRows.length === 0;
     allRows=processRows(rows);
-    // Only detect sobregiro on genuinely NEW rows (not first load, not already processed)
-    if(!isFirstLoad){
-      allRows.forEach(function(r){
-        if(!prevIds.has(r.id) && r.tipo==='ingreso' && (r.categoria||'').toUpperCase()==='SOBREGIRO'){
-          // Check not already in _sobregiros
-          var alreadyHandled = _sobregiros.some(function(s){ return s.registroId===r.id; });
-          if(!alreadyHandled) detectarSobregiro(r);
-        }
-      });
-    }
+    await reconciliarSobregiros(allRows, prevIds, isFirstLoad);
     setSyncState('live','Sincronizado');
     document.getElementById('lastSync').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('loading').style.display='none';

@@ -1183,6 +1183,15 @@ function dedupeSobregirosLista(lista){
   });
   return Object.keys(map).map(function(k){return map[k];});
 }
+function dedupeAlertItems(lista, keyFn){
+  var map={};
+  (lista||[]).forEach(function(item){
+    var key=keyFn(item);
+    if(!key) return;
+    if(!map[key]) map[key]=item;
+  });
+  return Object.keys(map).map(function(k){return map[k];});
+}
 function existeMovimientoPatrimonioSobregiro(registroId){
   return _patrimonioMovimientos.some(function(m){
     return m.registroId===registroId && m.categoria==='SOBREGIRO' && (m.subcategoria||'').toUpperCase()==='AHORRO AGORA';
@@ -1362,6 +1371,9 @@ function renderSobregiroAlertas(){
     if(s.pagado||s.tipo!=='SUELDO BBVA'||s.mostrarAlerta===false||!s.fechaAlerta) return false;
     var partes=s.fechaAlerta.split('-');
     return parseInt(partes[0]||0)===anioActual && parseInt(partes[1]||0)===mesActual;
+  });
+  pendientes=dedupeAlertItems(pendientes,function(s){
+    return [s.registroId||'',s.tipo||'',s.fecha||'',s.monto||0,s.creditoDeuda||0,s.fechaAlerta||'',s.fechaVence||''].join('|');
   }).sort(function(a,b){ return a.fechaAlerta>b.fechaAlerta?1:-1; });
 
   if(!pendientes.length){ seccion.style.display='none'; return; }
@@ -1566,7 +1578,9 @@ function generarSmartAlerts(rows, mes){
 function renderSmartAlerts(rows, mes){
   var cont=document.getElementById('smartAlertsList');
   if(!cont) return;
-  var alerts=generarSmartAlerts(rows,mes);
+  var alerts=dedupeAlertItems(generarSmartAlerts(rows,mes),function(a){
+    return [(a.nivel||''),(a.icon||''),(a.title||''),(a.sub||'')].join('|');
+  });
   cont.innerHTML='';
   alerts.forEach(function(a){
     var div=document.createElement('div');

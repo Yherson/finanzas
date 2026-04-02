@@ -450,17 +450,15 @@ function resetForm(){
 
 async function guardar() {
   try {
-    const now = new Date();
-
-    const tipo = document.getElementById('tipo').value;
-    const rawMonto = document.getElementById('monto').value;
-    const catSel = document.getElementById('categoria').value;
-    const subSel = document.getElementById('subcategoria').value;
-
-    if (!rawMonto || !catSel) {
-      alert("Completa los campos obligatorios");
+    if(!window._firebaseReady || !window._addRegistro){
+      alert("Primero inicia sesión");
       return;
     }
+    document.getElementById('eMonto').textContent='';
+    document.getElementById('eCat').textContent='';
+    if(!validate()) return;
+
+    const now = new Date();
 
     const registro = {
       fecha: document.getElementById('fecha').value,
@@ -475,17 +473,15 @@ async function guardar() {
       createdAt: window._serverTimestamp()
     };
 
-    // 🔥 Guardado normal
     await window._addRegistro(registro);
-
-    // 🔥 MOTOR INTELIGENTE
-    await motorSobregiro(registro);
-
-    alert("Registro guardado correctamente");
+    resetForm();
+    document.getElementById('estado').className='estado ok';
+    document.getElementById('estado').textContent='Registro guardado correctamente';
 
   } catch (e) {
     console.error(e);
-    alert("Error al guardar");
+    document.getElementById('estado').className='estado fail';
+    document.getElementById('estado').textContent='Error al guardar';
   }
 }
 

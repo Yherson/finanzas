@@ -448,38 +448,236 @@ function resetForm(){
   renderCats();renderSubs();
 }
 
-async function guardar(){
-  if(!validate()) return;
-  if(!window._firebaseReady||!window._addRegistro){
-    document.getElementById('estado').className='estado fail';
-    document.getElementById('estado').textContent='Conectando...';
-    setTimeout(guardar,1000); return;
+async function guardar() {
+  try {
+    const now = new Date();
+
+    const tipo = document.getElementById('tipo').value;
+    const rawMonto = document.getElementById('monto').value;
+    const catSel = document.getElementById('categoria').value;
+    const subSel = document.getElementById('subcategoria').value;
+
+    if (!rawMonto || !catSel) {
+      alert("Completa los campos obligatorios");
+      return;
+    }
+
+    const registro = {
+      fecha: document.getElementById('fecha').value,
+      fecha_ingreso: now.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
+      hora_ingreso: now.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+      fechahora: now.toLocaleString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+      tipo: tipo,
+      monto: parseFloat(rawMonto),
+      categoria: catSel,
+      subcategoria: subSel,
+      descripcion: document.getElementById('desc').value.trim(),
+      createdAt: window._serverTimestamp()
+    };
+
+    // 🔥 Guardado normal
+    await window._addRegistro(registro);
+
+    // 🔥 MOTOR INTELIGENTE
+    await motorSobregiro(registro);
+
+    alert("Registro guardado correctamente");
+
+  } catch (e) {
+    console.error(e);
+    alert("Error al guardar");
   }
-  var btn=document.getElementById('btnSave');
-  var e=document.getElementById('estado');
-  btn.disabled=true;
-  e.className='estado'; e.textContent='Guardando...';
-  try{
-    var now=new Date();
-    await window._addRegistro({
-      fecha:          document.getElementById('fecha').value,
-      fecha_ingreso:  now.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
-      hora_ingreso:   now.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-      fechahora:      now.toLocaleString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-      tipo:           tipo,
-      monto:          parseFloat(rawMonto),
-      categoria:      catSel,
-      subcategoria:   subSel,
-      descripcion:    document.getElementById('desc').value.trim(),
-      createdAt:      window._serverTimestamp()
+}
+
+// ===============================
+// 🔥 MOTOR SOBREGIRO INTELIGENTE
+// ===============================
+
+function esAhorro(subcategoria) {
+  return subcategoria && subcategoria.toUpperCase().includes("AHORRO");
+}
+
+function getPrimerDiaSiguienteMes(fechaStr) {
+  const fecha = new Date(fechaStr);
+  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1)
+    .toISOString()
+    .split("T")[0];
+}
+
+// 🔥 FUNCIÓN PRINCIPAL
+async function motorSobregiro(data) {
+  if (
+    data.tipo === "ingreso" &&
+    data.categoria === "SOBREGIRO"
+  ) {
+    console.log("🔥 Detectado SOBREGIRO");
+
+    await crearSobregiroFuturo(data);
+    await procesarPatrimonioSobregiro(data);
+  }
+}
+
+// ===============================
+// 🔥 MOTOR SOBREGIRO INTELIGENTE (MEJORADO)
+// ===============================
+
+function esAhorro(subcategoria) {
+  return subcategoria && subcategoria.toUpperCase().includes("AHORRO");
+}
+
+function getPrimerDiaSiguienteMes(fechaStr) {
+  const fecha = new Date(fechaStr);
+  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1)
+    .toISOString()
+    .split("T")[0];
+}
+
+// FUNCIÓN PRINCIPAL: detecta SOBREGIRO y aplica caso 1 / caso 2
+async function motorSobregiro(data) {
+  try {
+    if (data.tipo === "ingreso" && data.categoria && data.categoria.toUpperCase() === "SOBREGIRO") {
+      console.log("🔥 Detectado SOBREGIRO:", data);
+
+      const subUpper = (data.subcategoria || "").toUpperCase();
+
+      // Caso 2: si la subcategoría contiene "AHORRO AGORA" -> gasto inmediato en Patrimonio (mismo día)
+      if (subUpper.includes("AHORRO AGORA") || subUpper.includes("AHORRO")) {
+        // Registrar gasto inmediato en Patrimonio (historial)
+        await registrarHistorial({
+          fecha: data.fecha || new Date().toISOString().split('T')[0],
+          tipo: "gasto",
+          monto: data.monto,
+          categoria: "SOBREGIRO",
+          subcategoria: data.subcategoria || ""
+        });
+
+        // También guardar en Firestore como gasto (opcional, mantiene consistencia)
+        if (window._addRegistro) {
+          await window._addRegistro({
+            fecha: data.fecha || new Date().toISOString().split('T')[0],
+            fecha_ingreso: new Date().toLocaleDateString('es-PE'),
+            hora_ingreso: new Date().toLocaleTimeString('es-PE'),
+            fechahora: new Date().toLocaleString('es-PE'),
+            tipo: "gasto",
+            monto: data.monto,
+            categoria: "SOBREGIRO",
+            subcategoria: data.subcategoria || "",
+            descripcion: data.descripcion || "Gasto automático por SOBREGIRO -> AHORRO",
+            createdAt: window._serverTimestamp()
+          });
+        }
+
+      } else {
+        // Caso 1: crear gasto automático el primer día del mes siguiente
+        await crearSobregiroFuturo(data);
+      }
+    }
+  } catch (e) {
+    console.error("motorSobregiro error:", e);
+  }
+}
+
+// Crear gasto automático en el primer día del mes siguiente y registrar en historial
+async function crearSobregiroFuturo(data) {
+  try {
+    const fechaFutura = getPrimerDiaSiguienteMes(data.fecha || new Date().toISOString().split('T')[0]);
+    console.log("📅 Creando gasto automático para:", fechaFutura);
+
+    // Guardar registro en Firestore (gasto)
+    if (window._addRegistro) {
+      await window._addRegistro({
+        fecha: fechaFutura,
+        fecha_ingreso: new Date().toLocaleDateString('es-PE'),
+        hora_ingreso: new Date().toLocaleTimeString('es-PE'),
+        fechahora: new Date().toLocaleString('es-PE'),
+        tipo: "gasto",
+        monto: data.monto,
+        categoria: "SOBREGIRO",
+        subcategoria: data.subcategoria || "",
+        descripcion: "Gasto automático SOBREGIRO",
+        createdAt: window._serverTimestamp()
+      });
+    }
+
+    // Registrar en historial local/UI
+    await registrarHistorial({
+      fecha: fechaFutura,
+      tipo: "gasto",
+      monto: data.monto,
+      categoria: "SOBREGIRO",
+      subcategoria: data.subcategoria || ""
     });
-    e.className='estado ok'; e.textContent='Registrado';
-    resetForm();
-  } catch(err){
-    e.className='estado fail'; e.textContent='Error: '+err.message;
+
+  } catch (e) {
+    console.error("crearSobregiroFuturo error:", e);
   }
-  btn.disabled=false;
-  setTimeout(function(){e.className='estado';e.textContent='';},3000);
+}
+
+// ===============================
+// 🏦 IMPACTO EN PATRIMONIO
+// ===============================
+async function procesarPatrimonioSobregiro(data) {
+  if (!esAhorro(data.subcategoria)) return;
+
+  console.log("🏦 Impactando patrimonio");
+
+  const user = window._currentUser;
+  if (!user) return;
+
+  try {
+    await addDoc(
+      collection(db, 'users', user.uid, 'patrimonio'),
+      {
+        tipo: "deuda_sobregiro",
+        origen: data.subcategoria,
+        monto: data.monto,
+        fecha: data.fecha,
+        estado: "pendiente",
+        createdAt: window._serverTimestamp()
+      }
+    );
+  } catch (e) {
+    console.error("Error patrimonio:", e);
+  }
+}
+
+// ===============================
+// 🚨 ALERTAS
+// ===============================
+function calcularPenalizacionSobregiro(registros) {
+  let sobregiro = 0;
+  let ingresos = 0;
+
+  registros.forEach(r => {
+    if (r.tipo === "ingreso") ingresos += r.monto;
+
+    if (
+      r.tipo === "ingreso" &&
+      r.categoria === "SOBREGIRO"
+    ) {
+      sobregiro += r.monto;
+    }
+  });
+
+  if (ingresos === 0) return 0;
+
+  return ((sobregiro / ingresos) * 100).toFixed(2);
+}
+
+// ===============================
+// 📊 HEATMAP
+// ===============================
+function agruparGastosPorDia(registros) {
+  const mapa = {};
+
+  registros.forEach(r => {
+    if (r.tipo === "gasto") {
+      if (!mapa[r.fecha]) mapa[r.fecha] = 0;
+      mapa[r.fecha] += r.monto;
+    }
+  });
+
+  return mapa;
 }
 
 renderCats(); renderSubs();

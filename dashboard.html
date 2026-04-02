@@ -496,6 +496,9 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .patri-mov-amt{font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap;}
 .patri-mov-amt.pos{color:var(--green-tx);}
 .patri-mov-amt.neg{color:var(--red-tx);}
+.patri-mov-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.patri-mov-del{background:none;border:1px solid var(--border2);border-radius:2px;color:var(--muted);font-size:10px;padding:4px 8px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.patri-mov-del:hover{color:var(--red-tx);border-color:rgba(192,112,112,0.35);}
 .patri-empty{color:var(--muted);font-size:11px;padding:10px 0;line-height:1.6;}
 
 </style>
@@ -1185,6 +1188,11 @@ function existeMovimientoPatrimonioSobregiro(registroId){
     return m.registroId===registroId && m.categoria==='SOBREGIRO' && (m.subcategoria||'').toUpperCase()==='AHORRO AGORA';
   });
 }
+function sobregiroPatrimonioEliminado(registroId){
+  return _sobregiros.some(function(s){
+    return s.registroId===registroId && s.tipo==='AHORRO AGORA' && s.movimientoEliminado;
+  });
+}
 function existeGastoAutomaticoSobregiro(row, rows){
   var partesFecha=(row.fecha||'').split('-');
   var anioUso=parseInt(partesFecha[0]||0);
@@ -1217,6 +1225,7 @@ async function detectarSobregiro(row, rows, opts){
   if(sub==='AHORRO AGORA'){
     var yaLog=_sobregiros.some(function(s){ return s.registroId===row.id && s.tipo==='AHORRO AGORA'; });
     var yaMov=existeMovimientoPatrimonioSobregiro(row.id);
+    if(sobregiroPatrimonioEliminado(row.id)) return false;
     if(yaLog&&yaMov) return false;
     // Descuenta del activo AHORRO AGORA en Patrimonio
     var idx2=_activos.findIndex(function(a){
@@ -2200,6 +2209,48 @@ function getImpactoMovimientoPatrimonio(mov){
   if(mov.tipo==='elimina') return -monto;
   return parseFloat(mov.monto)||0;
 }
+function findPatrimonioItem(entidad, nombre){
+  var lista=entidad==='pasivo'?_pasivos:_activos;
+  return lista.find(function(item){ return item.nombre===nombre; })||null;
+}
+function upsertPatrimonioItem(entidad, nombre, monto){
+  var lista=entidad==='pasivo'?_pasivos:_activos;
+  var item=findPatrimonioItem(entidad, nombre);
+  if(item){
+    item.monto=Math.round(monto*100)/100;
+    if(item.monto<=0){
+      if(entidad==='pasivo') _pasivos=_pasivos.filter(function(p){return p.id!==item.id;});
+      else _activos=_activos.filter(function(a){return a.id!==item.id;});
+    }
+    return item;
+  }
+  if(monto>0){
+    item={id:Date.now().toString()+Math.random().toString(16).slice(2,6),nombre:nombre,monto:Math.round(monto*100)/100};
+    lista.push(item);
+    return item;
+  }
+  return null;
+}
+async function eliminarMovimientoPatrimonio(id){
+  var mov=_patrimonioMovimientos.find(function(x){return x.id===id;});
+  if(!mov) return;
+  var delta=Math.round((parseFloat(mov.monto)||0)*100)/100;
+  var item=findPatrimonioItem(mov.entidad, mov.nombre);
+  var montoActual=item?parseFloat(item.monto)||0:0;
+  var montoRevertido=Math.round((montoActual-delta)*100)/100;
+  upsertPatrimonioItem(mov.entidad, mov.nombre, montoRevertido);
+  _patrimonioMovimientos=_patrimonioMovimientos.filter(function(x){return x.id!==id;});
+  if(mov.categoria==='SOBREGIRO' && (mov.subcategoria||'').toUpperCase()==='AHORRO AGORA' && mov.registroId){
+    var sob=_sobregiros.find(function(s){return s.registroId===mov.registroId && s.tipo==='AHORRO AGORA';});
+    if(sob){
+      sob.movimientoEliminado=true;
+      await window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+    }
+  }
+  await savePatrimonio();
+  renderPatrimonio();
+  toast('Movimiento eliminado y patrimonio recalculado','ok');
+}
 async function savePatrimonio(){
   var netoInfo=getPatrimonioNeto();
   var today=getTodayPatrimonio();
@@ -2352,14 +2403,19 @@ function renderPatrimonio(){
         var top=document.createElement('div'); top.className='patri-mov-top';
         var title=document.createElement('div'); title.className='patri-mov-title';
         title.textContent=(mov.nombre||'Patrimonio')+' - '+(mov.motivo||'Movimiento');
+        var actions=document.createElement('div'); actions.className='patri-mov-actions';
         var amt=document.createElement('div'); amt.className='patri-mov-amt '+cls;
         amt.textContent=(impacto>=0?'+ ':'- ')+fmt(Math.abs(impacto));
+        var btnDel=document.createElement('button'); btnDel.className='patri-mov-del';
+        btnDel.textContent='Eliminar';
+        btnDel.onclick=(function(id){return function(){eliminarMovimientoPatrimonio(id);};})(mov.id);
         var sub=document.createElement('div'); sub.className='patri-mov-sub';
         var detalles=[mov.fecha||'', mov.categoria||'PATRIMONIO'];
         if(mov.subcategoria) detalles.push(mov.subcategoria);
         if(mov.saldoPosterior!==undefined&&mov.saldoPosterior!==null) detalles.push('Patrimonio neto: '+fmt(mov.saldoPosterior));
         sub.textContent=detalles.filter(Boolean).join(' • ');
-        top.appendChild(title); top.appendChild(amt);
+        actions.appendChild(amt); actions.appendChild(btnDel);
+        top.appendChild(title); top.appendChild(actions);
         body.appendChild(top); body.appendChild(sub);
         row.appendChild(dot); row.appendChild(body);
         movWrap.appendChild(row);

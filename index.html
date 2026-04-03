@@ -63,7 +63,7 @@ body{display:flex;justify-content:center;padding:0;}
 /* MONTO */
 .monto-wrap{display:flex;align-items:baseline;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border2);}
 .monto-sym{font-family:'IBM Plex Serif',serif;font-size:22px;font-weight:300;color:var(--muted);}
-.monto-inp{flex:1;background:none;border:none;outline:none;font-family:'IBM Plex Serif',serif;font-size:44px;font-weight:400;color:var(--text);letter-spacing:-1px;width:100%;appearance:none;-webkit-appearance:none;}
+.monto-inp{flex:1;background:none;border:none;outline:none;font-family:'IBM Plex Serif',serif;font-size:44px;font-weight:400;color:var(--text);letter-spacing:-1px;width:100%;-webkit-appearance:none;}
 .monto-inp::placeholder{color:var(--border2);}
 .err-msg{font-size:10px;color:var(--red);margin-top:5px;}
 
@@ -96,7 +96,7 @@ body{display:flex;justify-content:center;padding:0;}
 /* INLINE FORM */
 .inline-form{display:none;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap;}
 .inline-form.on{display:flex;}
-.inline-inp{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
+.inline-inp{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);outline:none;-webkit-appearance:none;}
 .inline-inp::placeholder{color:var(--muted);}
 .inline-inp:focus{border-color:var(--gold-b);}
 .inline-ok{padding:9px 16px;border-radius:2px;border:1px solid var(--gold-b);background:var(--gold-d);font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);cursor:pointer;}
@@ -111,7 +111,7 @@ body{display:flex;justify-content:center;padding:0;}
 .modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .modal-title-txt{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
 .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
-.modal-inp{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:300;color:var(--text);outline:none;margin-bottom:12px;appearance:none;-webkit-appearance:none;}
+.modal-inp{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:300;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;}
 .modal-inp:focus{border-color:var(--gold-b);}
 .modal-btns{display:flex;gap:8px;}
 .mbtn{flex:1;padding:12px;border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;border:none;}
@@ -127,7 +127,7 @@ body{display:flex;justify-content:center;padding:0;}
 .row{display:flex;gap:16px;}
 .row .section{flex:1;}
 .row .section.wide{flex:1.8;}
-.text-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
+.text-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;}
 .text-inp::placeholder{color:var(--muted);}
 input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3);cursor:pointer;}
 
@@ -255,7 +255,7 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, setPersistence, inMemoryPersistence } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCBEViX704HkJvpQBxCgb_r6so9c3efhr8",
@@ -270,114 +270,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
-const LOCAL_CATS_KEY = 'ff_data';
-const LOCAL_CATS_PENDING_KEY = 'ff_data_pending';
-const LOCAL_REG_QUEUE_KEY = 'ff_pending_registros';
-
-setPersistence(auth, inMemoryPersistence).catch(function(e){
-  console.error('auth persistence:', e);
-});
-
-function cloneData(value){
-  return JSON.parse(JSON.stringify(value));
-}
-
-function readJSON(key, fallback){
-  try {
-    var raw = localStorage.getItem(key);
-    if(!raw) return fallback;
-    return JSON.parse(raw);
-  } catch(e) {
-    return fallback;
-  }
-}
-
-function writeJSON(key, value){
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch(e) {
-    return false;
-  }
-}
-
-function isValidCatsData(value){
-  return !!value && typeof value === 'object' && value.gasto && value.ingreso && value.gasto.cats && value.gasto.subs && value.ingreso.cats && value.ingreso.subs;
-}
-
-function loadCachedCats(){
-  var cached = readJSON(LOCAL_CATS_KEY, null);
-  return isValidCatsData(cached) ? cloneData(cached) : cloneData(defaultData);
-}
-
-function cacheCats(value, markPending){
-  var snapshot = cloneData(value);
-  writeJSON(LOCAL_CATS_KEY, snapshot);
-  if(markPending){
-    writeJSON(LOCAL_CATS_PENDING_KEY, snapshot);
-  }
-  return snapshot;
-}
-
-function getPendingRecords(){
-  var queue = readJSON(LOCAL_REG_QUEUE_KEY, []);
-  return Array.isArray(queue) ? queue : [];
-}
-
-function queueRecord(record){
-  var queue = getPendingRecords();
-  queue.push(cloneData(record));
-  writeJSON(LOCAL_REG_QUEUE_KEY, queue);
-}
-
-async function flushPendingRecords(){
-  if(!window._currentUser || !window._addRegistroOnline || !navigator.onLine) return;
-  var queue = getPendingRecords();
-  if(!queue.length) return;
-
-  var remaining = [];
-  for(var i = 0; i < queue.length; i++){
-    try {
-      await window._addRegistroOnline(queue[i]);
-    } catch(e) {
-      console.error('flushPendingRecords:', e);
-      remaining = queue.slice(i);
-      break;
-    }
-  }
-
-  writeJSON(LOCAL_REG_QUEUE_KEY, remaining);
-}
-
-async function syncPendingCats(){
-  if(!window._currentUser || !window._saveCatsOnline || !navigator.onLine) return false;
-  var pending = readJSON(LOCAL_CATS_PENDING_KEY, null);
-  if(!isValidCatsData(pending)) return false;
-  try {
-    await window._saveCatsOnline(window._currentUser.uid, pending);
-    writeJSON(LOCAL_CATS_KEY, pending);
-    localStorage.removeItem(LOCAL_CATS_PENDING_KEY);
-    return true;
-  } catch(e) {
-    console.error('syncPendingCats:', e);
-    return false;
-  }
-}
-
-async function submitRegistro(registro){
-  var snapshot = cloneData(registro);
-  if(window._currentUser && window._addRegistroOnline && navigator.onLine){
-    try {
-      return await window._addRegistroOnline(snapshot);
-    } catch(e) {
-      console.error('submitRegistro online:', e);
-    }
-  }
-
-  queueRecord(snapshot);
-  return { localOnly: true };
-}
 
 window._serverTimestamp = serverTimestamp;
 
@@ -395,54 +287,32 @@ window._loadCats = async (uid) => {
     return s.exists() ? s.data() : null;
   } catch(e) { return null; }
 };
-window._saveCatsOnline = async (uid, data) => {
+window._saveCats = async (uid, data) => {
   try { await setDoc(doc(db,'users',uid,'config','categorias'), data); }
   catch(e) { console.error('saveCats:', e); }
 };
-window._saveCats = async (uid, data) => {
-  var snapshot = cacheCats(data, true);
-  if(!uid || !navigator.onLine || !window._saveCatsOnline) return snapshot;
-  try {
-    await window._saveCatsOnline(uid, snapshot);
-    localStorage.removeItem(LOCAL_CATS_PENDING_KEY);
-  } catch(e) {
-    console.error('saveCats:', e);
-  }
-  return snapshot;
-};
-window._addRegistro = submitRegistro;
 
 onAuthStateChanged(auth, user => {
   if(user){
     window._currentUser = user;
-    window._addRegistroOnline = async (data) => addDoc(collection(db,'users',user.uid,'registros'), data);
+    window._addRegistro = async (data) => addDoc(collection(db,'users',user.uid,'registros'), data);
     window._firebaseReady = true;
     document.getElementById('authScreen').classList.remove('show');
     document.getElementById('mainPage').classList.add('show');
     document.getElementById('userName').textContent = user.displayName || user.email || 'Usuario';
-    syncPendingCats().then(function(){
-      return window._loadCats(user.uid);
-    }).then(function(cats){
+    // Load categories from Firestore
+    window._loadCats(user.uid).then(function(cats){
       if(cats && (cats.gasto || cats.ingreso)){
-        data = cacheCats(cats, false);
-      } else {
-        data = loadCachedCats();
+        data = cats;
       }
       renderCats(); renderSubs();
-      return flushPendingRecords();
     });
   } else {
     window._currentUser = null;
     window._firebaseReady = false;
-    window._addRegistroOnline = null;
     document.getElementById('authScreen').classList.add('show');
     document.getElementById('mainPage').classList.remove('show');
   }
-});
-
-window.addEventListener('online', function(){
-  syncPendingCats();
-  flushPendingRecords();
 });
 </script>
 
@@ -462,14 +332,18 @@ var defaultData={
   }
 };
 
-function loadData(){return loadCachedCats();}
+function loadData(){return JSON.parse(JSON.stringify(defaultData));} // initial default
 function saveData(d){
-  data = cacheCats(d, !navigator.onLine || !window._currentUser);
+  // Save to localStorage as fast cache
+  try{localStorage.setItem('ff_data',JSON.stringify(d));}catch(e){}
+  // Save to Firestore as source of truth
   if(window._currentUser && window._saveCats){
-    window._saveCats(window._currentUser.uid, data).catch(function(e){console.error('saveCats:',e);});
+    window._saveCats(window._currentUser.uid, d).catch(function(e){console.error('saveCats:',e);});
   }
 }
 var data=loadData();
+// Try to restore from localStorage while Firestore loads
+try{var s=localStorage.getItem('ff_data');if(s){var parsed=JSON.parse(s);if(parsed.gasto||parsed.ingreso)data=parsed;}}catch(e){}
 
 // DateTime
 function updateDT(){
@@ -576,11 +450,16 @@ function resetForm(){
 
 async function guardar() {
   try {
+    if(!window._firebaseReady || !window._addRegistro){
+      alert("Primero inicia sesión");
+      return;
+    }
     document.getElementById('eMonto').textContent='';
     document.getElementById('eCat').textContent='';
     if(!validate()) return;
 
     const now = new Date();
+
     const registro = {
       fecha: document.getElementById('fecha').value,
       fecha_ingreso: now.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
@@ -594,26 +473,49 @@ async function guardar() {
       createdAt: window._serverTimestamp()
     };
 
-    var result = await window._addRegistro(registro);
-    var wasLocalOnly = !!(result && result.localOnly);
-
+    await window._addRegistro(registro);
     resetForm();
-    var estado = document.getElementById('estado');
-    if(estado){
-      estado.className='estado ' + (wasLocalOnly ? 'warn' : 'ok');
-      estado.textContent=wasLocalOnly ? 'Guardado localmente. Se sincronizará al volver la conexión.' : 'Registro guardado correctamente';
-      setTimeout(function(){ estado.textContent=''; },1800);
-    }
+    document.getElementById('estado').className='estado ok';
+    document.getElementById('estado').textContent='Registro guardado correctamente';
 
   } catch (e) {
     console.error(e);
-    var estadoErr = document.getElementById('estado');
-    if(estadoErr){
-      estadoErr.className='estado fail';
-      estadoErr.textContent='Error al guardar';
-    }
+    document.getElementById('estado').className='estado fail';
+    document.getElementById('estado').textContent='Error al guardar';
   }
 }
+
+// ===============================
+// 🔥 MOTOR SOBREGIRO INTELIGENTE
+// ===============================
+
+function esAhorro(subcategoria) {
+  return subcategoria && subcategoria.toUpperCase().includes("AHORRO");
+}
+
+function getPrimerDiaSiguienteMes(fechaStr) {
+  const fecha = new Date(fechaStr);
+  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1)
+    .toISOString()
+    .split("T")[0];
+}
+
+// 🔥 FUNCIÓN PRINCIPAL
+async function motorSobregiro(data) {
+  if (
+    data.tipo === "ingreso" &&
+    data.categoria === "SOBREGIRO"
+  ) {
+    console.log("🔥 Detectado SOBREGIRO");
+
+    await crearSobregiroFuturo(data);
+    await procesarPatrimonioSobregiro(data);
+  }
+}
+
+// ===============================
+// 🔥 MOTOR SOBREGIRO INTELIGENTE (MEJORADO)
+// ===============================
 
 function esAhorro(subcategoria) {
   return subcategoria && subcategoria.toUpperCase().includes("AHORRO");

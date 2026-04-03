@@ -389,7 +389,36 @@ function renderSubs(){
   c.appendChild(add);
 }
 
-function selectCat(c){catSel=catSel===c?'':c;subSel='';document.getElementById('eCat').textContent='';cancelInline('cat');cancelInline('sub');renderCats();renderSubs();}
+function selectCat(c){
+  catSel = catSel === c ? '' : c;
+  subSel = '';
+  document.getElementById('eCat').textContent='';
+  cancelInline('cat'); cancelInline('sub');
+  renderCats(); renderSubs();
+
+  // Memoria de categoria: auto-select last used subcategoria
+  if (catSel && typeof window._allRowsRef !== 'undefined' && window._allRowsRef) {
+    var historial = window._allRowsRef.filter(function(r) {
+      return r.categoria === catSel && r.subcategoria;
+    });
+    if (historial.length > 0) {
+      // Sort by most recent
+      historial.sort(function(a, b) {
+        var ta = a.createdAt ? (a.createdAt.seconds || 0) : 0;
+        var tb = b.createdAt ? (b.createdAt.seconds || 0) : 0;
+        return tb - ta;
+      });
+      var ultimaSub = historial[0].subcategoria;
+      // Only auto-select if it exists in current subcategory list
+      var subsDisponibles = data[tipo].subs[catSel] || [];
+      if (subsDisponibles.indexOf(ultimaSub) >= 0) {
+        subSel = ultimaSub;
+        console.log('[memoriaCategoria] auto-seleccionado:', ultimaSub);
+        renderSubs();
+      }
+    }
+  }
+}
 function selectSub(s){subSel=subSel===s?'':s;renderSubs();}
 
 function showInline(t){
@@ -469,7 +498,7 @@ function resetForm(){
 async function guardar() {
   try {
     if(!window._firebaseReady || !window._addRegistro){
-      alert("Primero inicia sesión");
+      alert("Primero inicia sesi?n");
       return;
     }
     document.getElementById('eMonto').textContent='';
@@ -504,7 +533,23 @@ async function guardar() {
 }
 
 // ===============================
-// 🔥 MOTOR SOBREGIRO INTELIGENTE
+// ? MOTOR SOBREGIRO INTELIGENTE
+// ===============================
+
+
+
+function getPrimerDiaSiguienteMes(fechaStr) {
+  const fecha = new Date(fechaStr);
+  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1)
+    .toISOString()
+    .split("T")[0];
+}
+
+// ? FUNCI?N PRINCIPAL
+async 
+
+// ===============================
+// ? MOTOR SOBREGIRO INTELIGENTE (MEJORADO)
 // ===============================
 
 function esAhorro(subcategoria) {
@@ -518,43 +563,15 @@ function getPrimerDiaSiguienteMes(fechaStr) {
     .split("T")[0];
 }
 
-// 🔥 FUNCIÓN PRINCIPAL
-async function motorSobregiro(data) {
-  if (
-    data.tipo === "ingreso" &&
-    data.categoria === "SOBREGIRO"
-  ) {
-    console.log("🔥 Detectado SOBREGIRO");
-
-    await crearSobregiroFuturo(data);
-    await procesarPatrimonioSobregiro(data);
-  }
-}
-
-// ===============================
-// 🔥 MOTOR SOBREGIRO INTELIGENTE (MEJORADO)
-// ===============================
-
-function esAhorro(subcategoria) {
-  return subcategoria && subcategoria.toUpperCase().includes("AHORRO");
-}
-
-function getPrimerDiaSiguienteMes(fechaStr) {
-  const fecha = new Date(fechaStr);
-  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1)
-    .toISOString()
-    .split("T")[0];
-}
-
-// FUNCIÓN PRINCIPAL: detecta SOBREGIRO y aplica caso 1 / caso 2
+// FUNCI?N PRINCIPAL: detecta SOBREGIRO y aplica caso 1 / caso 2
 async function motorSobregiro(data) {
   try {
     if (data.tipo === "ingreso" && data.categoria && data.categoria.toUpperCase() === "SOBREGIRO") {
-      console.log("🔥 Detectado SOBREGIRO:", data);
+      console.log("? Detectado SOBREGIRO:", data);
 
       const subUpper = (data.subcategoria || "").toUpperCase();
 
-      // Caso 2: si la subcategoría contiene "AHORRO AGORA" -> gasto inmediato en Patrimonio (mismo día)
+      // Caso 2: si la subcategor?a contiene "AHORRO AGORA" -> gasto inmediato en Patrimonio (mismo d?a)
       if (subUpper.includes("AHORRO AGORA") || subUpper.includes("AHORRO")) {
         // Registrar gasto inmediato en Patrimonio (historial)
         await registrarHistorial({
@@ -565,25 +582,25 @@ async function motorSobregiro(data) {
           subcategoria: data.subcategoria || ""
         });
 
-        // También guardar en Firestore como gasto (opcional, mantiene consistencia)
+        // Tambi?n guardar en Firestore como gasto (opcional, mantiene consistencia)
         if (window._addRegistro) {
           await window._addRegistro({
             fecha: data.fecha || new Date().toISOString().split('T')[0],
-            fecha_ingreso: new Date().toLocaleDateString('es-PE'),
+            fecha_ingreso: formatISODate(new Date()),
             hora_ingreso: new Date().toLocaleTimeString('es-PE'),
-            fechahora: new Date().toLocaleString('es-PE'),
+            fechahora: formatISODate(new Date()) + ' ' + String(new Date().getHours()).padStart(2,'0') + ':' + String(new Date().getMinutes()).padStart(2,'0'),
             tipo: "gasto",
             monto: data.monto,
             categoria: "SOBREGIRO",
             subcategoria: data.subcategoria || "",
-            descripcion: data.descripcion || "Gasto automático por SOBREGIRO -> AHORRO",
+            descripcion: data.descripcion || "Gasto autom?tico por SOBREGIRO -> AHORRO",
             createdAt: window._serverTimestamp()
           });
         }
 
       } else {
-        // Caso 1: crear gasto automático el primer día del mes siguiente
-        await crearSobregiroFuturo(data);
+        // Caso 1: crear gasto autom?tico el primer d?a del mes siguiente
+        await crearSobregiroFuturo(data, data.id || '');
       }
     }
   } catch (e) {
@@ -591,49 +608,64 @@ async function motorSobregiro(data) {
   }
 }
 
-// Crear gasto automático en el primer día del mes siguiente y registrar en historial
-async function crearSobregiroFuturo(data) {
+// Crear gasto autom?tico en el primer d?a del mes siguiente y registrar en historial
+async function formatISODate(date) {
+  // Always returns YYYY-MM-DD regardless of browser locale
+  var y = date.getFullYear();
+  var m = String(date.getMonth() + 1).padStart(2, '0');
+  var d = String(date.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+async function crearSobregiroFuturo(data, incomeId) {
   try {
-    const fechaFutura = getPrimerDiaSiguienteMes(data.fecha || new Date().toISOString().split('T')[0]);
-    console.log("📅 Creando gasto automático para:", fechaFutura);
+    // Calculate first day of next month using formatISODate (locale-safe)
+    var partes = (data.fecha || formatISODate(new Date())).split('-');
+    var anio = parseInt(partes[0]);
+    var mes  = parseInt(partes[1]);
+    var anioSig = mes === 12 ? anio + 1 : anio;
+    var mesSig  = mes === 12 ? 1 : mes + 1;
+    var fechaFutura = anioSig + '-' + String(mesSig).padStart(2,'0') + '-01';
 
-    // Guardar registro en Firestore (gasto)
+    console.log('[crearSobregiroFuturo] fecha:', fechaFutura, 'monto:', data.monto, 'linkedTo:', incomeId);
+
+    var now = new Date();
+    var registro = {
+      fecha:         fechaFutura,
+      fecha_ingreso: formatISODate(now),
+      hora_ingreso:  String(now.getHours()).padStart(2,'0') + ':' +
+                     String(now.getMinutes()).padStart(2,'0') + ':' +
+                     String(now.getSeconds()).padStart(2,'0'),
+      fechahora:     formatISODate(now) + ' ' + String(now.getHours()).padStart(2,'0') + ':' +
+                     String(now.getMinutes()).padStart(2,'0'),
+      tipo:          'gasto',
+      monto:         data.monto,
+      categoria:     'SOBREGIRO',
+      subcategoria:  data.subcategoria || '',
+      descripcion:   'Descuento automatico sobregiro del ' + data.fecha,
+      isAutomatic:   true,
+      linkedIncomeId: incomeId || '',
+      createdAt:     window._serverTimestamp()
+    };
+
     if (window._addRegistro) {
-      await window._addRegistro({
-        fecha: fechaFutura,
-        fecha_ingreso: new Date().toLocaleDateString('es-PE'),
-        hora_ingreso: new Date().toLocaleTimeString('es-PE'),
-        fechahora: new Date().toLocaleString('es-PE'),
-        tipo: "gasto",
-        monto: data.monto,
-        categoria: "SOBREGIRO",
-        subcategoria: data.subcategoria || "",
-        descripcion: "Gasto automático SOBREGIRO",
-        createdAt: window._serverTimestamp()
-      });
+      await window._addRegistro(registro);
+      console.log('[crearSobregiroFuturo] gasto creado en Firestore para', fechaFutura);
+    } else {
+      console.error('[crearSobregiroFuturo] window._addRegistro no disponible');
     }
-
-    // Registrar en historial local/UI
-    await registrarHistorial({
-      fecha: fechaFutura,
-      tipo: "gasto",
-      monto: data.monto,
-      categoria: "SOBREGIRO",
-      subcategoria: data.subcategoria || ""
-    });
-
   } catch (e) {
-    console.error("crearSobregiroFuturo error:", e);
+    console.error('[crearSobregiroFuturo] error:', e);
   }
 }
 
 // ===============================
-// 🏦 IMPACTO EN PATRIMONIO
+// ? IMPACTO EN PATRIMONIO
 // ===============================
 async function procesarPatrimonioSobregiro(data) {
   if (!esAhorro(data.subcategoria)) return;
 
-  console.log("🏦 Impactando patrimonio");
+  console.log("? Impactando patrimonio");
 
   const user = window._currentUser;
   if (!user) return;
@@ -656,7 +688,7 @@ async function procesarPatrimonioSobregiro(data) {
 }
 
 // ===============================
-// 🚨 ALERTAS
+// ? ALERTAS
 // ===============================
 function calcularPenalizacionSobregiro(registros) {
   let sobregiro = 0;
@@ -679,7 +711,7 @@ function calcularPenalizacionSobregiro(registros) {
 }
 
 // ===============================
-// 📊 HEATMAP
+// ? HEATMAP
 // ===============================
 function agruparGastosPorDia(registros) {
   const mapa = {};

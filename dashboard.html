@@ -1102,6 +1102,7 @@ function toast(msg,type,dur){
   setTimeout(function(){ removeToast(t); }, dur);
 }
 function removeToast(t){ if(!t||!t.parentElement) return; t.classList.add('out'); setTimeout(function(){ if(t.parentElement) t.parentElement.removeChild(t); },300); }
+function cloneData(obj){ return JSON.parse(JSON.stringify(obj)); }
 
 /* FMT */
 function fmt(n){ return (window._moneda||'S/')+' '+Math.abs(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -1822,7 +1823,7 @@ function buildProyec(){
 /* METAS */
 /* PRESUPUESTO */
 function diasMes(m){ return new Date(new Date().getFullYear(),m,0).getDate(); }
-async function savePresupuestos(){ try{ await window._savePresupuestos({cats:presupCat,subs:presupSub}); }catch(e){} }
+async function savePresupuestos(){ await window._savePresupuestos({cats:presupCat,subs:presupSub}); }
 function renderPresupuesto(){
   var mes=periodoActivo||(new Date().getMonth()+1);
   var rows=getRows(mes);
@@ -1962,25 +1963,41 @@ function loadSubcats(){
   Object.keys(set).sort().forEach(function(s){sel.innerHTML+='<option value="'+s+'">'+s+'</option>';});
 }
 async function guardarPresupCat(){
+  var prevCat=cloneData(presupCat), prevSub=cloneData(presupSub);
   var cat=document.getElementById('pCatSel').value,mens=parseFloat(document.getElementById('pMens').value)||0,daily=parseFloat(document.getElementById('pDaily').value)||0;
   if(!cat||(!mens&&!daily)){toast('Selecciona categoria y monto','err');return;}
   if(daily>0&&!mens) mens=daily*diasMes(periodoActivo||(new Date().getMonth()+1));
   presupCat[cat]={mensual:mens,diario:daily};
-  try{await savePresupuestos();toast('Presupuesto guardado','ok');}catch(e){toast('Error','err');}
+  try{await savePresupuestos();toast('Presupuesto guardado','ok');}
+  catch(e){presupCat=prevCat;presupSub=prevSub;toast('No se pudo guardar en la nube','err');}
   document.getElementById('pMens').value=''; document.getElementById('pDaily').value='';
   renderPresupuesto();
 }
 async function guardarPresupSub(){
+  var prevCat=cloneData(presupCat), prevSub=cloneData(presupSub);
   var cat=document.getElementById('pSubCatSel').value,sub=document.getElementById('pSubSel').value,mens=parseFloat(document.getElementById('pSubMens').value)||0,daily=parseFloat(document.getElementById('pSubDaily').value)||0;
   if(!cat||!sub||(!mens&&!daily)){toast('Completa todos los campos','err');return;}
   if(daily>0&&!mens) mens=daily*diasMes(periodoActivo||(new Date().getMonth()+1));
   presupSub[cat+'||'+sub]={mensual:mens,diario:daily};
-  try{await savePresupuestos();toast('Subcategoria guardada','ok');}catch(e){}
+  try{await savePresupuestos();toast('Subcategoria guardada','ok');}
+  catch(e){presupCat=prevCat;presupSub=prevSub;toast('No se pudo guardar en la nube','err');}
   document.getElementById('pSubMens').value=''; document.getElementById('pSubDaily').value='';
   renderPresupuesto();
 }
-async function elimPresupCat(cat){delete presupCat[cat];try{await savePresupuestos();toast('Eliminado','info');}catch(e){}renderPresupuesto();}
-async function elimPresupSub(key){delete presupSub[key];try{await savePresupuestos();}catch(e){}renderPresupuesto();}
+async function elimPresupCat(cat){
+  var prevCat=cloneData(presupCat), prevSub=cloneData(presupSub);
+  delete presupCat[cat];
+  try{await savePresupuestos();toast('Eliminado','info');}
+  catch(e){presupCat=prevCat;presupSub=prevSub;toast('No se pudo eliminar en la nube','err');}
+  renderPresupuesto();
+}
+async function elimPresupSub(key){
+  var prevCat=cloneData(presupCat), prevSub=cloneData(presupSub);
+  delete presupSub[key];
+  try{await savePresupuestos();toast('Eliminado','info');}
+  catch(e){presupCat=prevCat;presupSub=prevSub;toast('No se pudo eliminar en la nube','err');}
+  renderPresupuesto();
+}
 function renderPresupLists(){
   var l1=document.getElementById('pCatList'),l2=document.getElementById('pSubList');
   if(l1){l1.innerHTML='';Object.keys(presupCat).forEach(function(c){var pm=presupCat[c].mensual,pd=presupCat[c].diario;l1.innerHTML+='<div class="p-list-item"><span class="p-list-name">'+c+'</span><span class="p-list-amt">'+fmt(pm)+'/mes'+(pd>0?' '+fmt(pd)+'/d':'')+'</span><button class="p-list-del" onclick="elimPresupCat(\''+c+'\')">&#x2715;</button></div>';});if(!Object.keys(presupCat).length)l1.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin configurar</div>';}
@@ -2089,10 +2106,20 @@ function renderAlertas(){
 
   renderSobregiroAlertas();}
 function guardarAlerta(){
+  var prev=cloneData(_settings);
   var cat=document.getElementById('alertCat').value,limit=parseFloat(document.getElementById('alertLimit').value);
   if(!cat||!limit||limit<=0){toast('Completa categoria y limite','err');return;}
   var l=getLimites();l[cat]=limit;_settings.limites=l;
-  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
+  if(window._saveSettings){
+    window._saveSettings(_settings).then(function(){
+      document.getElementById('alertLimit').value=''; toast('Limite guardado para '+cat,'ok'); renderAlertas();
+    }).catch(function(){
+      _settings=prev;
+      toast('No se pudo guardar en la nube','err');
+      renderAlertas();
+    });
+    return;
+  }
   document.getElementById('alertLimit').value=''; toast('Limite guardado para '+cat,'ok'); renderAlertas();
 }
 
@@ -2185,16 +2212,20 @@ function renderRecurrentes(){
   });
 }
 async function agregarRecurrente(){
+  var prev=cloneData(_recurrentes);
   var nombre=document.getElementById('recNombre').value.trim(),monto=parseFloat(document.getElementById('recMonto').value)||0,dia=parseInt(document.getElementById('recDia').value)||0,cat=document.getElementById('recCat').value;
   if(!nombre||!monto||!dia){toast('Completa todos los campos','err');return;}
   _recurrentes.push({nombre:nombre,monto:monto,dia:dia,categoria:cat||'General'});
-  try{await window._saveRecurrentes(_recurrentes);toast(nombre+' agregado','ok');}catch(e){toast('Guardado localmente','info');}
+  try{await window._saveRecurrentes(_recurrentes);toast(nombre+' agregado','ok');}
+  catch(e){_recurrentes=prev;toast('No se pudo guardar en la nube','err');}
   document.getElementById('recNombre').value='';document.getElementById('recMonto').value='';
   renderRecurrentes();
 }
 async function eliminarRecurrente(idx){
+  var prev=cloneData(_recurrentes);
   _recurrentes.splice(idx,1);
-  try{await window._saveRecurrentes(_recurrentes);toast('Eliminado','info');}catch(e){}
+  try{await window._saveRecurrentes(_recurrentes);toast('Eliminado','info');}
+  catch(e){_recurrentes=prev;toast('No se pudo eliminar en la nube','err');}
   renderRecurrentes();
 }
 function checkRecurrentes(){
@@ -2263,6 +2294,7 @@ function upsertPatrimonioItem(entidad, nombre, monto){
   return null;
 }
 async function eliminarMovimientoPatrimonio(id){
+  var prevActivos=cloneData(_activos), prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevSob=cloneData(_sobregiros);
   var mov=_patrimonioMovimientos.find(function(x){return x.id===id;});
   if(!mov) return;
   var delta=Math.round((parseFloat(mov.monto)||0)*100)/100;
@@ -2275,10 +2307,22 @@ async function eliminarMovimientoPatrimonio(id){
     var sob=_sobregiros.find(function(s){return s.registroId===mov.registroId && s.tipo==='AHORRO AGORA';});
     if(sob){
       sob.movimientoEliminado=true;
-      await window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+      try{ await window._saveSobregiros(_sobregiros); }
+      catch(e){
+        _activos=prevActivos; _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _sobregiros=prevSob;
+        toast('No se pudo guardar en la nube','err');
+        renderPatrimonio();
+        return;
+      }
     }
   }
-  await savePatrimonio();
+  try{ await savePatrimonio(); }
+  catch(e){
+    _activos=prevActivos; _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _sobregiros=prevSob;
+    toast('No se pudo guardar en la nube','err');
+    renderPatrimonio();
+    return;
+  }
   renderPatrimonio();
   toast('Movimiento eliminado y patrimonio recalculado','ok');
 }
@@ -2289,30 +2333,32 @@ async function savePatrimonio(){
   if(existing>=0) _patrimonioHistory[existing].valor=netoInfo.neto;
   else _patrimonioHistory.push({fecha:today,valor:netoInfo.neto});
   _patrimonioHistory=_patrimonioHistory.slice(-24);
-  try{
-    await window._savePatrimonio({
-      activos:_activos,
-      pasivos:_pasivos,
-      history:_patrimonioHistory,
-      movimientos:_patrimonioMovimientos
-    });
-  }catch(e){}
+  await window._savePatrimonio({
+    activos:_activos,
+    pasivos:_pasivos,
+    history:_patrimonioHistory,
+    movimientos:_patrimonioMovimientos
+  });
 }
 async function agregarActivo(){
+  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var n=document.getElementById('activoNombre').value.trim(),m=parseFloat(document.getElementById('activoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   _activos.push({id:Date.now().toString(),nombre:n,monto:m});
   registrarMovimientoPatrimonio({tipo:'agrega',entidad:'activo',nombre:n,monto:m,motivo:'Activo agregado manualmente'});
-  await savePatrimonio(); toast(n+' agregado','ok');
+  try{ await savePatrimonio(); toast(n+' agregado','ok'); }
+  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo guardar en la nube','err'); }
   document.getElementById('activoNombre').value='';document.getElementById('activoMonto').value='';
   renderPatrimonio();
 }
 async function agregarPasivo(){
+  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var n=document.getElementById('pasivoNombre').value.trim(),m=parseFloat(document.getElementById('pasivoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   _pasivos.push({id:Date.now().toString(),nombre:n,monto:m});
   registrarMovimientoPatrimonio({tipo:'agrega',entidad:'pasivo',nombre:n,monto:m,motivo:'Pasivo agregado manualmente'});
-  await savePatrimonio(); toast(n+' agregado','ok');
+  try{ await savePatrimonio(); toast(n+' agregado','ok'); }
+  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo guardar en la nube','err'); }
   document.getElementById('pasivoNombre').value='';document.getElementById('pasivoMonto').value='';
   renderPatrimonio();
 }
@@ -2329,6 +2375,7 @@ function editarPatrimonio(tipo,id){
 function hidePatriEditModal(){ document.getElementById('patriEditOv').classList.remove('show'); _patriEditType=null; _patriEditId=null; }
 async function confirmarPatriEdit(){
   if(!_patriEditType||!_patriEditId) return;
+  var prevActivos=cloneData(_activos), prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var lista=_patriEditType==='activo'?_activos:_pasivos;
   var item=lista.find(function(x){return x.id===_patriEditId;}); if(!item) return;
   var nombreAnterior=item.nombre;
@@ -2344,25 +2391,35 @@ async function confirmarPatriEdit(){
     categoria:'PATRIMONIO',
     subcategoria:item.nombre
   });
-  await savePatrimonio();
-  toast(item.nombre+' actualizado','ok');
-  hidePatriEditModal(); renderPatrimonio();
+  try{
+    await savePatrimonio();
+    toast(item.nombre+' actualizado','ok');
+    hidePatriEditModal();
+  }catch(e){
+    _activos=prevActivos; _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs;
+    toast('No se pudo guardar en la nube','err');
+  }
+  renderPatrimonio();
 }
 
 async function eliminarActivo(id){
+  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var item=_activos.find(function(a){return a.id===id;});
   if(!item) return;
   _activos=_activos.filter(function(a){return a.id!==id;});
   registrarMovimientoPatrimonio({tipo:'elimina',entidad:'activo',nombre:item.nombre,monto:-item.monto,motivo:'Activo eliminado manualmente'});
-  await savePatrimonio();
+  try{ await savePatrimonio(); toast('Activo eliminado','info'); }
+  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo eliminar en la nube','err'); }
   renderPatrimonio();
 }
 async function eliminarPasivo(id){
+  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var item=_pasivos.find(function(p){return p.id===id;});
   if(!item) return;
   _pasivos=_pasivos.filter(function(p){return p.id!==id;});
   registrarMovimientoPatrimonio({tipo:'elimina',entidad:'pasivo',nombre:item.nombre,monto:-item.monto,motivo:'Pasivo eliminado manualmente'});
-  await savePatrimonio();
+  try{ await savePatrimonio(); toast('Pasivo eliminado','info'); }
+  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo eliminar en la nube','err'); }
   renderPatrimonio();
 }
 function renderPatrimonio(){
@@ -2528,20 +2585,77 @@ function applyTheme(t){
   if(tD) tD.style.background=t==='dark'?'var(--border2)':'';
   if(tL) tL.style.background=t==='light'?'var(--border2)':'';
 }
-function setTheme(t){applyTheme(t);if(window._saveSettings){_settings.theme=t;window._saveSettings(_settings).catch(function(){});}}
+function setTheme(t){
+  var prev=cloneData(_settings), prevTheme=_settings.theme;
+  applyTheme(t);_settings.theme=t;
+  if(window._saveSettings){
+    window._saveSettings(_settings).catch(function(){
+      _settings=prev;
+      applyTheme(prevTheme||'dark');
+      toast('No se pudo guardar en la nube','err');
+    });
+  }
+}
 function hexToRgba(h,a){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')';}
 function applyAccent(c){document.documentElement.style.setProperty('--gold',c);document.documentElement.style.setProperty('--gold-d',hexToRgba(c,.1));document.documentElement.style.setProperty('--gold-b',hexToRgba(c,.3));document.querySelectorAll('.accent-btn').forEach(function(b){b.classList.toggle('sel',b.dataset.color===c);});}
-function setAccent(c,el){applyAccent(c);_settings.accentColor=c;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});}
-function guardarNombre(){var v=document.getElementById('cfgNombre').value.trim();if(!v)return;document.getElementById('dashName').textContent=v;_settings.dashName=v;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Nombre actualizado','ok');}
-function guardarMetaPct(){var v=parseFloat(document.getElementById('cfgMeta').value)||30;window._metaAhorro=v;_settings.meta=v;document.getElementById('metaActualLabel').textContent=v+'%';if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Meta de ahorro: '+v+'%','ok');renderDashboard();}
+function setAccent(c,el){
+  var prev=cloneData(_settings), prevAccent=_settings.accentColor;
+  applyAccent(c);_settings.accentColor=c;
+  if(window._saveSettings)window._saveSettings(_settings).catch(function(){
+    _settings=prev;
+    applyAccent(prevAccent||'#c9a84c');
+    toast('No se pudo guardar en la nube','err');
+  });
+}
+function guardarNombre(){
+  var prev=cloneData(_settings), prevName=document.getElementById('dashName').textContent;
+  var v=document.getElementById('cfgNombre').value.trim();if(!v)return;
+  document.getElementById('dashName').textContent=v;_settings.dashName=v;
+  if(window._saveSettings)window._saveSettings(_settings).then(function(){
+    toast('Nombre actualizado','ok');
+  }).catch(function(){
+    _settings=prev;
+    document.getElementById('dashName').textContent=prevName;
+    toast('No se pudo guardar en la nube','err');
+  });
+}
+function guardarMetaPct(){
+  var prev=cloneData(_settings), prevMeta=window._metaAhorro, prevLabel=document.getElementById('metaActualLabel').textContent;
+  var v=parseFloat(document.getElementById('cfgMeta').value)||30;window._metaAhorro=v;_settings.meta=v;document.getElementById('metaActualLabel').textContent=v+'%';
+  if(window._saveSettings)window._saveSettings(_settings).then(function(){
+    toast('Meta de ahorro: '+v+'%','ok');renderDashboard();
+  }).catch(function(){
+    _settings=prev;window._metaAhorro=prevMeta;document.getElementById('metaActualLabel').textContent=prevLabel;
+    toast('No se pudo guardar en la nube','err');renderDashboard();
+  });
+}
 function setWeekStart(v){
+  var prev=cloneData(_settings), prevWeek=_weekStart;
   _weekStart=parseInt(v);
   _settings.weekStart=v;
-  if(window._saveSettings) window._saveSettings(_settings).catch(function(){});
-  toast('Inicio de semana actualizado','ok');
+  if(window._saveSettings) window._saveSettings(_settings).then(function(){
+    toast('Inicio de semana actualizado','ok');
+  }).catch(function(){
+    _settings=prev;_weekStart=prevWeek;
+    var wsEl=document.getElementById('cfgWeekStart'); if(wsEl) wsEl.value=String(prevWeek);
+    toast('No se pudo guardar en la nube','err');
+    if(vistaActiva==='calendario') renderCalendario();
+  });
+  else toast('Inicio de semana actualizado','ok');
   if(vistaActiva==='calendario') renderCalendario();
 }
-function setMoneda(m){window._moneda=m;_settings.moneda=m;if(window._saveSettings)window._saveSettings(_settings).catch(function(){});toast('Moneda: '+m,'ok');renderVista();}
+function setMoneda(m){
+  var prev=cloneData(_settings), prevMoneda=window._moneda;
+  window._moneda=m;_settings.moneda=m;
+  if(window._saveSettings)window._saveSettings(_settings).then(function(){
+    toast('Moneda: '+m,'ok');renderVista();
+  }).catch(function(){
+    _settings=prev;window._moneda=prevMoneda;
+    var cm=document.getElementById('cfgMoneda'); if(cm) cm.value=prevMoneda;
+    toast('No se pudo guardar en la nube','err');renderVista();
+  });
+  else { toast('Moneda: '+m,'ok'); renderVista(); }
+}
 function renderStatsSystem(){
   var cont=document.getElementById('statsSystem');if(!cont)return;
   var stats=[{lbl:'Total registros',val:allRows.length},{lbl:'Meses con datos',val:new Set(allRows.map(function(r){return r.mes;})).size},{lbl:'Categorias',val:new Set(allRows.map(function(r){return r.categoria;})).size}];

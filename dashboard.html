@@ -11,65 +11,12 @@
 :root{
   --bg:#070709;--s1:#0d0d10;--s2:#121215;--s3:#181820;
   --border:#1e1e28;--border2:#28283a;
-  function renderPresupuesto(){
-    var mes=periodoActivo||(new Date().getMonth()+1);
-    var rows=getRows(mes);
-    var gastos=rows.filter(function(r){return r.tipo==='gasto';});
-    var cats=[],catSet={};
-    allRows.forEach(function(r){if(r.categoria&&!catSet[r.categoria]){catSet[r.categoria]=1;cats.push(r.categoria);}});
-    cats.sort();
-    ['pCatSel','pSubCatSel'].forEach(function(id){var sel=document.getElementById(id);if(sel){sel.innerHTML='<option value="">Categoria...</option>';cats.forEach(function(c){sel.innerHTML+='<option value="'+c+'">'+c+'</option>';});}});
-    var alertSel=document.getElementById('alertCat');if(alertSel){alertSel.innerHTML='<option value="">Categoria...</option>';cats.filter(function(c){return allRows.some(function(r){return r.categoria===c&&r.tipo==='gasto';});}).sort().forEach(function(c){alertSel.innerHTML+='<option value="'+c+'">'+c+'</option>';});}
-    var byCat={},bySub={};
-    gastos.forEach(function(r){byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto;var k=r.categoria+'||'+r.subcategoria;bySub[k]=(bySub[k]||0)+r.monto;});
-    var catsConP=Object.keys(presupCat);
-    var totP=catsConP.reduce(function(s,c){return s+(presupCat[c].mensual||0);},0);
-    var totG=catsConP.reduce(function(s,c){return s+(byCat[c]||0);},0);
-    var ratio=totP>0?totG/totP:0;
-    var resCls=ratio>1?'bad':ratio>0.85?'warn':'ok';
-    var ps=document.getElementById('presStats');
-    if(ps){
-      ps.innerHTML='<div class="ps-card"><div class="ps-lbl">Presupuesto mes</div><div class="ps-val">'+fmt(totP)+'</div></div><div class="ps-card"><div class="ps-lbl">Gastado</div><div class="ps-val '+resCls+'">'+fmt(totG)+'</div></div><div class="ps-card"><div class="ps-lbl">Uso del presupuesto</div><div class="ps-val">'+Math.round(ratio*100)+'%</div></div>';
-    }
-    var catsEl=document.getElementById('presCats'); if(!catsEl) return;
-    catsEl.innerHTML='';
-    if(!catsConP.length){catsEl.innerHTML='<div style="color:var(--muted);font-size:12px;padding:16px 0">Configura tu primer presupuesto abajo.</div>';renderPresupLists();return;}
-    catsConP.forEach(function(cat){
-      var pm=presupCat[cat].mensual||0;
-      var gastado=byCat[cat]||0;
-      var cls=gastado>pm?'bad':gastado>pm*0.9?'warn':'ok';
-      var barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
-      var pctG=pm>0?Math.min(gastado/pm*100,100):0;
-      var subKeys=Object.keys(presupSub).filter(function(k){return k.indexOf(cat+'||')===0;});
-      var card=document.createElement('div'); card.className='pc-card';
-
-      var html='<div class="pc-head" onclick="toggleSubsP(this)">';
-      html+='<div><div class="pc-name">'+cat+'</div><div class="pc-meta">'+fmt(pm)+'/mes</div></div>';
-      html+='<div class="pc-right"><div class="pc-nums">';
-      html+='<span class="pc-val '+cls+'">'+fmt(gastado)+'</span><span style="font-size:10px;color:var(--muted)"> / '+fmt(pm)+'</span>';
-      html+='</div>';
-      if(subKeys.length>0) html+='<span class="chevron">&#9660;</span>';
-      html+='</div></div>';
-
-      html+='<div class="p-bars">';
-      html+='<div class="p-bar-row"><span class="p-bar-lbl">Gastado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctG+'%;background:'+barC+'"></div></div><span class="p-bar-pct '+cls+'">'+Math.round(pctG)+'%</span></div>';
-      html+='</div>';
-      if(subKeys.length>0){
-        html+='<div class="p-subs">';
-        subKeys.forEach(function(sk){
-          var sn=sk.split('||')[1],spm=presupSub[sk].mensual||0;
-          var sg=bySub[sk]||0;
-          var spG=spm>0?Math.min(sg/spm*100,100):0;
-          var scls=sg>spm?'bad':sg>spm*0.9?'warn':'ok';
-          var sbar=scls==='bad'?'var(--red-tx)':scls==='warn'?'var(--gold)':'var(--green-tx)';
-          html+='<div class="p-sub-item"><div class="p-sub-head"><span>'+sn+'</span><span class="p-sub-amt '+scls+'">'+fmt(sg)+' / '+fmt(spm)+'</span></div><div class="p-sub-bar"><div class="p-sub-fill" style="width:'+spG+'%;background:'+sbar+'"></div></div></div>';
-        });
-        html+='</div>';
-      }
-      card.innerHTML=html; catsEl.appendChild(card);
-    });
-    renderPresupLists();
-  }
+  --text:#e7e5ec;--text2:#b8b4c2;--muted:#777383;--muted2:#9a96a6;
+  --green:#5aaA80;--green-d:rgba(90,170,128,.12);--green-b:rgba(90,170,128,.35);--green-tx:#7ecfa0;
+  --red:#c07070;--red-d:rgba(192,112,112,.12);--red-b:rgba(192,112,112,.35);--red-tx:#e08c8c;
+  --gold:#c9a84c;--gold-d:rgba(201,168,76,.12);--gold-b:rgba(201,168,76,.35);
+  --blue:#6a9acc;--blue-tx:#8fb7e3;
+}
 .weekly-delta.neu{color:var(--muted);}
 .top-cat-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);}
 .top-cat-row:last-child{border-bottom:none;}

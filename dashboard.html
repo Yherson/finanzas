@@ -702,6 +702,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <div class="metric"><div class="m-accent" style="background:var(--gold)"></div><div class="m-label">Balance neto</div><div class="m-value" style="color:var(--gold)" id="mBal">--</div><div class="m-delta" id="dBal"></div></div>
           <div class="metric"><div class="m-accent" style="background:#6a9acc"></div><div class="m-label">Tasa de ahorro</div><div class="m-value" style="color:var(--blue-tx)" id="mAho">--</div><div class="m-delta" id="dAho"></div></div>
           <div class="metric metric-deuda" style="display:none" id="mDeudaWrap"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Deuda sobregiro</div><div class="m-value" style="color:var(--red-tx)" id="mDeuda">--</div><div class="m-delta" id="dDeuda"></div></div>
+          <div class="metric" style="display:none" id="mCapPagoWrap"><div class="m-accent" style="background:var(--green)"></div><div class="m-label">Capacidad de pago</div><div class="m-value" id="mCapPago">--</div><div class="m-delta" id="dCapPago"></div></div>
         </div>
         <div class="row r2">
           <div class="card"><div class="card-title">Evolucion mensual ? <span id="lblEvol">anio</span></div><div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div><div class="legend"><div class="leg-item"><div class="leg-sq" style="background:#3d7a5c"></div>Ingresos</div><div class="leg-item"><div class="leg-sq" style="background:#8a3a3a"></div>Gastos</div><div class="leg-item"><div class="leg-sq" style="background:#c9a84c"></div>Balance</div></div></div>
@@ -1073,6 +1074,19 @@ onAuthStateChanged(auth, user => {
 
 
 /* GLOBALS */
+
+// ?? Helper: always returns YYYY-MM-DD regardless of browser locale ??
+function formatISODate(date) {
+  var y = date.getFullYear();
+  var m = String(date.getMonth() + 1).padStart(2, '0');
+  var d = String(date.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+function formatISOTime(date) {
+  return String(date.getHours()).padStart(2,'0') + ':' +
+         String(date.getMinutes()).padStart(2,'0') + ':' +
+         String(date.getSeconds()).padStart(2,'0');
+}
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={};
 var _configLoaded=false;
@@ -1610,6 +1624,33 @@ function renderSmartAlerts(rows, mes){
   });
 }
 
+
+/* ?? Capacidad de Pago ?? */
+function renderCapacidadPago() {
+  var totalActivos = _activos.reduce(function(s,a){return s+a.monto;},0);
+  var deudaSob = _sobregiros.filter(function(s){
+    return !s.pagado && s.tipo==='SUELDO BBVA';
+  }).reduce(function(s,x){return s+x.monto;},0);
+  var liquidez = totalActivos - deudaSob;
+  var solvente = liquidez >= 0;
+
+  var el = document.getElementById('mCapPago');
+  var dEl = document.getElementById('dCapPago');
+  var wrap = document.getElementById('mCapPagoWrap');
+  if(!el||!wrap) return;
+  wrap.style.display = 'block';
+  el.textContent = fmt(liquidez);
+  el.style.color = solvente ? 'var(--green-tx)' : 'var(--red-tx)';
+  var accent = document.querySelector('#mCapPagoWrap .m-accent');
+  if(accent) accent.style.background = solvente ? 'var(--green)' : 'var(--red)';
+  if(dEl) {
+    dEl.textContent = solvente
+      ? 'Activos: '+fmt(totalActivos)+' / Deuda: '+fmt(deudaSob)
+      : 'Deficit de '+fmt(Math.abs(liquidez))+' en activos';
+    dEl.className = 'm-delta ' + (solvente ? 'up' : 'down');
+  }
+}
+
 /* SIDEBAR */
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sbOverlay').classList.toggle('show'); }
 function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sbOverlay').classList.remove('show'); }
@@ -1768,6 +1809,10 @@ function renderDashboard(){
   var mesDash=periodoActivo||mesActual;
   renderProyeccion(getRows(mesDash), mesDash);
   buildEvol(); buildDonut(rows); buildComp(); buildTop(rows); buildProyec();
+  var mesDash2=periodoActivo||mesActual;
+  if(typeof calcularScore==='function') renderScore(getRows(mesDash2), mesDash2);
+  if(typeof renderProyeccion==='function') renderProyeccion(getRows(mesDash2), mesDash2);
+  if(typeof renderCapacidadPago==='function') renderCapacidadPago();
 }
 
 function setDelta(id,curr,prev,inv){
@@ -2501,7 +2546,7 @@ function renderPatrimonio(){
         var detalles=[mov.fecha||'', mov.categoria||'PATRIMONIO'];
         if(mov.subcategoria) detalles.push(mov.subcategoria);
         if(mov.saldoPosterior!==undefined&&mov.saldoPosterior!==null) detalles.push('Patrimonio neto: '+fmt(mov.saldoPosterior));
-        sub.textContent=detalles.filter(Boolean).join(' • ');
+        sub.textContent=detalles.filter(Boolean).join(' ? ');
         actions.appendChild(amt); actions.appendChild(btnDel);
         top.appendChild(title); top.appendChild(actions);
         body.appendChild(top); body.appendChild(sub);
@@ -2749,17 +2794,39 @@ window.onAppReady = async function(){
   _sobregiros=dedupeSobregirosLista(results[4]||[]);
 
 
-  if(_settings.dashName) document.getElementById('dashName').textContent=_settings.dashName;
-  if(_settings.moneda){window._moneda=_settings.moneda;var cm=document.getElementById('cfgMoneda');if(cm)cm.value=_settings.moneda;}
-  if(_settings.meta){window._metaAhorro=parseFloat(_settings.meta)||30;var ml=document.getElementById('metaActualLabel');if(ml)ml.textContent=_settings.meta+'%';}
-  if(_settings.theme) applyTheme(_settings.theme);
-  if(_settings.accentColor) applyAccent(_settings.accentColor);
-  if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var wsEl=document.getElementById('cfgWeekStart');if(wsEl)wsEl.value=String(_settings.weekStart);}
+  // Apply settings with safe defaults for every field
+  var sName = _settings.dashName || 'Finanzas';
+  var sMoneda = _settings.moneda || 'S/';
+  var sMeta = parseFloat(_settings.meta) || 30;
+  var sTheme = _settings.theme || 'dark';
+  var sAccent = _settings.accentColor || '#c9a84c';
+  var sWeek = _settings.weekStart !== undefined ? parseInt(_settings.weekStart) : 0;
+
+  var dashNameEl = document.getElementById('dashName');
+  if(dashNameEl) dashNameEl.textContent = sName;
+
+  window._moneda = sMoneda;
+  var cm = document.getElementById('cfgMoneda');
+  if(cm) cm.value = sMoneda;
+
+  window._metaAhorro = sMeta;
+  var ml = document.getElementById('metaActualLabel');
+  if(ml) ml.textContent = sMeta + '%';
+  var cfgMetaEl = document.getElementById('cfgMeta');
+  if(cfgMetaEl) cfgMetaEl.value = sMeta;
+
+  applyTheme(sTheme);
+  applyAccent(sAccent);
+
+  _weekStart = sWeek;
+  var wsEl = document.getElementById('cfgWeekStart');
+  if(wsEl) wsEl.value = String(sWeek);
 
   window._startListener(async function(rows){
       var prevIds=new Set(allRows.map(function(r){return r.id;}));
     var isFirstLoad = allRows.length === 0;
     allRows=processRows(rows);
+    window._allRowsRef=allRows; // expose for formulario subcategory memory
     await reconciliarSobregiros(allRows, prevIds, isFirstLoad);
     setSyncState('live','Sincronizado');
     document.getElementById('lastSync').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});

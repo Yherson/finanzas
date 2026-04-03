@@ -11,85 +11,132 @@
 :root{
   --bg:#070709;--s1:#0d0d10;--s2:#121215;--s3:#181820;
   --border:#1e1e28;--border2:#28283a;
-  --text:#e7e5ec;--text2:#b8b4c2;--muted:#777383;--muted2:#9a96a6;
-  --green:#5aaA80;--green-d:rgba(90,170,128,.12);--green-b:rgba(90,170,128,.35);--green-tx:#7ecfa0;
-  --red:#c07070;--red-d:rgba(192,112,112,.12);--red-b:rgba(192,112,112,.35);--red-tx:#e08c8c;
-  --gold:#c9a84c;--gold-d:rgba(201,168,76,.12);--gold-b:rgba(201,168,76,.35);
-  --blue:#6a9acc;--blue-tx:#8fb7e3;
-  --side-w:250px;
+  --text:#e4e2dc;--text2:#a8a6a0;--muted:#52505c;
+  --gold:#c9a84c;--gold-d:rgba(201,168,76,0.1);--gold-b:rgba(201,168,76,0.3);
+  --green:#3d7a5c;--green-tx:#5aaa80;--green-d:rgba(90,170,128,0.1);
+  --red:#8a3a3a;--red-tx:#c07070;--red-d:rgba(192,112,112,0.1);
+  --blue-tx:#6a9acc;
+  --sw:240px;--th:60px;
 }
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 
-html,body{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;line-height:1.35;}
-
-.auth-screen{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 20% 10%,rgba(201,168,76,.08),transparent 45%),var(--bg);display:none;align-items:center;justify-content:center;padding:20px;}
+/* AUTH */
+.auth-screen{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;}
 .auth-screen.show{display:flex;}
-.auth-card{width:min(460px,100%);background:var(--s1);border:1px solid var(--border2);border-radius:6px;padding:26px 24px;}
-.auth-logo{width:42px;height:42px;border-radius:4px;background:var(--gold-d);border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-.auth-title{font-family:'IBM Plex Serif',serif;font-size:24px;color:var(--text);margin-bottom:8px;}
-.auth-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;}
-.auth-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:3px;border:1px solid var(--gold-b);background:var(--gold-d);color:var(--gold);font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
-.auth-btn:hover{background:var(--gold);color:var(--bg);}
+.auth-card{width:100%;max-width:360px;background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:40px 32px;text-align:center;}
+.auth-logo{width:48px;height:48px;background:var(--gold-d);border:1px solid var(--gold-b);border-radius:6px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.auth-title{font-family:'IBM Plex Serif',serif;font-size:22px;color:var(--text);margin-bottom:6px;}
+.auth-sub{font-size:11px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
+.auth-btn{width:100%;padding:13px;background:var(--s2);border:1px solid var(--border2);border-radius:3px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+.auth-btn:hover{border-color:var(--muted);}
 
-.app{display:none;min-height:100vh;background:var(--bg);}
-.app.ready{display:flex;}
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:var(--s1);border:1px solid var(--border2);border-radius:3px;padding:12px 16px;font-size:11px;color:var(--text);display:flex;align-items:center;gap:10px;pointer-events:all;box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:220px;max-width:320px;animation:toastIn .3s ease forwards;}
+.toast.out{animation:toastOut .3s ease forwards;}
+.toast-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.toast.ok .toast-dot{background:var(--green-tx);}
+.toast.err .toast-dot{background:var(--red-tx);}
+.toast.info .toast-dot{background:var(--gold);}
+.toast-msg{flex:1;}
+.toast-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;line-height:1;}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
 
-.sidebar{width:var(--side-w);background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;transition:transform .2s ease;}
-.sb-brand{padding:16px;border-bottom:1px solid var(--border);}
+/* APP */
+.app{display:none;}
+.app.ready{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);min-height:100vh;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:50;transition:transform .25s ease;}
+.sb-brand{padding:20px;border-bottom:1px solid var(--border);}
 .sb-logo-row{display:flex;align-items:center;gap:10px;}
-.sb-logo-mark{width:26px;height:26px;border-radius:3px;background:var(--gold-d);border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;}
-.sb-name{font-family:'IBM Plex Serif',serif;font-size:14px;color:var(--text);line-height:1;}
-.sb-sub{font-size:10px;color:var(--muted);margin-top:2px;}
-.sb-user{padding:14px 16px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:32px 1fr auto;gap:8px;align-items:center;}
-.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);overflow:hidden;}
+.sb-logo-mark{width:28px;height:28px;background:var(--gold-d);border:1px solid var(--gold-b);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-name{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:400;color:var(--text);}
+.sb-sub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.sb-user{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--gold);overflow:hidden;flex-shrink:0;}
 .sb-avatar img{width:100%;height:100%;object-fit:cover;}
-.sb-uname{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sb-out{background:none;border:1px solid var(--border2);border-radius:3px;color:var(--muted);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.sb-out:hover{color:var(--text);}
-.sb-nav{padding:12px 10px;overflow:auto;flex:1;}
-.sb-grp{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:10px 8px 6px;}
-.nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:3px;color:var(--text2);font-size:12px;cursor:pointer;}
-.nav-item:hover{background:var(--s2);color:var(--text);}
-.nav-item.active{background:var(--gold-d);border:1px solid var(--gold-b);color:var(--gold);}
-.sb-bottom{padding:12px 16px;border-top:1px solid var(--border);}
+.sb-uname{font-size:11px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-out{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;flex-shrink:0;}
+.sb-out:hover{color:var(--red-tx);}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto;}
+.sb-grp{padding:14px 20px 5px;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none;-webkit-tap-highlight-color:transparent;}
+.nav-item:hover{color:var(--text);background:var(--s2);}
+.nav-item.active{color:var(--text);border-left-color:var(--gold);background:var(--s2);}
+.nav-item svg{flex-shrink:0;opacity:.5;transition:opacity .15s;}
+.nav-item:hover svg,.nav-item.active svg{opacity:1;}
+.sb-bottom{padding:14px 20px;border-top:1px solid var(--border);}
+.sync-row{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);}
+.sync-dot.live{background:var(--green-tx);box-shadow:0 0 0 3px rgba(90,170,128,.15);}
+.sync-dot.loading{background:var(--gold);animation:blink 1s infinite;}
+.sync-dot.error{background:var(--red-tx);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.last-sync{font-size:9px;color:var(--muted);margin-top:3px;}
 
-.main-wrap{margin-left:var(--side-w);width:calc(100% - var(--side-w));min-height:100vh;display:flex;flex-direction:column;}
-.topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:var(--s1);position:sticky;top:0;z-index:30;}
-.tb-title{font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);}
-.tb-right{display:flex;align-items:center;gap:8px;min-width:0;}
-.period-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
-.period-btn{padding:5px 8px;border:1px solid var(--border2);background:none;border-radius:2px;color:var(--muted);font-size:10px;font-family:'IBM Plex Mono',monospace;cursor:pointer;}
+/* MAIN */
+.main-wrap{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{height:var(--th);background:var(--s1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:40;}
+.hamburger{display:none;background:none;border:none;color:var(--muted);cursor:pointer;padding:7px;border-radius:3px;}
+.hamburger:hover{color:var(--text);}
+.tb-title{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:400;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tb-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.period-group{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:3px;gap:1px;}
+.period-btn{padding:5px 9px;border:none;background:none;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-radius:2px;transition:all .15s;white-space:nowrap;}
 .period-btn:hover{color:var(--text);}
-.period-btn.active{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold);}
-.tb-btn{padding:7px 10px;border:1px solid var(--border2);background:none;border-radius:3px;color:var(--muted2);font-size:10px;font-family:'IBM Plex Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;}
+.period-btn.active{background:var(--gold-d);color:var(--gold);border:1px solid var(--gold-b);}
+.tb-btn{padding:7px 14px;border:1px solid var(--border2);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-radius:3px;transition:all .15s;white-space:nowrap;}
 .tb-btn:hover{color:var(--text);}
-.tb-btn.gold{border-color:var(--gold-b);background:var(--gold-d);color:var(--gold);}
-.tb-btn.gold:hover{background:var(--gold);color:var(--bg);}
-.hamburger{display:none;background:none;border:1px solid var(--border2);border-radius:3px;color:var(--muted);width:32px;height:32px;align-items:center;justify-content:center;cursor:pointer;}
+.tb-btn.gold{color:var(--gold);border-color:var(--gold-b);}
+.tb-btn:active{transform:scale(.97);}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:45;}
 
-.content{padding:14px;flex:1;}
-.page{max-width:1400px;margin:0 auto;}
-.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:42px 10px;color:var(--muted);}
-.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;}
-.loading-txt{font-size:11px;margin-top:8px;}
-.error-box{display:none;background:var(--red-d);border:1px solid var(--red-b);border-radius:3px;color:var(--red-tx);padding:10px 12px;font-size:11px;margin-bottom:10px;}
-.alert-banner{display:none;background:var(--gold-d);border:1px solid var(--gold-b);border-radius:3px;color:var(--gold);padding:9px 11px;font-size:11px;margin-bottom:10px;}
-.alert-banner.show{display:block;}
-.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:8px;}
-.metric{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:16px 14px;position:relative;overflow:hidden;}
-.m-accent{position:absolute;left:0;top:0;bottom:0;width:2px;opacity:.9;}
-.m-label{font-size:9px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-.m-value{font-family:'IBM Plex Mono',monospace;font-size:20px;line-height:1;}
-.m-delta{margin-top:6px;font-size:10px;color:var(--muted);}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;scroll-behavior:smooth;}
+.page{padding:22px 24px 40px;}
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;}
+.spinner{width:22px;height:22px;border:1px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.error-box{display:none;background:var(--red-d);border:1px solid rgba(192,112,112,.2);border-radius:3px;padding:18px 20px;margin:24px;font-size:12px;color:var(--red-tx);line-height:1.7;}
+.error-box.show{display:block;}
+.alert-banner{display:none;background:var(--red-d);border:1px solid rgba(192,112,112,.3);border-radius:3px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--red-tx);}
+.alert-banner.show{display:flex;align-items:center;gap:8px;}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:16px;}
+.metric{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:18px 16px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;}
+.metric:hover{border-color:var(--border2);transform:translateY(-1px);}
+.m-accent{position:absolute;top:0;left:0;width:2px;height:100%;}
+.m-label{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.m-value{font-family:'IBM Plex Serif',serif;font-size:24px;font-weight:400;line-height:1;margin-bottom:6px;letter-spacing:-.3px;}
+.m-delta{font-size:10px;color:var(--muted);}
 .m-delta.up{color:var(--green-tx);}
 .m-delta.down{color:var(--red-tx);}
-.p-sub-item{padding:7px 0;border-bottom:1px solid var(--border);}
-.p-sub-item:last-child{border-bottom:none;}
-.p-sub-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;color:var(--text2);}
-.p-sub-bar{margin-top:6px;height:2px;background:var(--border2);border-radius:2px;overflow:hidden;}
-.p-sub-fill{height:100%;}
 
-@keyframes spin{to{transform:rotate(360deg);}}
+/* POCKET */
+.pocket-wrap{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;}
+.pocket-wrap::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold);}
+.pocket-lbl{font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.pocket-amt{font-family:'IBM Plex Serif',serif;font-size:40px;font-weight:400;letter-spacing:-1px;line-height:1;margin-bottom:8px;}
+.pocket-amt.pos{color:var(--green-tx);}
+.pocket-amt.neg{color:var(--red-tx);}
+.pocket-sub{display:flex;gap:18px;flex-wrap:wrap;}
+.pocket-sub-item{font-size:10px;color:var(--muted);}
+.pocket-sub-item span{color:var(--text2);font-family:'IBM Plex Mono',monospace;}
+.pocket-track{width:100%;height:3px;background:var(--border2);border-radius:2px;margin-top:10px;overflow:hidden;}
+.pocket-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+
+/* WEEKLY */
+.weekly-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.weekly-card{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:14px;}
+.weekly-lbl{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.weekly-val{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--text);margin-bottom:3px;}
+.weekly-delta{font-size:10px;}
+.weekly-delta.up{color:var(--green-tx);}
+.weekly-delta.down{color:var(--red-tx);}
 .weekly-delta.neu{color:var(--muted);}
 .top-cat-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);}
 .top-cat-row:last-child{border-bottom:none;}
@@ -284,7 +331,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .modal-close:hover{color:var(--text);}
 .m-field{margin-bottom:11px;}
 .m-field label{display:block;font-size:9px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.m-field input,.m-field select,.m-field textarea{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:3px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;resize:vertical;}
+.m-field input,.m-field select,.m-field textarea{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:3px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;resize:vertical;}
 .m-field input:focus,.m-field select:focus,.m-field textarea:focus{border-color:var(--gold-b);}
 .m-field select option{background:var(--s2);}
 .m-btns{display:flex;gap:7px;margin-top:6px;}
@@ -618,6 +665,16 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="loading-wrap" id="loading"><div class="spinner"></div><div class="loading-txt">Cargando datos...</div></div>
       <div class="page" id="dashPage" style="display:none">
         <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
+        <!-- PROYECCION FIN DE MES -->
+        <div class="proyec-banner" id="proyecBanner">
+          <div class="proyec-item"><div class="proyec-lbl">Gasto diario promedio</div><div class="proyec-val" id="pGastoDiario">--</div></div>
+          <div class="proyec-divider"></div>
+          <div class="proyec-item"><div class="proyec-lbl">Proyeccion fin de mes</div><div class="proyec-val" id="pProyeccion">--</div></div>
+          <div class="proyec-divider"></div>
+          <div class="proyec-item"><div class="proyec-lbl">Balance esperado</div><div class="proyec-val" id="pBalanceFinal">--</div></div>
+          <div class="proyec-divider"></div>
+          <div class="proyec-item"><div class="proyec-lbl">Deuda sobregiro</div><div class="proyec-val" id="pDeudaSob">--</div></div>
+        </div>
         <div class="pocket-wrap">
           <div class="pocket-lbl">Disponible para gastar</div>
           <div class="pocket-amt" id="pocketAmt">--</div>
@@ -653,6 +710,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
         <div class="row r3">
           <div class="card"><div class="card-title">Comparar meses</div><div class="chart-wrap" style="height:180px"><canvas id="cComp"></canvas></div></div>
           <div class="card"><div class="card-title">Top 5 categorias</div><div class="chart-wrap" style="height:180px"><canvas id="cTop"></canvas></div></div>
+          <div class="card"><div class="card-title">Proyeccion ahorro</div><div class="chart-wrap" style="height:180px"><canvas id="cProyec"></canvas></div></div>
         </div>
         <div class="drill-panel" id="drillPanel">
           <div class="drill-header">
@@ -667,7 +725,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
     <div id="vPresupuesto" style="display:none">
       <div class="page">
         <div class="pres-stats" id="presStats"></div>
-        <div class="lm-row"><div class="lm-item"><div class="lm-b" style="background:var(--green-tx)"></div>Gastado real</div><div class="lm-item"><div class="lm-mk"></div>Presupuesto configurado</div></div>
+        <div class="lm-row"><div class="lm-item"><div class="lm-b" style="background:var(--green-tx)"></div>Gastado real</div><div class="lm-item"><div class="lm-mk"></div>Ritmo esperado hoy</div></div>
         <div class="pres-cats" id="presCats"></div>
         <div class="pres-cfg">
           <div class="pcfg-card">
@@ -897,7 +955,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDoc, serverTimestamp, addDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, setPersistence, inMemoryPersistence } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCBEViX704HkJvpQBxCgb_r6so9c3efhr8",
@@ -914,10 +972,6 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
 let unsubListener = null;
-
-setPersistence(auth, inMemoryPersistence).catch(function(e){
-  console.error('[FB] auth persistence:', e);
-});
 
 // Build a Firestore DocumentReference from a slash-separated path
 function makeRef(path) {
@@ -1397,6 +1451,60 @@ async function pagarSobregiro(id){
 
 
 /* ===================================================
+   PROYECCION FIN DE MES
+=================================================== */
+function renderProyeccion(rows, mes){
+  var hoy = new Date().getDate();
+  var totalDias2 = new Date(new Date().getFullYear(), mes, 0).getDate();
+  var diasTransc = Math.max(1, hoy);
+  var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var gastoDiario = gas / diasTransc;
+  var proyeccion  = gastoDiario * totalDias2;
+  var balFinal    = ing - proyeccion;
+
+  // Deuda sobregiro pendiente de este mes
+  var deudaSob = _sobregiros.filter(function(s){
+    return !s.pagado && esSobregiroConPenalizacion(s);
+  }).reduce(function(s,x){return s+x.creditoDeuda;},0);
+
+  var pGD  = document.getElementById('pGastoDiario');
+  var pProy= document.getElementById('pProyeccion');
+  var pBF  = document.getElementById('pBalanceFinal');
+  var pDS  = document.getElementById('pDeudaSob');
+  if(!pGD) return;
+
+  pGD.textContent  = fmt(gastoDiario)+'/dia';
+  pGD.className    = 'proyec-val';
+
+  pProy.textContent= fmt(proyeccion);
+  pProy.className  = 'proyec-val '+(proyeccion>ing?'neg':'warn');
+
+  pBF.textContent  = fmt(balFinal);
+  pBF.className    = 'proyec-val '+(balFinal>0?'pos':'neg');
+
+  pDS.textContent  = deudaSob>0?fmt(deudaSob):'S/ 0.00';
+  pDS.className    = 'proyec-val '+(deudaSob>0?'neg':'pos');
+
+  // Deuda metric card
+  var deudaWrap = document.getElementById('mDeudaWrap');
+  var deudaEl   = document.getElementById('mDeuda');
+  var dDeuda    = document.getElementById('dDeuda');
+  if(deudaWrap){
+    var sobTotal = _sobregiros.filter(function(s){
+      return !s.pagado && esSobregiroConPenalizacion(s);
+    }).reduce(function(s,x){return s+x.monto;},0);
+    if(sobTotal>0){
+      deudaWrap.style.display='block';
+      if(deudaEl) deudaEl.textContent = fmt(sobTotal);
+      if(dDeuda) dDeuda.textContent = _sobregiros.filter(function(s){return !s.pagado&&esSobregiroConPenalizacion(s);}).length+' sobregiro(s) pendientes';
+    } else {
+      deudaWrap.style.display='none';
+    }
+  }
+}
+
+/* ===================================================
    ALERTAS INTELIGENTES
 =================================================== */
 function generarSmartAlerts(rows, mes){
@@ -1433,7 +1541,20 @@ function generarSmartAlerts(rows, mes){
     });
   }
 
-  // 3. Presupuesto excedido
+  // 3. Proyeccion deficit
+  var hoy2=new Date().getDate();
+  var totalDias3=new Date(new Date().getFullYear(),mes,0).getDate();
+  var gastoDiario2=gas/Math.max(1,hoy2);
+  var proyeccion2=gastoDiario2*totalDias3;
+  if(proyeccion2>ing && ing>0){
+    alerts.push({
+      nivel:'medio', icon:'!',
+      title:'Proyeccion: deficit de '+fmt(proyeccion2-ing)+' al fin de mes',
+      sub:'Al ritmo actual gastas '+fmt(gastoDiario2)+'/dia. Necesitas reducir a '+fmt(ing/totalDias3)+'/dia para equilibrar.'
+    });
+  }
+
+  // 4. Presupuesto excedido
   var byCat2={};
   rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat2[r.categoria]=(byCat2[r.categoria]||0)+r.monto;});
   Object.keys(presupCat).forEach(function(cat){
@@ -1447,7 +1568,7 @@ function generarSmartAlerts(rows, mes){
     }
   });
 
-  // 4. Limite de alertas excedido
+  // 5. Limite de alertas excedido
   var limites2=getLimites();
   Object.keys(limites2).forEach(function(cat){
     if((byCat2[cat]||0)>limites2[cat]){
@@ -1459,7 +1580,7 @@ function generarSmartAlerts(rows, mes){
     }
   });
 
-  // 5. Todo bien
+  // 6. Todo bien
   if(!alerts.length){
     alerts.push({
       nivel:'bajo', icon:'ok',
@@ -1643,7 +1764,9 @@ function renderDashboard(){
   checkAlertas(rows);
   renderPocket(getRows(periodoActivo||mesActual));
   renderWeekly();
-  buildEvol(); buildDonut(rows); buildComp(); buildTop(rows);
+  var mesDash=periodoActivo||mesActual;
+  renderProyeccion(getRows(mesDash), mesDash);
+  buildEvol(); buildDonut(rows); buildComp(); buildTop(rows); buildProyec();
 }
 
 function setDelta(id,curr,prev,inv){
@@ -1687,6 +1810,15 @@ function buildTop(rows){
   charts['cTop']=new Chart(document.getElementById('cTop'),{type:'bar',data:{labels:sorted,datasets:[{data:vals,backgroundColor:colors,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var cat=sorted[els[0].index];openDrill(cat,function(r){return r.tipo==='gasto'&&r.categoria===cat;},'gasto');}},scales:{x:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}},y:{grid:{display:false}}}}});
 }
 
+function buildProyec(){
+  var acum=0,data=[],proy=[],last=0;
+  for(var m=1;m<=12;m++){var r=getRows(m);var i=r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0);var g=r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0);if(i>0||g>0){acum+=(i-g);last=m;}data.push(m<=mesActual?acum:null);proy.push(m>=mesActual?acum:null);}
+  var avg=last>0?acum/last:0;
+  for(var m2=mesActual+1;m2<=12;m2++){acum+=avg;data[m2-1]=null;proy[m2-1]=Math.round(acum);}
+  destroyChart('cProyec');
+  charts['cProyec']=new Chart(document.getElementById('cProyec'),{type:'line',data:{labels:meses,datasets:[{label:'Real',data:data,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.06)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,fill:true},{label:'Proyeccion',data:proy,borderColor:'#c9a84c',borderDash:[5,4],borderWidth:1,pointRadius:0,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var m=els[0].index+1;var ds=els[0].datasetIndex;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===m&&(ds===0?r.tipo==='ingreso':ds===1?r.tipo==='gasto':true);},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+}
+
 /* METAS */
 /* PRESUPUESTO */
 function diasMes(m){ return new Date(new Date().getFullYear(),m,0).getDate(); }
@@ -1695,6 +1827,9 @@ function renderPresupuesto(){
   var mes=periodoActivo||(new Date().getMonth()+1);
   var rows=getRows(mes);
   var gastos=rows.filter(function(r){return r.tipo==='gasto';});
+  var totalDias=diasMes(mes);
+  var diaHoy=(periodoActivo===(new Date().getMonth()+1)||periodoActivo===0)?new Date().getDate():totalDias;
+  var rf=diaHoy/totalDias;
   var cats=[],catSet={};
   allRows.forEach(function(r){if(r.categoria&&!catSet[r.categoria]){catSet[r.categoria]=1;cats.push(r.categoria);}});
   cats.sort();
@@ -1705,44 +1840,112 @@ function renderPresupuesto(){
   var catsConP=Object.keys(presupCat);
   var totP=catsConP.reduce(function(s,c){return s+(presupCat[c].mensual||0);},0);
   var totG=catsConP.reduce(function(s,c){return s+(byCat[c]||0);},0);
-  var ratio=totP>0?totG/totP:0;
+  var totE=totP*rf;
+  var ratio=totE>0?totG/totE:0;
   var resCls=ratio>1?'bad':ratio>0.85?'warn':'ok';
   var ps=document.getElementById('presStats');
-  if(ps){
-    ps.innerHTML='<div class="ps-card"><div class="ps-lbl">Presupuesto mes</div><div class="ps-val">'+fmt(totP)+'</div></div><div class="ps-card"><div class="ps-lbl">Gastado</div><div class="ps-val '+resCls+'">'+fmt(totG)+'</div></div><div class="ps-card"><div class="ps-lbl">Uso del presupuesto</div><div class="ps-val">'+Math.round(ratio*100)+'%</div></div>';
-  }
-  var catsEl=document.getElementById('presCats'); if(!catsEl) return;
-  catsEl.innerHTML='';
+  ps.innerHTML='<div class="ps-card"><div class="ps-lbl">Presupuesto mes</div><div class="ps-val">'+fmt(totP)+'</div></div><div class="ps-card"><div class="ps-lbl">Gastado</div><div class="ps-val '+resCls+'">'+fmt(totG)+'</div></div><div class="ps-card"><div class="ps-lbl">Ritmo esperado dia '+diaHoy+'/'+totalDias+'</div><div class="ps-val">'+fmt(totE)+'</div></div>';
+  var catsEl=document.getElementById('presCats'); catsEl.innerHTML='';
   if(!catsConP.length){catsEl.innerHTML='<div style="color:var(--muted);font-size:12px;padding:16px 0">Configura tu primer presupuesto abajo.</div>';renderPresupLists();return;}
   catsConP.forEach(function(cat){
-    var pm=presupCat[cat].mensual||0;
+    var pm=presupCat[cat].mensual||0,pd=presupCat[cat].diario||0;
     var gastado=byCat[cat]||0;
-    var cls=gastado>pm?'bad':gastado>pm*0.9?'warn':'ok';
-    var barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
-    var pctG=pm>0?Math.min(gastado/pm*100,100):0;
+    var esSoloMensual=pm>0&&pd===0; // Solo mensual, sin gestion diaria
+    var esDiario=pd>0; // Tiene presupuesto diario
+
+    // ?? MODO SOLO MENSUAL: pago puntual, no se gestiona por ritmo diario
+    var cls,barC,diff=0,pctG=0,pctE=0;
+    var infoExtra='';
+    var ajusteDiario=null;
+
+    if(esSoloMensual){
+      // Solo mostrar progreso simple: cuanto llevo del total mensual
+      pctG=pm>0?Math.min(gastado/pm*100,100):0;
+      cls=gastado>pm?'bad':gastado>pm*0.9?'warn':'ok';
+      barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
+      infoExtra='<div style="font-size:9px;color:var(--muted);margin-top:4px">Pago mensual - sin gestion diaria</div>';
+    } else {
+      // ?? MODO CON GESTION DIARIA (tiene presupuesto diario o mensual dividido)
+      var diasRestantes=totalDias-diaHoy;
+      var presupuestoDiario=pd>0?pd:Math.round(pm/totalDias);
+      var esperadoHastaHoy=presupuestoDiario*diaHoy;
+      diff=gastado-esperadoHastaHoy;
+
+      pctG=pm>0?Math.min(gastado/pm*100,100):0;
+      pctE=Math.min((esperadoHastaHoy/pm)*100,100);
+      cls=gastado>pm?'bad':gastado>esperadoHastaHoy*1.05?'warn':'ok';
+      barC=cls==='bad'?'var(--red-tx)':cls==='warn'?'var(--gold)':'var(--green-tx)';
+
+      // Calculo ajustado para dias restantes
+      if(diasRestantes>0){
+        var montoRestante=Math.max(0,pm-gastado);
+        var diarioAjustado=Math.round(montoRestante/diasRestantes);
+        var diferenciaVsOriginal=diarioAjustado-presupuestoDiario;
+        ajusteDiario={
+          original:presupuestoDiario,
+          ajustado:diarioAjustado,
+          diferencia:diferenciaVsOriginal,
+          dias:diasRestantes,
+          restante:montoRestante
+        };
+      }
+    }
+
     var subKeys=Object.keys(presupSub).filter(function(k){return k.indexOf(cat+'||')===0;});
     var card=document.createElement('div'); card.className='pc-card';
 
     var html='<div class="pc-head" onclick="toggleSubsP(this)">';
-    html+='<div><div class="pc-name">'+cat+'</div><div class="pc-meta">'+fmt(pm)+'/mes</div></div>';
+    html+='<div><div class="pc-name">'+cat+'</div><div class="pc-meta">';
+    if(esSoloMensual) html+=fmt(pm)+'/mes (mensual puntual)';
+    else if(pd>0) html+=fmt(pd)+'/dia - '+fmt(pm)+'/mes';
+    else html+=fmt(pm)+'/mes ('+fmt(Math.round(pm/totalDias))+'/dia estimado)';
+    html+='</div></div>';
     html+='<div class="pc-right"><div class="pc-nums">';
+    if(!esSoloMensual) html+='<div class="pc-diff '+(diff>0?'bad':'ok')+'">'+(diff>0?'+':'')+diff.toFixed(2)+' '+(diff>0?'sobre':'bajo')+' ritmo</div>';
     html+='<span class="pc-val '+cls+'">'+fmt(gastado)+'</span><span style="font-size:10px;color:var(--muted)"> / '+fmt(pm)+'</span>';
     html+='</div>';
     if(subKeys.length>0) html+='<span class="chevron">&#9660;</span>';
     html+='</div></div>';
 
+    // Barras
     html+='<div class="p-bars">';
-    html+='<div class="p-bar-row"><span class="p-bar-lbl">Gastado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctG+'%;background:'+barC+'"></div></div><span class="p-bar-pct '+cls+'">'+Math.round(pctG)+'%</span></div>';
+    html+='<div class="p-bar-row"><span class="p-bar-lbl">Gastado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctG+'%;background:'+barC+'"></div>'+(esSoloMensual?'':'<div class="p-bar-mk" style="left:'+pctE+'%"></div>')+'</div><span class="p-bar-pct '+cls+'">'+Math.round(pctG)+'%</span></div>';
+    if(!esSoloMensual) html+='<div class="p-bar-row"><span class="p-bar-lbl">Esperado</span><div class="p-bar-track"><div class="p-bar-fill" style="width:'+pctE+'%;background:var(--muted)"></div></div><span class="p-bar-pct">'+Math.round(pctE)+'%</span></div>';
+    if(infoExtra) html+=infoExtra;
+    // ?? AJUSTE DIARIO INTELIGENTE
+    if(ajusteDiario){
+      var adjColor=ajusteDiario.diferencia<0?'var(--green-tx)':ajusteDiario.diferencia>0?'var(--red-tx)':'var(--muted)';
+      var adjMsg;
+      if(ajusteDiario.diferencia<0){
+        adjMsg='Vas bien: puedes gastar '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias';
+      } else if(ajusteDiario.diferencia===0){
+        adjMsg='En ritmo exacto: '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias';
+      } else if(gastado>pm){
+        adjMsg='Superaste el presupuesto mensual. Ajusta a '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias';
+      } else {
+        adjMsg='Ajusta a '+fmt(ajusteDiario.ajustado)+'/dia los proximos '+ajusteDiario.dias+' dias';
+      }
+      html+='<div style="margin-top:8px;padding:8px 0 0;border-top:1px dashed var(--border)">'+
+        '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Ritmo ajustado</div>'+
+        '<div style="font-size:11px;color:'+adjColor+'">'+adjMsg+'</div>'+
+        '<div style="font-size:10px;color:var(--muted);margin-top:3px">Restante: '+fmt(ajusteDiario.restante)+' en '+ajusteDiario.dias+' dias</div>'+
+        '</div>';
+    }
     html+='</div>';
     if(subKeys.length>0){
       html+='<div class="p-subs">';
       subKeys.forEach(function(sk){
         var sn=sk.split('||')[1],spm=presupSub[sk].mensual||0;
-        var sg=bySub[sk]||0;
-        var spG=spm>0?Math.min(sg/spm*100,100):0;
-        var scls=sg>spm?'bad':sg>spm*0.9?'warn':'ok';
+        var sg=bySub[sk]||0,se=spm*rf;
+        var spG=spm>0?Math.min(sg/spm*100,100):0,spE=Math.min(rf*100,100);
+        var scls=sg>spm?'bad':sg>se*1.05?'warn':'ok';
         var sbar=scls==='bad'?'var(--red-tx)':scls==='warn'?'var(--gold)':'var(--green-tx)';
-        html+='<div class="p-sub-item"><div class="p-sub-head"><span>'+sn+'</span><span class="p-sub-amt '+scls+'">'+fmt(sg)+' / '+fmt(spm)+'</span></div><div class="p-sub-bar"><div class="p-sub-fill" style="width:'+spG+'%;background:'+sbar+'"></div></div></div>';
+        var sdiff2=Math.round((sg-se)*100)/100;
+        var sdiffTxt=(sdiff2>0?'+':'')+sdiff2.toFixed(2)+' '+(sdiff2>0?'sobre':'bajo')+' ritmo';
+        html+='<div class="p-sub-row"><div class="p-sub-name">'+sn+'</div><div class="p-sub-bars">'+
+          '<div class="p-sub-brow"><span class="p-sub-lbl">Gastado</span><div class="p-sub-track"><div class="p-sub-fill" style="width:'+spG+'%;background:'+sbar+'"></div><div class="p-sub-mk" style="left:'+spE+'%"></div></div><span class="p-sub-amt" style="color:'+sbar+'">'+fmt(sg)+' / '+fmt(spm)+'</span></div>'+
+          '<div class="p-sub-brow"><span class="p-sub-lbl">Esperado</span><div class="p-sub-track"><div class="p-sub-fill" style="width:'+spE+'%;background:var(--muted);opacity:.6"></div></div><span class="p-sub-amt" style="color:var(--muted)">'+sdiffTxt+'</span></div>'+
+          '</div></div>';
       });
       html+='</div>';
     }

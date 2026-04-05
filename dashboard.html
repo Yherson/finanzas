@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finanzas - Dashboard</title>
+<title>Finanzas Personales</title>
+<link rel="icon" type="image/svg+xml" href="finance.svg">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 
@@ -450,15 +451,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .score-factor-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .score-factor-val{font-family:'IBM Plex Mono',monospace;color:var(--text2);}
 
-/* ── PROYECCION FINAL MES ── */
-.proyec-banner{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.proyec-item{flex:1;min-width:120px;}
-.proyec-lbl{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.proyec-val{font-family:'IBM Plex Mono',monospace;font-size:16px;}
-.proyec-val.pos{color:var(--green-tx);}
-.proyec-val.neg{color:var(--red-tx);}
-.proyec-val.warn{color:var(--gold);}
-.proyec-divider{width:1px;height:40px;background:var(--border);flex-shrink:0;}
 
 /* ── DEUDA SOBREGIRO EN METRICAS ── */
 .metric-deuda{background:var(--s1);border:1px solid rgba(192,112,112,0.3);border-radius:3px;padding:18px 16px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;}
@@ -501,6 +493,21 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .patri-mov-del:hover{color:var(--red-tx);border-color:rgba(192,112,112,0.35);}
 .patri-empty{color:var(--muted);font-size:11px;padding:10px 0;line-height:1.6;}
 
+
+/* ── RECURRENTES MEJORADO ── */
+.rec-item{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);gap:8px;}
+.rec-item:last-child{border-bottom:none;}
+.rec-item.pagado{opacity:.45;}
+.rec-item-info{flex:1;min-width:0;}
+.rec-item-nombre{font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rec-item-sub{font-size:9px;margin-top:2px;}
+.rec-item-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.rec-item-monto{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red-tx);flex-shrink:0;}
+.rec-item-monto.pagado{color:var(--green-tx);}
+.rec-paid-btn{padding:4px 9px;border:1px solid var(--border2);background:none;border-radius:2px;font-size:9px;color:var(--muted);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;transition:all .15s;}
+.rec-paid-btn:hover{background:var(--green-d);color:var(--green-tx);border-color:rgba(90,170,128,.4);}
+.rec-paid-btn.active{background:var(--green-d);color:var(--green-tx);border-color:rgba(90,170,128,.4);}
+
 </style>
 </head>
 <body>
@@ -527,6 +534,26 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
     <div class="m-btns">
       <button class="mbtn mbtn-save" onclick="confirmarPatriEdit()">Guardar</button>
       <button class="mbtn mbtn-cancel" onclick="hidePatriEditModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-ov" id="recEditOv" onclick="if(event.target===this)hideRecEditModal()">
+  <div class="modal-box">
+    <div class="modal-hdr"><span class="modal-hdr-txt">Editar recurrente</span><button class="modal-close" onclick="hideRecEditModal()">&#x2715;</button></div>
+    <div class="m-field"><label>Nombre</label><input type="text" id="reNombre" maxlength="50"></div>
+    <div class="m-field"><label>Monto (S/)</label><input type="number" id="reMonto" min="0" step="0.01"></div>
+    <div class="m-field"><label>Dia del mes</label>
+      <select id="reDia">
+        <option value="">Dia...</option>
+      </select>
+    </div>
+    <div class="m-field"><label>Categoria</label><input type="text" id="reCatEdit" maxlength="50"></div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-save" onclick="confirmarRecEdit()">Guardar</button>
+      <button class="mbtn mbtn-del" onclick="confirmarRecDelete()">Eliminar</button>
+      <button class="mbtn mbtn-cancel" onclick="hideRecEditModal()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -570,7 +597,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
   <div class="sb-brand">
     <div class="sb-logo-row">
       <div class="sb-logo-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M2 4h10M2 10h6" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-      <div><div class="sb-name" id="dashName">Finanzas</div><div class="sb-sub">Dashboard Personal</div></div>
+      <div><div class="sb-name" id="dashName">Finanzas</div><div class="sb-sub">Panel personal</div></div>
     </div>
   </div>
   <div class="sb-user">
@@ -665,23 +692,14 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="loading-wrap" id="loading"><div class="spinner"></div><div class="loading-txt">Cargando datos...</div></div>
       <div class="page" id="dashPage" style="display:none">
         <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
-        <!-- PROYECCION FIN DE MES -->
-        <div class="proyec-banner" id="proyecBanner">
-          <div class="proyec-item"><div class="proyec-lbl">Gasto diario promedio</div><div class="proyec-val" id="pGastoDiario">--</div></div>
-          <div class="proyec-divider"></div>
-          <div class="proyec-item"><div class="proyec-lbl">Proyeccion fin de mes</div><div class="proyec-val" id="pProyeccion">--</div></div>
-          <div class="proyec-divider"></div>
-          <div class="proyec-item"><div class="proyec-lbl">Balance esperado</div><div class="proyec-val" id="pBalanceFinal">--</div></div>
-          <div class="proyec-divider"></div>
-          <div class="proyec-item"><div class="proyec-lbl">Deuda sobregiro</div><div class="proyec-val" id="pDeudaSob">--</div></div>
-        </div>
-        <div class="pocket-wrap">
+                <div class="pocket-wrap">
           <div class="pocket-lbl">Disponible para gastar</div>
           <div class="pocket-amt" id="pocketAmt">--</div>
           <div class="pocket-sub">
             <div class="pocket-sub-item">Ingresos <span id="pocketIng">--</span></div>
             <div class="pocket-sub-item">Gastos <span id="pocketGas">--</span></div>
             <div class="pocket-sub-item">Fijos pendientes <span id="pocketFijos">--</span></div>
+            <div class="pocket-sub-item" id="pocketVencWrap" style="display:none">Fijos vencidos <span id="pocketVenc" style="color:var(--red-tx)">--</span></div>
           </div>
           <div class="pocket-track"><div class="pocket-fill" id="pocketFill"></div></div>
         </div>
@@ -702,7 +720,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <div class="metric"><div class="m-accent" style="background:var(--gold)"></div><div class="m-label">Balance neto</div><div class="m-value" style="color:var(--gold)" id="mBal">--</div><div class="m-delta" id="dBal"></div></div>
           <div class="metric"><div class="m-accent" style="background:#6a9acc"></div><div class="m-label">Tasa de ahorro</div><div class="m-value" style="color:var(--blue-tx)" id="mAho">--</div><div class="m-delta" id="dAho"></div></div>
           <div class="metric metric-deuda" style="display:none" id="mDeudaWrap"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Deuda sobregiro</div><div class="m-value" style="color:var(--red-tx)" id="mDeuda">--</div><div class="m-delta" id="dDeuda"></div></div>
-          <div class="metric" style="display:none" id="mCapPagoWrap"><div class="m-accent" style="background:var(--green)"></div><div class="m-label">Capacidad de pago</div><div class="m-value" id="mCapPago">--</div><div class="m-delta" id="dCapPago"></div></div>
         </div>
         <div class="row r2">
           <div class="card"><div class="card-title">Evolucion mensual ? <span id="lblEvol">anio</span></div><div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div><div class="legend"><div class="leg-item"><div class="leg-sq" style="background:#3d7a5c"></div>Ingresos</div><div class="leg-item"><div class="leg-sq" style="background:#8a3a3a"></div>Gastos</div><div class="leg-item"><div class="leg-sq" style="background:#c9a84c"></div>Balance</div></div></div>
@@ -831,8 +848,22 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
     <div id="vRecurrentes" style="display:none">
       <div class="page">
         <div class="card" style="margin-bottom:8px">
-          <div class="card-title">Gastos fijos este mes</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="card-title" style="margin-bottom:0">Gastos fijos este mes</div>
+            <div style="display:flex;gap:8px">
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--green-tx)"></div>Pendiente</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--red-tx)"></div>Vencido</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--muted)"></div>Pagado</div>
+            </div>
+          </div>
           <div id="recList"><div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos recurrentes configurados</div></div>
+          <div id="recResumen" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:none">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px">
+              <div>Pendientes: <span id="recResPend" style="font-family:IBM Plex Mono,monospace;color:var(--gold)">--</span></div>
+              <div>Vencidos: <span id="recResVenc" style="font-family:IBM Plex Mono,monospace;color:var(--red-tx)">--</span></div>
+              <div>Pagados: <span id="recResPag" style="font-family:IBM Plex Mono,monospace;color:var(--green-tx)">--</span></div>
+            </div>
+          </div>
         </div>
         <div class="card">
           <div class="card-title">Agregar gasto recurrente</div>
@@ -1074,19 +1105,6 @@ onAuthStateChanged(auth, user => {
 
 
 /* GLOBALS */
-
-// ?? Helper: always returns YYYY-MM-DD regardless of browser locale ??
-function formatISODate(date) {
-  var y = date.getFullYear();
-  var m = String(date.getMonth() + 1).padStart(2, '0');
-  var d = String(date.getDate()).padStart(2, '0');
-  return y + '-' + m + '-' + d;
-}
-function formatISOTime(date) {
-  return String(date.getHours()).padStart(2,'0') + ':' +
-         String(date.getMinutes()).padStart(2,'0') + ':' +
-         String(date.getSeconds()).padStart(2,'0');
-}
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={};
 var _configLoaded=false;
@@ -1468,57 +1486,6 @@ async function pagarSobregiro(id){
 /* ===================================================
    PROYECCION FIN DE MES
 =================================================== */
-function renderProyeccion(rows, mes){
-  var hoy = new Date().getDate();
-  var totalDias2 = new Date(new Date().getFullYear(), mes, 0).getDate();
-  var diasTransc = Math.max(1, hoy);
-  var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
-  var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
-  var gastoDiario = gas / diasTransc;
-  var proyeccion  = gastoDiario * totalDias2;
-  var balFinal    = ing - proyeccion;
-
-  // Deuda sobregiro pendiente de este mes
-  var deudaSob = _sobregiros.filter(function(s){
-    return !s.pagado && esSobregiroConPenalizacion(s);
-  }).reduce(function(s,x){return s+x.creditoDeuda;},0);
-
-  var pGD  = document.getElementById('pGastoDiario');
-  var pProy= document.getElementById('pProyeccion');
-  var pBF  = document.getElementById('pBalanceFinal');
-  var pDS  = document.getElementById('pDeudaSob');
-  if(!pGD) return;
-
-  pGD.textContent  = fmt(gastoDiario)+'/dia';
-  pGD.className    = 'proyec-val';
-
-  pProy.textContent= fmt(proyeccion);
-  pProy.className  = 'proyec-val '+(proyeccion>ing?'neg':'warn');
-
-  pBF.textContent  = fmt(balFinal);
-  pBF.className    = 'proyec-val '+(balFinal>0?'pos':'neg');
-
-  pDS.textContent  = deudaSob>0?fmt(deudaSob):'S/ 0.00';
-  pDS.className    = 'proyec-val '+(deudaSob>0?'neg':'pos');
-
-  // Deuda metric card
-  var deudaWrap = document.getElementById('mDeudaWrap');
-  var deudaEl   = document.getElementById('mDeuda');
-  var dDeuda    = document.getElementById('dDeuda');
-  if(deudaWrap){
-    var sobTotal = _sobregiros.filter(function(s){
-      return !s.pagado && esSobregiroConPenalizacion(s);
-    }).reduce(function(s,x){return s+x.monto;},0);
-    if(sobTotal>0){
-      deudaWrap.style.display='block';
-      if(deudaEl) deudaEl.textContent = fmt(sobTotal);
-      if(dDeuda) dDeuda.textContent = _sobregiros.filter(function(s){return !s.pagado&&esSobregiroConPenalizacion(s);}).length+' sobregiro(s) pendientes';
-    } else {
-      deudaWrap.style.display='none';
-    }
-  }
-}
-
 /* ===================================================
    ALERTAS INTELIGENTES
 =================================================== */
@@ -1624,33 +1591,6 @@ function renderSmartAlerts(rows, mes){
   });
 }
 
-
-/* ?? Capacidad de Pago ?? */
-function renderCapacidadPago() {
-  var totalActivos = _activos.reduce(function(s,a){return s+a.monto;},0);
-  var deudaSob = _sobregiros.filter(function(s){
-    return !s.pagado && s.tipo==='SUELDO BBVA';
-  }).reduce(function(s,x){return s+x.monto;},0);
-  var liquidez = totalActivos - deudaSob;
-  var solvente = liquidez >= 0;
-
-  var el = document.getElementById('mCapPago');
-  var dEl = document.getElementById('dCapPago');
-  var wrap = document.getElementById('mCapPagoWrap');
-  if(!el||!wrap) return;
-  wrap.style.display = 'block';
-  el.textContent = fmt(liquidez);
-  el.style.color = solvente ? 'var(--green-tx)' : 'var(--red-tx)';
-  var accent = document.querySelector('#mCapPagoWrap .m-accent');
-  if(accent) accent.style.background = solvente ? 'var(--green)' : 'var(--red)';
-  if(dEl) {
-    dEl.textContent = solvente
-      ? 'Activos: '+fmt(totalActivos)+' / Deuda: '+fmt(deudaSob)
-      : 'Deficit de '+fmt(Math.abs(liquidez))+' en activos';
-    dEl.className = 'm-delta ' + (solvente ? 'up' : 'down');
-  }
-}
-
 /* SIDEBAR */
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sbOverlay').classList.toggle('show'); }
 function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sbOverlay').classList.remove('show'); }
@@ -1744,17 +1684,41 @@ function renderPocket(rows){
   var ing=rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
   var gas=rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
   var hoy=new Date().getDate();
-  var fijos=_recurrentes.filter(function(r){return r.dia>hoy;}).reduce(function(s,r){return s+(parseFloat(r.monto)||0);},0);
-  var disp=ing-gas-fijos;
+  var mesActualNum=new Date().getMonth();
+  var anioActual=new Date().getFullYear();
+  var mesKey=anioActual+'-'+String(mesActualNum+1).padStart(2,'0');
+
+  // Separate paid, pending (dia > hoy), vencido (dia < hoy, not paid)
+  var fijosP=0, fijosV=0;
+  _recurrentes.forEach(function(r){
+    var pagadoEsteMes = r.pagos && r.pagos[mesKey] === true;
+    if(pagadoEsteMes) return; // already paid, don't count
+    var m = parseFloat(r.monto)||0;
+    if(r.dia > hoy) fijosP += m;       // pending (not yet due)
+    else if(r.dia <= hoy) fijosV += m; // overdue
+  });
+
+  var disp = ing - gas - fijosP - fijosV;
   var el=document.getElementById('pocketAmt'); if(!el) return;
   el.textContent=fmt(disp);
   el.className='pocket-amt '+(disp>=0?'pos':'neg');
-  document.getElementById('pocketIng').textContent=fmt(ing);
-  document.getElementById('pocketGas').textContent=fmt(gas);
-  document.getElementById('pocketFijos').textContent=fmt(fijos);
-  var pct=ing>0?Math.min(100,((gas+fijos)/ing)*100):0;
+
+  var elIng=document.getElementById('pocketIng');
+  var elGas=document.getElementById('pocketGas');
+  var elFij=document.getElementById('pocketFijos');
+  var elVenc=document.getElementById('pocketVenc');
+  var elVencW=document.getElementById('pocketVencWrap');
+
+  if(elIng) elIng.textContent=fmt(ing);
+  if(elGas) elGas.textContent=fmt(gas);
+  if(elFij) elFij.textContent=fmt(fijosP);
+  if(elVenc) elVenc.textContent=fmt(fijosV);
+  if(elVencW) elVencW.style.display = fijosV>0 ? 'block' : 'none';
+
+  var pct=ing>0?Math.min(100,((gas+fijosP+fijosV)/ing)*100):0;
   var fc=pct>90?'var(--red-tx)':pct>70?'var(--gold)':'var(--green-tx)';
-  var fill=document.getElementById('pocketFill'); if(fill){fill.style.width=pct+'%';fill.style.background=fc;}
+  var fill=document.getElementById('pocketFill');
+  if(fill){fill.style.width=pct+'%';fill.style.background=fc;}
 }
 
 /* WEEKLY */
@@ -1807,12 +1771,7 @@ function renderDashboard(){
   renderPocket(getRows(periodoActivo||mesActual));
   renderWeekly();
   var mesDash=periodoActivo||mesActual;
-  renderProyeccion(getRows(mesDash), mesDash);
   buildEvol(); buildDonut(rows); buildComp(); buildTop(rows); buildProyec();
-  var mesDash2=periodoActivo||mesActual;
-  if(typeof calcularScore==='function') renderScore(getRows(mesDash2), mesDash2);
-  if(typeof renderProyeccion==='function') renderProyeccion(getRows(mesDash2), mesDash2);
-  if(typeof renderCapacidadPago==='function') renderCapacidadPago();
 }
 
 function setDelta(id,curr,prev,inv){
@@ -2241,20 +2200,164 @@ function renderCalendario(){
 /* RECURRENTES */
 function renderRecurrentes(){
   var hoy=new Date().getDate();
-  var cats=[],catSet={};allRows.forEach(function(r){if(r.categoria&&!catSet[r.categoria]){catSet[r.categoria]=1;cats.push(r.categoria);}});cats.sort();
-  var rc=document.getElementById('recCat');if(rc){rc.innerHTML='<option value="">Categoria...</option>';cats.forEach(function(c){rc.innerHTML+='<option value="'+c+'">'+c+'</option>';});}
-  var rd=document.getElementById('recDia');if(rd){rd.innerHTML='<option value="">Dia del mes...</option>';for(var d=1;d<=31;d++)rd.innerHTML+='<option value="'+d+'">Dia '+d+'</option>';}
+  var mesActualNum=new Date().getMonth(); // 0-indexed
+  var anioActual=new Date().getFullYear();
+  // Key for this month's payments: "YYYY-MM"
+  var mesKey=anioActual+'-'+String(mesActualNum+1).padStart(2,'0');
+
+  // Populate selects
+  var cats=[],catSet={};
+  allRows.forEach(function(r){if(r.categoria&&!catSet[r.categoria]){catSet[r.categoria]=1;cats.push(r.categoria);}});
+  cats.sort();
+  var rc=document.getElementById('recCat');
+  if(rc){rc.innerHTML='<option value="">Categoria...</option>';cats.forEach(function(c){rc.innerHTML+='<option value="'+c+'">'+c+'</option>';});}
+  var rd=document.getElementById('recDia');
+  if(rd){rd.innerHTML='<option value="">Dia del mes...</option>';for(var d=1;d<=31;d++)rd.innerHTML+='<option value="'+d+'">Dia '+d+'</option>';}
+  var reDia=document.getElementById('reDia');
+  if(reDia){reDia.innerHTML='<option value="">Dia...</option>';for(var d=1;d<=31;d++)reDia.innerHTML+='<option value="'+d+'">Dia '+d+'</option>';}
+
   var cont=document.getElementById('recList');if(!cont)return;
-  if(!_recurrentes.length){cont.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos recurrentes configurados</div>';return;}
+
+  if(!_recurrentes.length){
+    cont.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos recurrentes configurados</div>';
+    var res=document.getElementById('recResumen'); if(res) res.style.display='none';
+    return;
+  }
+
   cont.innerHTML='';
-  _recurrentes.forEach(function(rec,idx){
-    var vence=rec.dia<hoy?'Vencio dia '+rec.dia:rec.dia===hoy?'Vence HOY':'Vence dia '+rec.dia;
-    var color=rec.dia<hoy?'var(--muted)':rec.dia===hoy?'var(--red-tx)':'var(--green-tx)';
+  var totPend=0, totVenc=0, totPag=0;
+  var cntPend=0, cntVenc=0, cntPag=0;
+
+  _recurrentes.forEach(function(rec,idx2){
+    // Check if paid this month
+    var pagadoEsteMes = rec.pagos && rec.pagos[mesKey] === true;
+    var vencido = !pagadoEsteMes && rec.dia < hoy;
+    var hoyMismo= !pagadoEsteMes && rec.dia === hoy;
+
+    // Accumulate
+    if(pagadoEsteMes){ totPag+=rec.monto; cntPag++; }
+    else if(vencido){ totVenc+=rec.monto; cntVenc++; }
+    else { totPend+=rec.monto; cntPend++; }
+
+    var estadoColor = pagadoEsteMes ? 'var(--muted)' : vencido ? 'var(--red-tx)' : hoyMismo ? 'var(--red-tx)' : 'var(--green-tx)';
+    var estadoTxt   = pagadoEsteMes ? 'Pagado este mes' : vencido ? 'VENCIDO dia '+rec.dia : hoyMismo ? 'Vence HOY' : 'Vence dia '+rec.dia;
+
     var div=document.createElement('div');
-    div.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);';
-    div.innerHTML='<div><div style="font-size:12px;font-weight:400;color:var(--text)">'+rec.nombre+'</div><div style="font-size:9px;color:'+color+';margin-top:3px">'+vence+' - '+rec.categoria+'</div></div><div style="display:flex;align-items:center;gap:10px"><div style="font-family:IBM Plex Mono,monospace;font-size:13px;color:var(--red-tx)">-'+fmt(rec.monto)+'</div><button class="row-btn del" onclick="eliminarRecurrente('+idx+')">x</button></div>';
+    div.className='rec-item'+(pagadoEsteMes?' pagado':'');
+
+    var info=document.createElement('div'); info.className='rec-item-info';
+    var nombre=document.createElement('div'); nombre.className='rec-item-nombre'; nombre.textContent=rec.nombre;
+    var sub=document.createElement('div'); sub.className='rec-item-sub';
+    sub.style.color=estadoColor;
+    sub.textContent=estadoTxt+(rec.categoria?' ? '+rec.categoria:'');
+    info.appendChild(nombre); info.appendChild(sub);
+
+    var monto=document.createElement('div');
+    monto.className='rec-item-monto'+(pagadoEsteMes?' pagado':'');
+    monto.textContent=(pagadoEsteMes?'':'-')+fmt(rec.monto);
+
+    var actions=document.createElement('div'); actions.className='rec-item-actions';
+
+    // Paid button
+    var btnPag=document.createElement('button');
+    btnPag.className='rec-paid-btn'+(pagadoEsteMes?' active':'');
+    btnPag.textContent=pagadoEsteMes?'Pagado':'Marcar pagado';
+    btnPag.onclick=(function(i3,key,isPag){return function(){
+      togglePagoRecurrente(i3,key,isPag);
+    };})(idx2, mesKey, pagadoEsteMes);
+
+    // Edit button
+    var btnEdit=document.createElement('button');
+    btnEdit.className='row-btn';
+    btnEdit.textContent='Editar';
+    btnEdit.onclick=(function(i3){return function(){ showRecEditModal(i3); };})(idx2);
+
+    // Delete button
+    var btnDel=document.createElement('button');
+    btnDel.className='row-btn del';
+    btnDel.textContent='x';
+    btnDel.onclick=(function(i3){return function(){ eliminarRecurrente(i3); };})(idx2);
+
+    actions.appendChild(btnPag);
+    actions.appendChild(btnEdit);
+    actions.appendChild(btnDel);
+
+    div.appendChild(info);
+    div.appendChild(monto);
+    div.appendChild(actions);
     cont.appendChild(div);
   });
+
+  // Resumen
+  var res=document.getElementById('recResumen');
+  if(res){
+    res.style.display='block';
+    var elPend=document.getElementById('recResPend');
+    var elVenc=document.getElementById('recResVenc');
+    var elPag=document.getElementById('recResPag');
+    if(elPend) elPend.textContent=fmt(totPend)+' ('+cntPend+')';
+    if(elVenc) elVenc.textContent=fmt(totVenc)+' ('+cntVenc+')';
+    if(elPag)  elPag.textContent=fmt(totPag)+' ('+cntPag+')';
+  }
+}
+
+/* ?? Edit recurrente modal ?? */
+var _recEditIdx = -1;
+function showRecEditModal(idx2){
+  _recEditIdx = idx2;
+  var rec = _recurrentes[idx2]; if(!rec) return;
+  document.getElementById('reNombre').value = rec.nombre || '';
+  document.getElementById('reMonto').value  = rec.monto || '';
+  document.getElementById('reDia').value    = rec.dia || '';
+  document.getElementById('reCatEdit').value= rec.categoria || '';
+  document.getElementById('recEditOv').classList.add('show');
+}
+function hideRecEditModal(){ document.getElementById('recEditOv').classList.remove('show'); _recEditIdx=-1; }
+
+async function confirmarRecEdit(){
+  if(_recEditIdx<0) return;
+  var rec = _recurrentes[_recEditIdx];
+  rec.nombre    = document.getElementById('reNombre').value.trim() || rec.nombre;
+  rec.monto     = parseFloat(document.getElementById('reMonto').value) || rec.monto;
+  rec.dia       = parseInt(document.getElementById('reDia').value) || rec.dia;
+  rec.categoria = document.getElementById('reCatEdit').value.trim() || rec.categoria;
+  try{
+    await window._saveRecurrentes(_recurrentes);
+    toast(rec.nombre+' actualizado','ok');
+  }catch(e){ toast('Error guardando','err'); }
+  hideRecEditModal();
+  renderRecurrentes();
+}
+
+async function confirmarRecDelete(){
+  if(_recEditIdx<0) return;
+  var nombre = _recurrentes[_recEditIdx].nombre;
+  _recurrentes.splice(_recEditIdx,1);
+  try{
+    await window._saveRecurrentes(_recurrentes);
+    toast(nombre+' eliminado','info');
+  }catch(e){ toast('Error eliminando','err'); }
+  hideRecEditModal();
+  renderRecurrentes();
+}
+
+async function togglePagoRecurrente(idx2, mesKey, isPagado){
+  var rec = _recurrentes[idx2]; if(!rec) return;
+  if(!rec.pagos) rec.pagos = {};
+  if(isPagado){
+    delete rec.pagos[mesKey];
+    toast(rec.nombre+' marcado como pendiente','info');
+  } else {
+    rec.pagos[mesKey] = true;
+    toast(rec.nombre+' pagado este mes','ok');
+  }
+  try{
+    await window._saveRecurrentes(_recurrentes);
+  }catch(e){ toast('Error guardando','err'); }
+  renderRecurrentes();
+  // Update pocket
+  var mesPocket = periodoActivo || mesActual;
+  renderPocket(getRows(mesPocket));
 }
 async function agregarRecurrente(){
   var prev=cloneData(_recurrentes);
@@ -2794,39 +2897,17 @@ window.onAppReady = async function(){
   _sobregiros=dedupeSobregirosLista(results[4]||[]);
 
 
-  // Apply settings with safe defaults for every field
-  var sName = _settings.dashName || 'Finanzas';
-  var sMoneda = _settings.moneda || 'S/';
-  var sMeta = parseFloat(_settings.meta) || 30;
-  var sTheme = _settings.theme || 'dark';
-  var sAccent = _settings.accentColor || '#c9a84c';
-  var sWeek = _settings.weekStart !== undefined ? parseInt(_settings.weekStart) : 0;
-
-  var dashNameEl = document.getElementById('dashName');
-  if(dashNameEl) dashNameEl.textContent = sName;
-
-  window._moneda = sMoneda;
-  var cm = document.getElementById('cfgMoneda');
-  if(cm) cm.value = sMoneda;
-
-  window._metaAhorro = sMeta;
-  var ml = document.getElementById('metaActualLabel');
-  if(ml) ml.textContent = sMeta + '%';
-  var cfgMetaEl = document.getElementById('cfgMeta');
-  if(cfgMetaEl) cfgMetaEl.value = sMeta;
-
-  applyTheme(sTheme);
-  applyAccent(sAccent);
-
-  _weekStart = sWeek;
-  var wsEl = document.getElementById('cfgWeekStart');
-  if(wsEl) wsEl.value = String(sWeek);
+  if(_settings.dashName) document.getElementById('dashName').textContent=_settings.dashName;
+  if(_settings.moneda){window._moneda=_settings.moneda;var cm=document.getElementById('cfgMoneda');if(cm)cm.value=_settings.moneda;}
+  if(_settings.meta){window._metaAhorro=parseFloat(_settings.meta)||30;var ml=document.getElementById('metaActualLabel');if(ml)ml.textContent=_settings.meta+'%';}
+  if(_settings.theme) applyTheme(_settings.theme);
+  if(_settings.accentColor) applyAccent(_settings.accentColor);
+  if(_settings.weekStart!==undefined){_weekStart=parseInt(_settings.weekStart);var wsEl=document.getElementById('cfgWeekStart');if(wsEl)wsEl.value=String(_settings.weekStart);}
 
   window._startListener(async function(rows){
       var prevIds=new Set(allRows.map(function(r){return r.id;}));
     var isFirstLoad = allRows.length === 0;
     allRows=processRows(rows);
-    window._allRowsRef=allRows; // expose for formulario subcategory memory
     await reconciliarSobregiros(allRows, prevIds, isFirstLoad);
     setSyncState('live','Sincronizado');
     document.getElementById('lastSync').textContent='Actualizado '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});

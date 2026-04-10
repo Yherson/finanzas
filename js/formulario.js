@@ -38,13 +38,14 @@ window._saveCats = async (uid, data) => {
 };
 
 onAuthStateChanged(auth, user => {
+  const mainPg = document.getElementById('mainPage');
   if(user){
     window._currentUser = user;
     window._addRegistro = async (data) => addDoc(collection(db,'users',user.uid,'registros'), data);
     window._firebaseReady = true;
-    document.getElementById('authScreen').classList.remove('show');
-    document.getElementById('mainPage').classList.add('show');
-    document.getElementById('userName').textContent = user.displayName || user.email || 'Usuario';
+    if (mainPg) mainPg.classList.add('show');
+    const uName = document.getElementById('userName');
+    if (uName) uName.textContent = user.displayName || user.email || 'Usuario';
     // Load categories from Firestore
     window._loadCats(user.uid).then(function(cats){
       if(cats && (cats.gasto || cats.ingreso)){
@@ -55,14 +56,10 @@ onAuthStateChanged(auth, user => {
   } else {
     window._currentUser = null;
     window._firebaseReady = false;
-    document.getElementById('authScreen').classList.add('show');
-    document.getElementById('mainPage').classList.remove('show');
+    window.location.href = 'index.html';
   }
 });
 
-var tipo='gasto', rawMonto='', catSel='', subSel='';
-var modalMode='', modalTarget='', modalParent='';
-var today=new Date().toISOString().split('T')[0];
 
 var defaultData={
   gasto:{

@@ -93,6 +93,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
 
     onAuthStateChanged(auth, user => {
   if (user) {
+    currentUser = user;
     window._userId = user.uid;
     window._userEmail = user.email || '';
     window._userName = user.displayName || 'Usuario';
@@ -102,7 +103,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
     if(user.photoURL) document.getElementById('sbAvatar').innerHTML = '<img src="' + user.photoURL + '" alt="">';
     else document.getElementById('sbAvatar').textContent = window._userName.charAt(0).toUpperCase();
 
-    inicializarDatos();
+    if(typeof window.onAppReady === 'function') window.onAppReady();
   } else {
     window.location.href = 'index.html';
   }

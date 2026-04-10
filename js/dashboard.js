@@ -98,7 +98,6 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
     window._saveRecurrentes = (l) => saveDoc(up('config/recurrentes'), { lista: l });
     window._loadPatrimonio = () => loadDoc(up('config/patrimonio'), { activos: [], pasivos: [], history: [], movimientos: [] });
     window._savePatrimonio = (d) => saveDoc(up('config/patrimonio'), d);
-    window._loadSobregiros = async () => { const d = await loadDoc(up('config/sobregiros'), { lista: [] }); return d.lista || []; };
     window._saveSobregiros = async (l) => { await saveDoc(up('config/sobregiros'), { lista: l }); };
     window._addRegistroFuturo = async (data) => {
       data.createdAt = serverTimestamp();
@@ -127,7 +126,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
     var allRows = [], periodoActivo = 0, vistaActiva = 'dashboard', charts = {};
     var presupCat = {}, presupSub = {}, _metas = [], _recurrentes = [], _settings = {};
     var _configLoaded = false;
-    var _activos = [], _pasivos = [], _patrimonioHistory = [], _patrimonioMovimientos = [];
+    var _activos = [], _pasivos = [], _patrimonioHistory = [], _patrimonioMovimientos = [], _sobregiros = [];
     var _etiquetas = ['trabajo', 'familia', 'viaje', 'salud', 'ocio', 'urgente'], _etiquetasActivas = [];
     var meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     var mesesFull = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -2094,3 +2093,24 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
     };
 
     document.addEventListener('DOMContentLoaded', function () { handleResize(); });
+  "hideRecEditModal", "confirmarRecEdit", "confirmarRecDelete", "ejecutarDelete",
+  "guardarPresupCat", "loadSubcats", "guardarPresupSub", "filtrarTabla", "clearDateFilter",
+  "guardarNombre", "setTheme", "setAccent", "guardarMetaPct", "setMoneda", "setWeekStart",
+];
+
+
+try {
+  const funcs = [
+    'showView','logout','setPeriod','exportarPDF','exportarExcel',
+    'hideRecEditModal','confirmarRecEdit','confirmarRecDelete','ejecutarDelete',
+    'hideEditModal','guardarEdicion','pedirConfirm','closeSidebar','toggleSidebar',
+    'guardarPresupCat','loadSubcats','guardarPresupSub','filtrarTabla','clearDateFilter',
+    'guardarAlerta','calPrev','calNext','agregarRecurrente','agregarActivo','agregarPasivo',
+    'guardarNombre','setTheme','setAccent','guardarMetaPct','setMoneda','setWeekStart',
+    'closeDrill','editarPatrimonio','eliminarActivo','eliminarPasivo'
+  ];
+  funcs.forEach(f => { try { window[f] = eval(f); } catch(e) {} });
+  window._loadSobregiros = async () => [];
+  window.dedupeSobregirosLista = (l) => l || [];
+  window.reconciliarSobregiros = async (a, p, i) => {};
+} catch(err) { console.error('window bind err', err); }

@@ -69,8 +69,22 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
     window._startListener = (cb) => {
       const q = query(collection(db, 'users', currentUser.uid, 'registros'), orderBy('createdAt', 'desc'));
       unsubListener = onSnapshot(q,
-        snap => { const r = []; snap.forEach(d => r.push({ id: d.id, ...d.data() })); cb(r); },
-        e => console.error('[FB] listener error', e)
+        snap => { 
+          try {
+            const r = []; snap.forEach(d => r.push({ id: d.id, ...d.data() })); cb(r); 
+          } catch(err) {
+            console.error('[FB] process error', err);
+            document.getElementById('loading').style.display = 'none';
+            var errBox = document.getElementById('errorBox');
+            if(errBox) { errBox.style.display = 'block'; errBox.textContent = 'Error procesando datos: ' + err.message; }
+          }
+        },
+        e => {
+          console.error('[FB] listener error', e);
+          document.getElementById('loading').style.display = 'none';
+          var errBox = document.getElementById('errorBox');
+          if(errBox) { errBox.style.display = 'block'; errBox.textContent = 'Error DB (Posible falta de permisos o indice): ' + e.message; }
+        }
       );
     };
 
@@ -2020,50 +2034,63 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
 
     /* INIT */
     window.onAppReady = async function () {
-      setPeriod(new Date().getMonth() + 1);
-      document.getElementById('vDashboard').style.display = 'block';
-      document.getElementById('vDashboard').classList.add('view-active');
-      setSyncState('loading', 'Cargando...');
-      handleResize();
+      try {
+        setPeriod(new Date().getMonth() + 1);
+        document.getElementById('vDashboard').style.display = 'block';
+        document.getElementById('vDashboard').classList.add('view-active');
+        setSyncState('loading', 'Cargando...');
+        handleResize();
 
-      var safe = function (fn, def) { return Promise.resolve().then(fn).catch(function (e) { console.error('load error:', e); return def; }); };
-      var results = await Promise.all([
-        safe(function () { return window._loadPresupuestos(); }, { cats: {}, subs: {} }),
-        safe(function () { return window._loadSettings(); }, {}),
-        safe(function () { return window._loadRecurrentes(); }, []),
-        safe(function () { return window._loadPatrimonio(); }, { activos: [], pasivos: [], history: [], movimientos: [] }),
-        safe(function () { return window._loadSobregiros(); }, [])
-      ]);
-      presupCat = results[0].cats || {}; presupSub = results[0].subs || {};
-      _settings = results[1];
-      _recurrentes = results[2];
-      _activos = results[3].activos || [];
-      _pasivos = results[3].pasivos || [];
-      _patrimonioHistory = results[3].history || [];
-      _patrimonioMovimientos = results[3].movimientos || [];
-      _sobregiros = dedupeSobregirosLista(results[4] || []);
+        var safe = function (fn, def) { return Promise.resolve().then(fn).catch(function (e) { console.error('load error:', e); return def; }); };
+        var results = await Promise.all([
+          safe(function () { return window._loadPresupuestos(); }, { cats: {}, subs: {} }),
+          safe(function () { return window._loadSettings(); }, {}),
+          safe(function () { return window._loadRecurrentes(); }, []),
+          safe(function () { return window._loadPatrimonio(); }, { activos: [], pasivos: [], history: [], movimientos: [] }),
+          safe(function () { return window._loadSobregiros(); }, [])
+        ]);
+        presupCat = results[0].cats || {}; presupSub = results[0].subs || {};
+        _settings = results[1];
+        _recurrentes = results[2];
+        _activos = results[3].activos || [];
+        _pasivos = results[3].pasivos || [];
+        _patrimonioHistory = results[3].history || [];
+        _patrimonioMovimientos = results[3].movimientos || [];
+        _sobregiros = dedupeSobregirosLista(results[4] || []);
 
+        if (_settings.dashName) document.getElementById('dashName').textContent = _settings.dashName;
+        if (_settings.moneda) { window._moneda = _settings.moneda; var cm = document.getElementById('cfgMoneda'); if (cm) cm.value = _settings.moneda; }
+        if (_settings.meta) { window._metaAhorro = parseFloat(_settings.meta) || 30; var ml = document.getElementById('metaActualLabel'); if (ml) ml.textContent = _settings.meta + '%'; }
+        if (_settings.theme) applyTheme(_settings.theme);
+        if (_settings.accentColor) applyAccent(_settings.accentColor);
+        if (_settings.weekStart !== undefined) { _weekStart = parseInt(_settings.weekStart); var wsEl = document.getElementById('cfgWeekStart'); if (wsEl) wsEl.value = String(_settings.weekStart); }
 
-      if (_settings.dashName) document.getElementById('dashName').textContent = _settings.dashName;
-      if (_settings.moneda) { window._moneda = _settings.moneda; var cm = document.getElementById('cfgMoneda'); if (cm) cm.value = _settings.moneda; }
-      if (_settings.meta) { window._metaAhorro = parseFloat(_settings.meta) || 30; var ml = document.getElementById('metaActualLabel'); if (ml) ml.textContent = _settings.meta + '%'; }
-      if (_settings.theme) applyTheme(_settings.theme);
-      if (_settings.accentColor) applyAccent(_settings.accentColor);
-      if (_settings.weekStart !== undefined) { _weekStart = parseInt(_settings.weekStart); var wsEl = document.getElementById('cfgWeekStart'); if (wsEl) wsEl.value = String(_settings.weekStart); }
-
-      window._startListener(async function (rows) {
-        var prevIds = new Set(allRows.map(function (r) { return r.id; }));
-        var isFirstLoad = allRows.length === 0;
-        allRows = processRows(rows);
-        await reconciliarSobregiros(allRows, prevIds, isFirstLoad);
-        setSyncState('live', 'Sincronizado');
-        document.getElementById('lastSync').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+        window._startListener(async function (rows) {
+          try {
+            var prevIds = new Set(allRows.map(function (r) { return r.id; }));
+            var isFirstLoad = allRows.length === 0;
+            allRows = processRows(rows);
+            await reconciliarSobregiros(allRows, prevIds, isFirstLoad);
+            setSyncState('live', 'Sincronizado');
+            document.getElementById('lastSync').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashPage').style.display = 'block';
+            document.getElementById('errorBox').style.display = 'none';
+            renderVista();
+            try { checkRecurrentes(); } catch (e) { console.error(e); }
+          } catch(err2) {
+            console.error('Error in listener callback:', err2);
+            document.getElementById('loading').style.display = 'none';
+            var errBox = document.getElementById('errorBox');
+            if(errBox) { errBox.style.display = 'block'; errBox.textContent = 'Error dibujando la pantalla: ' + err2.message; }
+          }
+        });
+      } catch (err) {
+        console.error('onAppReady init error:', err);
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('dashPage').style.display = 'block';
-        document.getElementById('errorBox').style.display = 'none';
-        renderVista();
-        try { checkRecurrentes(); } catch (e) { }
-      });
+        var errBox = document.getElementById('errorBox');
+        if(errBox) { errBox.style.display = 'block'; errBox.innerHTML = '<b>Error grave al inicializar:</b><br/>' + err.message; }
+      }
     };
 
     document.addEventListener('DOMContentLoaded', function () { handleResize(); });

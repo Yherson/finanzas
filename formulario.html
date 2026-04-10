@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0c0c0e">
+<title>Finanzas Formulario</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/formulario.css">
+</head>
+<body>
+
+<!-- FORM -->
+<div class="page" id="mainPage">
+  <div class="header">
+    <div><div class="brand">Finanzas</div><div class="brand-sub">Registro personal</div></div>
+    <div class="dt-wrap"><div class="dt-time" id="dtTime">--:--</div><div class="dt-date" id="dtDate">---</div></div>
+  </div>
+  <div class="rule"></div>
+  <div class="user-row">
+    <span class="user-name" id="userName">Cargando...</span>
+    <button class="user-out" onclick="logout()">Salir</button>
+  </div>
+
+  <div class="tipo-row">
+    <button class="tipo-btn ag" id="btnG" onclick="setTipo('gasto')">Gasto</button>
+    <button class="tipo-btn" id="btnI" onclick="setTipo('ingreso')">Ingreso</button>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Monto</div>
+    <div class="monto-wrap">
+      <span class="monto-sym">S/</span>
+      <input class="monto-inp" id="monto" type="text" inputmode="decimal" placeholder="0.00"
+        oninput="rawMonto=this.value.replace(/[^0-9.]/g,'')"
+        onblur="if(rawMonto)this.value=parseFloat(rawMonto).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})"
+        onfocus="this.value=rawMonto">
+    </div>
+    <div class="err-msg" id="eMonto"></div>
+  </div>
+
+  <hr class="div">
+
+  <div class="section">
+    <div class="sec-label">Categoria</div>
+    <div class="chips" id="chipsCat"></div>
+    <div class="inline-form" id="addCatForm">
+      <input class="inline-inp" id="addCatInp" placeholder="Nueva categoria..." maxlength="30" onkeydown="if(event.key==='Enter')confirmAddCat()">
+      <button class="inline-ok" onclick="confirmAddCat()">Ok</button>
+      <button class="inline-cancel" onclick="cancelInline('cat')">&#x2715;</button>
+    </div>
+    <div class="err-msg" id="eCat"></div>
+    <div id="subSection" style="display:none">
+      <div class="sub-section">
+        <div class="sec-label">Subcategoria</div>
+        <div class="subchips" id="subchips"></div>
+        <div class="inline-form" id="addSubForm">
+          <input class="inline-inp" id="addSubInp" placeholder="Nueva subcategoria..." maxlength="30" onkeydown="if(event.key==='Enter')confirmAddSub()">
+          <button class="inline-ok" onclick="confirmAddSub()">Ok</button>
+          <button class="inline-cancel" onclick="cancelInline('sub')">&#x2715;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <div class="row">
+    <div class="section">
+      <div class="sec-label">Fecha</div>
+      <input type="date" class="text-inp" id="fecha">
+    </div>
+    <div class="section wide">
+      <div class="sec-label">Descripcion</div>
+      <input type="text" class="text-inp" id="desc" placeholder="ej. Almuerzo trabajo" maxlength="80">
+    </div>
+  </div>
+
+  <button class="btn-save btn-g" id="btnSave" onclick="guardar()">Registrar Gasto</button>
+  <div class="estado" id="estado"></div>
+</div>
+
+<!-- MODAL EDITAR CATEGORIA -->
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)hideModal()">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span class="modal-title-txt" id="modalTitleTxt">Editar</span>
+      <button class="modal-close" onclick="hideModal()">&#x2715;</button>
+    </div>
+    <input class="modal-inp" id="modalInp" type="text" maxlength="40" placeholder="Nombre...">
+    <div class="modal-btns">
+      <button class="mbtn mbtn-save" onclick="confirmModalEdit()">Guardar</button>
+      <button class="mbtn mbtn-del" onclick="confirmModalDelete()">Eliminar</button>
+      <button class="mbtn mbtn-cancel" onclick="hideModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/formulario.js"></script>
+</body>
+</html>

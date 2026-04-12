@@ -505,34 +505,6 @@ async function guardar() {
 }
 
 // ===============================
-// ? MOTOR SOBREGIRO INTELIGENTE
-// ===============================
-
-function esAhorro(subcategoria) {
-  return subcategoria && subcategoria.toUpperCase().includes("AHORRO");
-}
-
-function getPrimerDiaSiguienteMes(fechaStr) {
-  const fecha = new Date(fechaStr);
-  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1)
-    .toISOString()
-    .split("T")[0];
-}
-
-// ? FUNCI?N PRINCIPAL
-async function motorSobregiro(data) {
-  if (
-    data.tipo === "ingreso" &&
-    data.categoria === "SOBREGIRO"
-  ) {
-    console.log("? Detectado SOBREGIRO");
-
-    await crearSobregiroFuturo(data);
-    await procesarPatrimonioSobregiro(data);
-  }
-}
-
-// ===============================
 // ? MOTOR SOBREGIRO INTELIGENTE (MEJORADO)
 // ===============================
 

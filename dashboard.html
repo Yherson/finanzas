@@ -279,7 +279,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .cal-month-lbl{font-family:'IBM Plex Serif',serif;font-size:16px;font-weight:400;color:var(--text);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;}
 .cal-day-lbl{text-align:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:4px 0;}
-.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;transition:background .15s;border:1px solid transparent;gap:2px;}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;transition:background .15s;border:1px solid transparent;gap:2px;min-height:48px;max-height:80px;}
 .cal-day:hover{background:var(--s2);}
 .cal-day.today{border-color:var(--gold-b);background:var(--gold-d);}
 .cal-day.empty{opacity:0;pointer-events:none;}
@@ -293,6 +293,11 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .cal-detail-title{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
 .cal-detail-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .cal-detail-row:last-child{border-bottom:none;}
+@media(min-width:769px){
+  .cal-day{min-height:44px;max-height:64px;}
+  .cal-day-num{font-size:10px;}
+  .cal-day-total{font-size:7px;}
+}
 
 /* PATRIMONIO */
 .neto-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px;}
@@ -427,6 +432,25 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .drill-summary{display:flex;gap:16px;padding:12px 0;border-top:1px solid var(--border);margin-top:4px;}
 .drill-sum-item{font-size:10px;color:var(--muted);}
 .drill-sum-item span{color:var(--text);font-family:'IBM Plex Mono',monospace;}
+/* SUBCATEGORY DRILL */
+.drill-sub-panel{background:var(--s2);border:1px solid var(--border2);border-radius:3px;padding:14px 16px;margin-top:10px;}
+.drill-sub-title{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.drill-sub-back{background:none;border:1px solid var(--border2);border-radius:2px;color:var(--muted);font-size:9px;cursor:pointer;padding:3px 8px;font-family:'IBM Plex Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.drill-sub-back:hover{color:var(--text);}
+.drill-sub-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+@media(max-width:600px){.drill-sub-charts{grid-template-columns:1fr!important;}}
+.drill-sub-chart-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:12px;}
+.drill-sub-chart-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.drill-sub-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+.drill-sub-row:last-child{border-bottom:none;}
+.drill-sub-row:hover{background:var(--s3);}
+.drill-sub-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.drill-sub-name{flex:1;font-size:11px;color:var(--text2);}
+.drill-sub-amt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);}
+.drill-sub-pct{font-size:10px;color:var(--muted);width:36px;text-align:right;}
+/* DEEP DRILL (subcategory -> transactions) */
+.deep-drill-panel{background:var(--s3);border:1px solid var(--border);border-radius:3px;padding:12px 14px;margin-top:10px;}
+.deep-drill-title{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 
 /* SOBREGIRO */
 .sob-alert{background:rgba(192,112,112,0.08);border:1px solid rgba(192,112,112,0.25);border-radius:3px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;}
@@ -842,6 +866,15 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <div class="card"><div class="card-title">Por dia de la semana</div><div class="chart-wrap" style="height:180px"><canvas id="cCalSemana"></canvas></div></div>
           <div class="card"><div class="card-title">Dias con mayor gasto</div><div id="calTopDias"></div></div>
         </div>
+        <div class="row r2" style="margin-top:8px">
+          <div class="card"><div class="card-title">Acumulado diario del mes</div><div class="chart-wrap" style="height:180px"><canvas id="cCalAcum"></canvas></div></div>
+          <div class="card"><div class="card-title">Ingresos vs Gastos diarios</div><div class="chart-wrap" style="height:180px"><canvas id="cCalIngGas"></canvas></div></div>
+        </div>
+        <div class="row r3" style="margin-top:8px">
+          <div class="card"><div class="card-title">Categorias del mes</div><div class="chart-wrap" style="height:160px"><canvas id="cCalCats"></canvas></div><div class="legend" id="legCalCats" style="margin-top:8px"></div></div>
+          <div class="card"><div class="card-title">Promedio gasto diario</div><div id="calPromedioStats" style="padding-top:4px"></div></div>
+          <div class="card"><div class="card-title">Semanas del mes</div><div class="chart-wrap" style="height:160px"><canvas id="cCalSemanas"></canvas></div></div>
+        </div>
       </div>
     </div>
 
@@ -849,7 +882,10 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="page">
         <div class="card" style="margin-bottom:8px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div class="card-title" style="margin-bottom:0">Gastos fijos este mes</div>
+            <div>
+              <div class="card-title" style="margin-bottom:0" id="recTitleLabel">Gastos fijos este mes</div>
+              <div id="recPeriodNote" style="font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:1px;text-transform:uppercase"></div>
+            </div>
             <div style="display:flex;gap:8px">
               <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--green-tx)"></div>Pendiente</div>
               <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--red-tx)"></div>Vencido</div>
@@ -1145,6 +1181,8 @@ function logout(){ if(confirm('Cerrar sesion?')) window._logout(); }
 
 
 /* ===== CHART DRILL-DOWN ===== */
+var _drillCatActual = null; // track current category for sub-drill
+
 function openDrill(titulo, filtroFn, tipo){
   var panel=document.getElementById('drillPanel');
   var titleEl=document.getElementById('drillTitle');
@@ -1158,7 +1196,7 @@ function openDrill(titulo, filtroFn, tipo){
     return tb-ta;
   });
 
-  titleEl.textContent=(tipo||'').toUpperCase()+' ? '+titulo+' ('+rows.length+' registros)';
+  titleEl.textContent=(tipo||'').toUpperCase()+' → '+titulo+' ('+rows.length+' registros)';
   body.innerHTML='';
 
   if(!rows.length){
@@ -1169,6 +1207,90 @@ function openDrill(titulo, filtroFn, tipo){
   }
 
   var total=rows.reduce(function(s,r){return s+r.monto;},0);
+
+  // Detect if this is a single-category gasto drill → show subcategory breakdown
+  var isCatDrill = tipo==='gasto' && rows.length>0 && rows.every(function(r){return r.categoria===rows[0].categoria;});
+  _drillCatActual = isCatDrill ? rows[0].categoria : null;
+
+  // Build subcategory breakdown section
+  if(isCatDrill){
+    var bySub={};
+    rows.forEach(function(r){
+      var sk=r.subcategoria||'(sin subcategoría)';
+      bySub[sk]=(bySub[sk]||0)+r.monto;
+    });
+    var subKeys=Object.keys(bySub).sort(function(a,b){return bySub[b]-bySub[a];});
+
+    if(subKeys.length>1 || (subKeys.length===1 && subKeys[0]!=='(sin subcategoría)')){
+      var subPanel=document.createElement('div');
+      subPanel.className='drill-sub-panel';
+
+      var subTitle=document.createElement('div');
+      subTitle.className='drill-sub-title';
+      subTitle.innerHTML='<span>Desglose por subcategoría</span>';
+      subPanel.appendChild(subTitle);
+
+      // Charts grid
+      var chartsGrid=document.createElement('div');
+      chartsGrid.className='drill-sub-charts';
+
+      // Donut chart
+      var donutCard=document.createElement('div');
+      donutCard.className='drill-sub-chart-card';
+      donutCard.innerHTML='<div class="drill-sub-chart-lbl">Distribución</div><div style="height:130px;position:relative"><canvas id="cSubDonut"></canvas></div><div class="legend" id="legSubDonut" style="margin-top:8px"></div>';
+      chartsGrid.appendChild(donutCard);
+
+      // Bar chart
+      var barCard=document.createElement('div');
+      barCard.className='drill-sub-chart-card';
+      barCard.innerHTML='<div class="drill-sub-chart-lbl">Montos por subcategoría</div><div style="height:130px;position:relative"><canvas id="cSubBar"></canvas></div>';
+      chartsGrid.appendChild(barCard);
+
+      subPanel.appendChild(chartsGrid);
+
+      // Subcategory list (clickable)
+      var listTitle=document.createElement('div');
+      listTitle.style.cssText='font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:12px';
+      listTitle.textContent='Haz clic en una subcategoría para ver sus transacciones';
+      subPanel.appendChild(listTitle);
+
+      subKeys.forEach(function(sk, i){
+        var pct=total>0?Math.round(bySub[sk]/total*100):0;
+        var row2=document.createElement('div');
+        row2.className='drill-sub-row';
+        row2.title='Ver transacciones de '+sk;
+        row2.innerHTML='<div class="drill-sub-dot" style="background:'+catColors[i%catColors.length]+'"></div>'+
+          '<div class="drill-sub-name">'+sk+'</div>'+
+          '<div class="drill-sub-amt">'+fmt(bySub[sk])+'</div>'+
+          '<div class="drill-sub-pct">'+pct+'%</div>';
+        row2.onclick=(function(subKey, catName){return function(){
+          openSubDrill(catName, subKey);
+        };})(sk, rows[0].categoria);
+        subPanel.appendChild(row2);
+      });
+
+      body.appendChild(subPanel);
+
+      // Build charts after DOM insertion
+      setTimeout(function(){
+        var subColors=subKeys.map(function(_,i){return catColors[i%catColors.length];});
+        var subVals=subKeys.map(function(k){return bySub[k];});
+
+        destroyChart('cSubDonut');
+        var ctxD=document.getElementById('cSubDonut');
+        if(ctxD) charts['cSubDonut']=new Chart(ctxD,{type:'doughnut',data:{labels:subKeys,datasets:[{data:subVals,backgroundColor:subColors,borderWidth:0,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length) openSubDrill(rows[0].categoria, subKeys[els[0].index]);}}});
+        var legD=document.getElementById('legSubDonut');
+        if(legD){legD.innerHTML='';subKeys.forEach(function(k,i){var p=total>0?Math.round(bySub[k]/total*100):0;legD.innerHTML+='<div class="leg-item" style="cursor:pointer" onclick="openSubDrill(\''+rows[0].categoria+'\',\''+k.replace(/'/g,"\\'")+'\')" title="Ver transacciones"><div class="leg-sq" style="background:'+subColors[i]+'"></div>'+k+' '+p+'%</div>';});}
+
+        destroyChart('cSubBar');
+        var ctxB=document.getElementById('cSubBar');
+        if(ctxB) charts['cSubBar']=new Chart(ctxB,{type:'bar',data:{labels:subKeys,datasets:[{data:subVals,backgroundColor:subColors,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length) openSubDrill(rows[0].categoria, subKeys[els[0].index]);},scales:{x:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+      }, 50);
+    }
+  }
+
+  // Transaction list
+  var listWrap=document.createElement('div');
   rows.forEach(function(r){
     var isG=r.tipo==='gasto';
     var div=document.createElement('div'); div.className='drill-row';
@@ -1176,14 +1298,15 @@ function openDrill(titulo, filtroFn, tipo){
     var desc=document.createElement('div'); desc.className='drill-row-desc';
     desc.textContent=(r.descripcion||r.subcategoria||r.categoria||'-');
     var sub=document.createElement('div'); sub.className='drill-row-sub';
-    sub.textContent=(r.fecha||'-')+(r.subcategoria?' ? '+r.subcategoria:'')+(r.nota?' ? '+r.nota:'');
+    sub.textContent=(r.fecha||'-')+(r.subcategoria?' → '+r.subcategoria:'')+(r.nota?' · '+r.nota:'');
     left.appendChild(desc); left.appendChild(sub);
     var amt=document.createElement('div');
     amt.className='drill-row-amt '+(isG?'r':'g');
     amt.textContent=(isG?'-':'+')+fmt(r.monto);
     div.appendChild(left); div.appendChild(amt);
-    body.appendChild(div);
+    listWrap.appendChild(div);
   });
+  body.appendChild(listWrap);
 
   // Summary
   var sum=document.createElement('div'); sum.className='drill-summary';
@@ -1195,9 +1318,71 @@ function openDrill(titulo, filtroFn, tipo){
   panel.classList.add('show');
   panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+
+function openSubDrill(catName, subKey){
+  // Show transactions for a specific subcategory below the main drill
+  var panel=document.getElementById('drillPanel');
+  var body=document.getElementById('drillBody');
+  if(!panel||!body) return;
+
+  // Remove any existing deep drill
+  var existing=body.querySelector('.deep-drill-panel');
+  if(existing) body.removeChild(existing);
+
+  var rows=getRows(periodoActivo).filter(function(r){
+    return r.tipo==='gasto' && r.categoria===catName && (r.subcategoria||'(sin subcategoría)')===subKey;
+  });
+  rows.sort(function(a,b){
+    var ta=a.createdAt?a.createdAt.seconds||0:0;
+    var tb=b.createdAt?b.createdAt.seconds||0:0;
+    return tb-ta;
+  });
+  var total=rows.reduce(function(s,r){return s+r.monto;},0);
+
+  var deepPanel=document.createElement('div');
+  deepPanel.className='deep-drill-panel';
+
+  var deepTitle=document.createElement('div');
+  deepTitle.className='deep-drill-title';
+  deepTitle.innerHTML='<button class="drill-sub-back" onclick="cerrarSubDrill()">← Volver</button><span style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">'+subKey+' — '+rows.length+' transacciones — '+fmt(total)+'</span>';
+  deepPanel.appendChild(deepTitle);
+
+  if(!rows.length){
+    deepPanel.innerHTML+='<div style="color:var(--muted);font-size:12px;padding:10px 0">Sin transacciones para esta subcategoría</div>';
+  } else {
+    rows.forEach(function(r){
+      var row2=document.createElement('div');
+      row2.className='drill-row';
+      var left=document.createElement('div'); left.className='drill-row-left';
+      var desc=document.createElement('div'); desc.className='drill-row-desc'; desc.textContent=r.descripcion||'-';
+      var sub=document.createElement('div'); sub.className='drill-row-sub'; sub.textContent=r.fecha+(r.nota?' · '+r.nota:'');
+      left.appendChild(desc); left.appendChild(sub);
+      var amt=document.createElement('div'); amt.className='drill-row-amt r'; amt.textContent='-'+fmt(r.monto);
+      row2.appendChild(left); row2.appendChild(amt);
+      deepPanel.appendChild(row2);
+    });
+    var deepSum=document.createElement('div'); deepSum.className='drill-summary';
+    deepSum.innerHTML='<div class="drill-sum-item">Total <span>'+fmt(total)+'</span></div><div class="drill-sum-item">Registros <span>'+rows.length+'</span></div><div class="drill-sum-item">Promedio <span>'+fmt(total/rows.length)+'</span></div>';
+    deepPanel.appendChild(deepSum);
+  }
+
+  body.appendChild(deepPanel);
+  deepPanel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function cerrarSubDrill(){
+  var body=document.getElementById('drillBody');
+  if(!body) return;
+  var existing=body.querySelector('.deep-drill-panel');
+  if(existing) body.removeChild(existing);
+}
+
 function closeDrill(){
   var p=document.getElementById('drillPanel');
   if(p) p.classList.remove('show');
+  destroyChart('cSubDonut');
+  destroyChart('cSubBar');
+  _drillCatActual=null;
 }
 
 
@@ -1494,6 +1679,10 @@ function generarSmartAlerts(rows, mes){
   var ing  = rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
   var gas  = rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
   var bal  = ing-gas;
+  var hoy2=new Date().getDate();
+  var totalDias3=new Date(new Date().getFullYear(),mes,0).getDate();
+  var byCat2={};
+  rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat2[r.categoria]=(byCat2[r.categoria]||0)+r.monto;});
 
   // 1. Sobregiro > 30% ingresos
   var sobMes = _sobregiros.filter(function(s){
@@ -1508,7 +1697,7 @@ function generarSmartAlerts(rows, mes){
     var origenes=Object.keys(tiposSob).sort().join(' y ');
     alerts.push({
       nivel: ratioSob>0.3?'alto':'medio',
-      icon: ratioSob>0.3?'!!':'!',
+      icon: ratioSob>0.3?'⚠':'!',
       title: 'Sobregiro del '+(Math.round(ratioSob*100))+'% de tus ingresos',
       sub: 'Usaste '+fmt(totalSob)+' en '+origenes+'. '+(ratioSob>0.3?'Riesgo financiero alto.':'Modera el uso de dinero futuro.')
     });
@@ -1517,57 +1706,139 @@ function generarSmartAlerts(rows, mes){
   // 2. Gasto > 90% ingresos
   if(ing>0 && gas/ing>0.9){
     alerts.push({
-      nivel:'alto', icon:'!!',
+      nivel:'alto', icon:'⚠',
       title:'Gastos al '+(Math.round(gas/ing*100))+'% de tus ingresos',
       sub:'Te quedan solo '+fmt(bal)+' de margen. Reduce gastos no esenciales esta semana.'
     });
   }
 
-  // 3. Proyeccion deficit
-  var hoy2=new Date().getDate();
-  var totalDias3=new Date(new Date().getFullYear(),mes,0).getDate();
+  // 3. Proyeccion deficit al fin de mes
   var gastoDiario2=gas/Math.max(1,hoy2);
   var proyeccion2=gastoDiario2*totalDias3;
   if(proyeccion2>ing && ing>0){
     alerts.push({
       nivel:'medio', icon:'!',
-      title:'Proyeccion: deficit de '+fmt(proyeccion2-ing)+' al fin de mes',
-      sub:'Al ritmo actual gastas '+fmt(gastoDiario2)+'/dia. Necesitas reducir a '+fmt(ing/totalDias3)+'/dia para equilibrar.'
+      title:'Proyección: déficit de '+fmt(proyeccion2-ing)+' al fin de mes',
+      sub:'Al ritmo actual gastas '+fmt(gastoDiario2)+'/día. Necesitas reducir a '+fmt(ing/totalDias3)+'/día para equilibrar.'
     });
   }
 
-  // 4. Presupuesto excedido
-  var byCat2={};
-  rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat2[r.categoria]=(byCat2[r.categoria]||0)+r.monto;});
+  // 4. Presupuesto excedido por categoría
   Object.keys(presupCat).forEach(function(cat){
     var pm=presupCat[cat].mensual||0;
     if(pm>0&&(byCat2[cat]||0)>pm){
       alerts.push({
         nivel:'medio', icon:'!',
         title:'Presupuesto de '+cat+' excedido',
-        sub:'Gastaste '+fmt(byCat2[cat]||0)+' de un limite de '+fmt(pm)+' (+'+fmt((byCat2[cat]||0)-pm)+')'
+        sub:'Gastaste '+fmt(byCat2[cat]||0)+' de un límite de '+fmt(pm)+' (+'+fmt((byCat2[cat]||0)-pm)+')'
       });
     }
   });
 
-  // 5. Limite de alertas excedido
+  // 5. Límites de alertas superados
   var limites2=getLimites();
   Object.keys(limites2).forEach(function(cat){
     if((byCat2[cat]||0)>limites2[cat]){
       alerts.push({
-        nivel:'alto', icon:'!!',
-        title:'Limite de '+cat+' superado',
-        sub:'Limite: '+fmt(limites2[cat])+' ? Gastado: '+fmt(byCat2[cat]||0)
+        nivel:'alto', icon:'⚠',
+        title:'Límite de '+cat+' superado',
+        sub:'Límite: '+fmt(limites2[cat])+' → Gastado: '+fmt(byCat2[cat]||0)
       });
     }
   });
 
-  // 6. Todo bien
+  // 6. Recurrentes vencidos sin pagar
+  var hoyReal=new Date().getDate();
+  var mesActualNum=new Date().getMonth()+1;
+  var anioActual=new Date().getFullYear();
+  var mesKeyReal=anioActual+'-'+String(mesActualNum).padStart(2,'0');
+  var recVencidos=_recurrentes.filter(function(r){
+    var pagado=r.pagos&&r.pagos[mesKeyReal]===true;
+    return !pagado && r.dia<hoyReal;
+  });
+  if(recVencidos.length>0){
+    var totalVenc=recVencidos.reduce(function(s,r){return s+(parseFloat(r.monto)||0);},0);
+    alerts.push({
+      nivel:'alto', icon:'⚠',
+      title:recVencidos.length+' gasto(s) fijo(s) vencido(s) sin pagar',
+      sub:recVencidos.map(function(r){return r.nombre+' (día '+r.dia+')';}).join(', ')+'. Total pendiente: '+fmt(totalVenc)
+    });
+  }
+
+  // 7. Meta de ahorro no cumplida (solo si hay datos)
+  if(ing>0){
+    var tasaAhorro=ing>0?Math.round(bal/ing*100):0;
+    var meta=window._metaAhorro||30;
+    if(tasaAhorro<meta && tasaAhorro>=0){
+      alerts.push({
+        nivel: tasaAhorro < meta*0.5 ? 'medio' : 'bajo',
+        icon: '→',
+        title: 'Tasa de ahorro: '+tasaAhorro+'% (meta: '+meta+'%)',
+        sub: 'Te faltan '+fmt(ing*meta/100 - bal)+' para alcanzar tu meta de ahorro del '+meta+'% este mes.'
+      });
+    } else if(tasaAhorro>=meta){
+      alerts.push({
+        nivel:'bajo', icon:'✓',
+        title:'¡Meta de ahorro cumplida! '+tasaAhorro+'%',
+        sub:'Superaste tu meta del '+meta+'%. Ahorras '+fmt(bal)+' este mes. ¡Sigue así!'
+      });
+    }
+    if(tasaAhorro<0){
+      alerts.push({
+        nivel:'alto', icon:'⚠',
+        title:'Balance negativo este mes: '+fmt(bal),
+        sub:'Tus gastos superan tus ingresos en '+fmt(Math.abs(bal))+'. Revisa tus categorías de mayor gasto.'
+      });
+    }
+  }
+
+  // 8. Categoría con gasto inusualmente alto vs promedio histórico
+  Object.keys(byCat2).forEach(function(cat){
+    var histMonths=[];
+    for(var mi=1;mi<=12;mi++){
+      if(mi===mes) continue;
+      var mr=getRows(mi).filter(function(r){return r.tipo==='gasto'&&r.categoria===cat;}).reduce(function(s,r){return s+r.monto;},0);
+      if(mr>0) histMonths.push(mr);
+    }
+    if(histMonths.length>=2){
+      var promHist=histMonths.reduce(function(s,v){return s+v;},0)/histMonths.length;
+      if(byCat2[cat]>promHist*1.5 && byCat2[cat]-promHist>50){
+        alerts.push({
+          nivel:'medio', icon:'↑',
+          title:cat+' un '+Math.round((byCat2[cat]/promHist-1)*100)+'% sobre tu promedio',
+          sub:'Promedio histórico: '+fmt(promHist)+' → Este mes: '+fmt(byCat2[cat])+'. Mayor gasto que lo habitual.'
+        });
+      }
+    }
+  });
+
+  // 9. Día del mes con mayor concentración de gasto
+  if(hoy2>=10){
+    var byDay={};
+    rows.filter(function(r){return r.tipo==='gasto'&&r.fecha;}).forEach(function(r){
+      var d=parseInt((r.fecha||'').split('-')[2]||0);
+      if(d) byDay[d]=(byDay[d]||0)+r.monto;
+    });
+    var sortedDays=Object.entries(byDay).sort(function(a,b){return b[1]-a[1];});
+    if(sortedDays.length>=2 && gas>0){
+      var topDay=sortedDays[0];
+      var topDayPct=Math.round(topDay[1]/gas*100);
+      if(topDayPct>=30){
+        alerts.push({
+          nivel:'bajo', icon:'→',
+          title:'El día '+topDay[0]+' concentra el '+topDayPct+'% de tus gastos',
+          sub:'Gastaste '+fmt(topDay[1])+' en un solo día. Considera distribuir mejor tus compras.'
+        });
+      }
+    }
+  }
+
+  // 10. Sin datos / todo bien
   if(!alerts.length){
     alerts.push({
-      nivel:'bajo', icon:'ok',
+      nivel:'bajo', icon:'✓',
       title:'Finanzas en orden este mes',
-      sub:'Sin alertas criticas. Sigue con este comportamiento financiero.'
+      sub:'Sin alertas críticas. Sigue con este comportamiento financiero.'
     });
   }
 
@@ -1785,7 +2056,7 @@ function buildEvol(){
   var iD=[],gD=[],bD=[];
   for(var m=1;m<=12;m++){var r=getRows(m);var i=r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0);var g=r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0);iD.push(i);gD.push(g);bD.push(i-g);}
   destroyChart('cEvol');
-  charts['cEvol']=new Chart(document.getElementById('cEvol'),{type:'line',data:{labels:meses,datasets:[{label:'Ingresos',data:iD,borderColor:'#3d7a5c',backgroundColor:'rgba(61,122,92,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#3d7a5c',tension:.4,fill:true},{label:'Gastos',data:gD,borderColor:'#8a3a3a',backgroundColor:'rgba(138,58,58,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#8a3a3a',tension:.4,fill:true},{label:'Balance',data:bD,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.03)',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var m=els[0].index+1;var ds=els[0].datasetIndex;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===m&&(ds===0?r.tipo==='ingreso':ds===1?r.tipo==='gasto':true);},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+  charts['cEvol']=new Chart(document.getElementById('cEvol'),{type:'line',data:{labels:meses,datasets:[{label:'Ingresos',data:iD,borderColor:'#3d7a5c',backgroundColor:'rgba(61,122,92,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#3d7a5c',tension:.4,fill:true},{label:'Gastos',data:gD,borderColor:'#8a3a3a',backgroundColor:'rgba(138,58,58,.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#8a3a3a',tension:.4,fill:true},{label:'Balance',data:bD,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.03)',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var mi=els[0].index+1;var ds=els[0].datasetIndex;var tipo2=ds===0?'ingreso':ds===1?'gasto':null;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===mi&&(tipo2?r.tipo===tipo2:true);},(tipo2||''));}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
 }
 
 function buildDonut(rows){
@@ -1804,7 +2075,7 @@ function buildComp(){
   var iD=[],gD=[],lbl=[];
   show.forEach(function(m){var r=getRows(m);iD.push(r.filter(function(x){return x.tipo==='ingreso';}).reduce(function(s,x){return s+x.monto;},0));gD.push(r.filter(function(x){return x.tipo==='gasto';}).reduce(function(s,x){return s+x.monto;},0));lbl.push(meses[m-1]);});
   destroyChart('cComp');
-  charts['cComp']=new Chart(document.getElementById('cComp'),{type:'bar',data:{labels:lbl,datasets:[{label:'Ingresos',data:iD,backgroundColor:'rgba(61,122,92,.65)',borderRadius:2},{label:'Gastos',data:gD,backgroundColor:'rgba(138,58,58,.65)',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var m=els[0].index+1;var ds=els[0].datasetIndex;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===m&&(ds===0?r.tipo==='ingreso':ds===1?r.tipo==='gasto':true);},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+  charts['cComp']=new Chart(document.getElementById('cComp'),{type:'bar',data:{labels:lbl,datasets:[{label:'Ingresos',data:iD,backgroundColor:'rgba(61,122,92,.65)',borderRadius:2},{label:'Gastos',data:gD,backgroundColor:'rgba(138,58,58,.65)',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var mSel=show[els[0].index];var ds=els[0].datasetIndex;openDrill(meses[mSel-1]+(ds===0?' - Ingresos':' - Gastos'),function(r){return r.mes===mSel&&(ds===0?r.tipo==='ingreso':r.tipo==='gasto');},(ds===0?'ingreso':'gasto'));}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
 }
 
 function buildTop(rows){
@@ -1821,7 +2092,7 @@ function buildProyec(){
   var avg=last>0?acum/last:0;
   for(var m2=mesActual+1;m2<=12;m2++){acum+=avg;data[m2-1]=null;proy[m2-1]=Math.round(acum);}
   destroyChart('cProyec');
-  charts['cProyec']=new Chart(document.getElementById('cProyec'),{type:'line',data:{labels:meses,datasets:[{label:'Real',data:data,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.06)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,fill:true},{label:'Proyeccion',data:proy,borderColor:'#c9a84c',borderDash:[5,4],borderWidth:1,pointRadius:0,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var m=els[0].index+1;var ds=els[0].datasetIndex;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===m&&(ds===0?r.tipo==='ingreso':ds===1?r.tipo==='gasto':true);},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+  charts['cProyec']=new Chart(document.getElementById('cProyec'),{type:'line',data:{labels:meses,datasets:[{label:'Real',data:data,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,.06)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,fill:true},{label:'Proyeccion',data:proy,borderColor:'#c9a84c',borderDash:[5,4],borderWidth:1,pointRadius:0,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var mi=els[0].index+1;openDrill(meses[els[0].index],function(r){return r.mes===mi;},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
 }
 
 /* METAS */
@@ -2078,7 +2349,8 @@ function checkAlertas(rows){
 function renderAlertas(){
   var rows=getRows(periodoActivo);
   var mesAl=periodoActivo||mesActual;
-  renderSmartAlerts(rows, mesAl);gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
+  renderSmartAlerts(rows, mesAl);
+  var gas=rows.filter(function(r){return r.tipo==='gasto';}), bc={};
   gas.forEach(function(r){bc[r.categoria]=(bc[r.categoria]||0)+r.monto;});
   var limites=getLimites();
   var cats=[];var catSet={};
@@ -2192,18 +2464,106 @@ function renderCalendario(){
   destroyChart('cCalSemana');
   var diasRot2=diasSem.slice(_weekStart).concat(diasSem.slice(0,_weekStart));
   var byDowRot=byDow.slice(_weekStart).concat(byDow.slice(0,_weekStart));
-  if(document.getElementById('cCalSemana')) charts['cCalSemana']=new Chart(document.getElementById('cCalSemana'),{type:'bar',data:{labels:diasRot2,datasets:[{data:byDowRot,backgroundColor:diasSem.map(function(_,i){return catColors[i%catColors.length]+'cc';}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var m=els[0].index+1;var ds=els[0].datasetIndex;openDrill(meses[els[0].index]+(ds===0?' - Ingresos':ds===1?' - Gastos':' - Balance'),function(r){return r.mes===m&&(ds===0?r.tipo==='ingreso':ds===1?r.tipo==='gasto':true);},'');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+  if(document.getElementById('cCalSemana')) charts['cCalSemana']=new Chart(document.getElementById('cCalSemana'),{type:'bar',data:{labels:diasRot2,datasets:[{data:byDowRot,backgroundColor:diasSem.map(function(_,i){return catColors[i%catColors.length]+'cc';}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},onClick:function(evt,els){if(els.length){var dow=(els[0].index+_weekStart)%7;openDrill(diasSem[dow]+' - gastos del mes',function(r){if(!r.fecha||r.tipo!=='gasto')return false;var p=r.fecha.match(/(\d{4})-(\d{2})-(\d{2})/);if(!p)return false;var d=new Date(parseInt(p[1]),parseInt(p[2])-1,parseInt(p[3]));return d.getFullYear()===calYear&&d.getMonth()===calMonth&&d.getDay()===dow;},'gasto');}},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
   var diasConGasto=Object.entries(rowsByDate).map(function(e){return{dia:parseInt(e[0]),gas:e[1].filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0)};}).filter(function(d){return d.gas>0;}).sort(function(a,b){return b.gas-a.gas;}).slice(0,5);
   var topEl=document.getElementById('calTopDias');if(topEl){topEl.innerHTML='';if(!diasConGasto.length){topEl.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin gastos este mes</div>';return;}diasConGasto.forEach(function(d,i){topEl.innerHTML+='<div class="top-cat-row"><div class="top-cat-dot" style="background:'+catColors[i%catColors.length]+'"></div><div class="top-cat-name">Dia '+d.dia+' de '+mesesFull[calMonth]+'</div><div class="top-cat-amt">'+fmt(d.gas)+'</div></div>';});}
+
+  // === EXTRA CHART 1: Acumulado diario del mes ===
+  var acumData=[], acumLabels=[];
+  var acumTotal=0;
+  for(var da=1;da<=daysInMonth;da++){
+    var dayGas2=(rowsByDate[da]||[]).filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+    acumTotal+=dayGas2;
+    acumData.push(Math.round(acumTotal*100)/100);
+    acumLabels.push(da);
+  }
+  destroyChart('cCalAcum');
+  if(document.getElementById('cCalAcum')) charts['cCalAcum']=new Chart(document.getElementById('cCalAcum'),{type:'line',data:{labels:acumLabels,datasets:[{label:'Gasto acumulado',data:acumData,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.07)',borderWidth:1.5,pointRadius:1,tension:.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:gColor},ticks:{maxTicksLimit:8}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+
+  // === EXTRA CHART 2: Ingresos vs Gastos por dia ===
+  var ingDia=[],gasDia=[];
+  for(var db=1;db<=daysInMonth;db++){
+    var dr=rowsByDate[db]||[];
+    ingDia.push(dr.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0));
+    gasDia.push(dr.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0));
+  }
+  destroyChart('cCalIngGas');
+  if(document.getElementById('cCalIngGas')) charts['cCalIngGas']=new Chart(document.getElementById('cCalIngGas'),{type:'bar',data:{labels:acumLabels,datasets:[{label:'Ingresos',data:ingDia,backgroundColor:'rgba(61,122,92,0.65)',borderRadius:2},{label:'Gastos',data:gasDia,backgroundColor:'rgba(138,58,58,0.65)',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#52505c',font:{size:9},boxWidth:8}},tooltip:ttOpts},scales:{x:{grid:{color:gColor},ticks:{maxTicksLimit:8}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
+
+  // === EXTRA CHART 3: Categorias del mes (donut) ===
+  var byCatCal={};
+  (allRows.filter(function(r){
+    if(!r.fecha||r.tipo!=='gasto')return false;
+    var p=r.fecha.match(/(\d{4})-(\d{2})-(\d{2})/);
+    return p&&parseInt(p[1])===calYear&&parseInt(p[2])-1===calMonth;
+  })).forEach(function(r){byCatCal[r.categoria]=(byCatCal[r.categoria]||0)+r.monto;});
+  var catsCal=Object.keys(byCatCal).sort(function(a,b){return byCatCal[b]-byCatCal[a];});
+  var valsCal=catsCal.map(function(c){return byCatCal[c];});
+  var colorsCal=catsCal.map(function(_,i){return catColors[i%catColors.length];});
+  var totalCal=valsCal.reduce(function(s,v){return s+v;},0);
+  destroyChart('cCalCats');
+  if(catsCal.length&&document.getElementById('cCalCats')){
+    charts['cCalCats']=new Chart(document.getElementById('cCalCats'),{type:'doughnut',data:{labels:catsCal,datasets:[{data:valsCal,backgroundColor:colorsCal,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:ttOpts}}});
+    var lc=document.getElementById('legCalCats');if(lc){lc.innerHTML='';catsCal.forEach(function(c,i){var pct=totalCal>0?Math.round(byCatCal[c]/totalCal*100):0;lc.innerHTML+='<div class="leg-item"><div class="leg-sq" style="background:'+colorsCal[i]+'"></div>'+c+' '+pct+'%</div>';});}
+  } else if(document.getElementById('legCalCats')) document.getElementById('legCalCats').innerHTML='<span style="color:var(--muted);font-size:11px">Sin gastos</span>';
+
+  // === EXTRA STATS: Promedio gasto diario ===
+  var statsEl=document.getElementById('calPromedioStats');
+  if(statsEl){
+    var diasConDatos=Object.values(rowsByDate).filter(function(dr){return dr.some(function(r){return r.tipo==='gasto';});}).length;
+    var totalGasMes=gasDia.reduce(function(s,v){return s+v;},0);
+    var totalIngMes=ingDia.reduce(function(s,v){return s+v;},0);
+    var promDiario=diasConDatos>0?totalGasMes/diasConDatos:0;
+    var maxDia=diasConGasto.length?diasConGasto[0]:null;
+    var stats2=[
+      {lbl:'Total gastos',val:fmt(totalGasMes),color:'var(--red-tx)'},
+      {lbl:'Total ingresos',val:fmt(totalIngMes),color:'var(--green-tx)'},
+      {lbl:'Balance',val:fmt(totalIngMes-totalGasMes),color:totalIngMes>=totalGasMes?'var(--green-tx)':'var(--red-tx)'},
+      {lbl:'Dias con gasto',val:diasConDatos+' dias',color:'var(--text)'},
+      {lbl:'Promedio/dia activo',val:fmt(promDiario),color:'var(--gold)'},
+      {lbl:'Dia pico',val:maxDia?'Dia '+maxDia.dia+' ('+fmt(maxDia.gas)+')':'Sin datos',color:'var(--muted)'},
+    ];
+    statsEl.innerHTML=stats2.map(function(s){return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--muted)">'+s.lbl+'</span><span style="font-family:IBM Plex Mono,monospace;font-size:11px;color:'+s.color+'">'+s.val+'</span></div>';}).join('');
+  }
+
+  // === EXTRA CHART 4: Gastos por semana del mes ===
+  var semanas=['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5'];
+  var semanasData=[0,0,0,0,0];
+  for(var ds=1;ds<=daysInMonth;ds++){
+    var semIdx=Math.floor((ds-1)/7);
+    if(semIdx<5) semanasData[semIdx]+=(rowsByDate[ds]||[]).filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  }
+  var semanasNoVacias=semanasData.filter(function(v){return v>0;}).length;
+  var semLabels=semanas.slice(0,Math.max(4,semanasNoVacias+1));
+  var semVals=semanasData.slice(0,semLabels.length);
+  destroyChart('cCalSemanas');
+  if(document.getElementById('cCalSemanas')) charts['cCalSemanas']=new Chart(document.getElementById('cCalSemanas'),{type:'bar',data:{labels:semLabels,datasets:[{data:semVals,backgroundColor:semVals.map(function(_,i){return catColors[i%catColors.length]+'cc';}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttOpts},scales:{x:{grid:{color:gColor}},y:{grid:{color:gColor},ticks:{callback:function(v){return 'S/'+v.toLocaleString();}}}}}});
 }
 
 /* RECURRENTES */
 function renderRecurrentes(){
+  // Use periodoActivo if set, otherwise current month
   var hoy=new Date().getDate();
   var mesActualNum=new Date().getMonth(); // 0-indexed
   var anioActual=new Date().getFullYear();
+
+  // Determine which month we are viewing
+  var viewMes, viewAnio;
+  if(periodoActivo && periodoActivo>=1 && periodoActivo<=12){
+    viewMes=periodoActivo; // 1-12
+    viewAnio=anioActual;
+    // If viewing a future month in the same year, or past month: adjust hoy so all items show as pending
+    var isCurrentMonth=(viewMes===(mesActualNum+1) && viewAnio===anioActual);
+    if(!isCurrentMonth) hoy=0; // treat as "no day has passed yet" for past months; or 31 for past
+    // For past months, all unpaid = overdue relative to that month
+    if(viewMes<mesActualNum+1) hoy=31;
+    if(viewMes>mesActualNum+1) hoy=0;
+  } else {
+    viewMes=mesActualNum+1;
+    viewAnio=anioActual;
+  }
   // Key for this month's payments: "YYYY-MM"
-  var mesKey=anioActual+'-'+String(mesActualNum+1).padStart(2,'0');
+  var mesKey=viewAnio+'-'+String(viewMes).padStart(2,'0');
 
   // Populate selects
   var cats=[],catSet={};
@@ -2215,6 +2575,13 @@ function renderRecurrentes(){
   if(rd){rd.innerHTML='<option value="">Dia del mes...</option>';for(var d=1;d<=31;d++)rd.innerHTML+='<option value="'+d+'">Dia '+d+'</option>';}
   var reDia=document.getElementById('reDia');
   if(reDia){reDia.innerHTML='<option value="">Dia...</option>';for(var d=1;d<=31;d++)reDia.innerHTML+='<option value="'+d+'">Dia '+d+'</option>';}
+
+  // Update period label
+  var titleEl=document.getElementById('recTitleLabel');
+  var noteEl=document.getElementById('recPeriodNote');
+  var isCurrentMonthView=(viewMes===(new Date().getMonth()+1) && viewAnio===new Date().getFullYear());
+  if(titleEl) titleEl.textContent=isCurrentMonthView?'Gastos fijos este mes':'Gastos fijos — '+mesesFull[viewMes-1]+' '+viewAnio;
+  if(noteEl) noteEl.textContent=isCurrentMonthView?'':'Viendo periodo seleccionado';
 
   var cont=document.getElementById('recList');if(!cont)return;
 
@@ -2349,13 +2716,13 @@ async function togglePagoRecurrente(idx2, mesKey, isPagado){
     toast(rec.nombre+' marcado como pendiente','info');
   } else {
     rec.pagos[mesKey] = true;
-    toast(rec.nombre+' pagado este mes','ok');
+    toast(rec.nombre+' pagado en '+mesKey,'ok');
   }
   try{
     await window._saveRecurrentes(_recurrentes);
   }catch(e){ toast('Error guardando','err'); }
   renderRecurrentes();
-  // Update pocket
+  // Update pocket using the current viewed period
   var mesPocket = periodoActivo || mesActual;
   renderPocket(getRows(mesPocket));
 }

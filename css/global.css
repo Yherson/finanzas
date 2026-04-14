@@ -1,0 +1,78 @@
+/* ============================================
+   GLOBAL.CSS — Variables, reset y estilos base
+   Compartido por formulario.html y dashboard.html
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* AUTH — compartido en ambas páginas */
+.auth-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.auth-screen.show { display: flex; }
+
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 40px 32px;
+  text-align: center;
+}
+.auth-logo {
+  width: 48px;
+  height: 48px;
+  background: var(--gold-d);
+  border: 1px solid var(--gold-b);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+.auth-title {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: 22px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.auth-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+.auth-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all .2s;
+}
+.auth-btn:hover { border-color: var(--muted); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }

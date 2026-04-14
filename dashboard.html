@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finanzas — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="fav_dashboard.svg">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════ -->
+<div class="auth-screen show" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h10M3 14h8" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="auth-title">Finanzas Dashboard</div>
+    <div class="auth-sub">Panel de control de tus finanzas.<br>Accede con tu cuenta de Google.</div>
+    <button class="auth-btn" onclick="loginConGoogle()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuar con Google
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TOAST CONTAINER
+════════════════════════════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════════════════════════
+     MODALES
+════════════════════════════════════════ -->
+
+<!-- Modal: Editar activo/pasivo patrimonio -->
+<div class="modal-ov" id="patriEditOv" onclick="if(event.target===this)hidePatriEditModal()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-hdr-txt" id="patriEditTitle">Editar activo</span>
+      <button class="modal-close" onclick="hidePatriEditModal()">&#x2715;</button>
+    </div>
+    <div class="m-field"><label>Nombre</label><input type="text" id="peNombre" maxlength="50"></div>
+    <div class="m-field"><label>Monto (S/)</label><input type="number" id="peMonto" min="0"></div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-save"   onclick="confirmarPatriEdit()">Guardar</button>
+      <button class="mbtn mbtn-cancel" onclick="hidePatriEditModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar recurrente -->
+<div class="modal-ov" id="recEditOv" onclick="if(event.target===this)hideRecEditModal()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-hdr-txt">Editar recurrente</span>
+      <button class="modal-close" onclick="hideRecEditModal()">&#x2715;</button>
+    </div>
+    <div class="m-field"><label>Nombre</label><input type="text" id="reNombre" maxlength="50"></div>
+    <div class="m-field"><label>Monto (S/)</label><input type="number" id="reMonto" min="0" step="0.01"></div>
+    <div class="m-field">
+      <label>Dia del mes</label>
+      <select id="reDia"><option value="">Dia...</option></select>
+    </div>
+    <div class="m-field"><label>Categoria</label><input type="text" id="reCatEdit" maxlength="50"></div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-save"   onclick="confirmarRecEdit()">Guardar</button>
+      <button class="mbtn mbtn-del"    onclick="confirmarRecDelete()">Eliminar</button>
+      <button class="mbtn mbtn-cancel" onclick="hideRecEditModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar eliminación de registro -->
+<div class="confirm-ov" id="confirmOv">
+  <div class="confirm-box">
+    <div class="confirm-title">Eliminar registro</div>
+    <div class="confirm-sub">Esta accion es permanente.</div>
+    <div class="confirm-btns">
+      <button class="cbtn-del"    onclick="ejecutarDelete()">Eliminar</button>
+      <button class="cbtn-cancel" onclick="document.getElementById('confirmOv').classList.remove('show')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar registro -->
+<div class="modal-ov" id="editOv" onclick="if(event.target===this)hideEditModal()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-hdr-txt">Editar registro</span>
+      <button class="modal-close" onclick="hideEditModal()">&#x2715;</button>
+    </div>
+    <div class="m-field"><label>Tipo</label><select id="eTipo"><option value="gasto">Gasto</option><option value="ingreso">Ingreso</option></select></div>
+    <div class="m-field"><label>Monto (S/)</label><input type="number" id="eMonto" step="0.01" min="0"></div>
+    <div class="m-field"><label>Categoria</label><input type="text" id="eCat" maxlength="50"></div>
+    <div class="m-field"><label>Subcategoria</label><input type="text" id="eSub" maxlength="50"></div>
+    <div class="m-field"><label>Descripcion</label><input type="text" id="eDesc" maxlength="80"></div>
+    <div class="m-field"><label>Fecha real</label><input type="date" id="eFecha"></div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:10px" id="eFechaIngreso"></div>
+    <div class="m-field"><label>Etiquetas</label><div class="tags-wrap" id="eTagsWrap"></div></div>
+    <div class="m-field"><label>Nota</label><textarea id="eNota" maxlength="200" rows="2" placeholder="Nota opcional..."></textarea></div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-save"   onclick="guardarEdicion()">Guardar</button>
+      <button class="mbtn mbtn-del"    onclick="pedirConfirm()">Eliminar</button>
+      <button class="mbtn mbtn-cancel" onclick="hideEditModal()">Cancelar</button>
+    </div>
+    <div class="m-status" id="eStatus"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR OVERLAY (mobile)
+════════════════════════════════════════ -->
+<div class="sb-overlay" id="sbOverlay"
+     style="display:none;position:fixed;inset:0;z-index:45;"
+     onclick="closeSidebar()"></div>
+
+<!-- ═══════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════ -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo-row">
+        <div class="sb-logo-mark">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M2 4h10M2 10h6" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="sb-name" id="dashName">Finanzas</div>
+          <div class="sb-sub">Panel personal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">--</div>
+      <div class="sb-uname" id="sbUserName">Cargando...</div>
+      <button class="sb-out" onclick="logout()" title="Cerrar sesion">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2h3v10H9M6 10l3-3-3-3M9 7H2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="sb-nav">
+      <div class="sb-grp">Principal</div>
+      <div class="nav-item active" onclick="showView('dashboard',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showView('presupuesto',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 6h12M4 3V2M10 3V2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Presupuesto
+      </div>
+
+      <div class="sb-grp">Analisis</div>
+      <div class="nav-item" onclick="showView('historial',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Historial
+      </div>
+      <div class="nav-item" onclick="showView('alertas',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v1M7 2C4.8 2 3 3.8 3 6v3l-1 1h10l-1-1V6C11 3.8 9.2 2 7 2ZM5.5 12a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Alertas
+      </div>
+      <div class="nav-item" onclick="showView('calendario',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 6h12M4 1v3M10 1v3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Calendario
+      </div>
+      <div class="nav-item" onclick="showView('recurrentes',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M7 4v3l2 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Recurrentes
+      </div>
+      <div class="nav-item" onclick="showView('patrimonio',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 12L4 8l3 2 3-4 3 2" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Patrimonio
+      </div>
+
+      <div class="sb-grp">Sistema</div>
+      <div class="nav-item" onclick="showView('ajustes',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.5 2.5l1 1M10.5 10.5l1 1M2.5 11.5l1-1M10.5 3.5l1-1" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+        Ajustes
+      </div>
+    </div>
+
+    <div class="sb-bottom">
+      <div class="sync-row">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncTxt">Conectando...</span>
+      </div>
+      <div class="last-sync" id="lastSync"></div>
+    </div>
+  </nav>
+
+  <!-- MAIN WRAP -->
+  <div class="main-wrap">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div class="tb-title" id="viewTitle">Dashboard</div>
+      <div class="tb-right">
+        <!-- Selector de período — desktop -->
+        <div class="period-group">
+          <button class="period-btn" onclick="setPeriod(1)"  id="p1">Ene</button>
+          <button class="period-btn" onclick="setPeriod(2)"  id="p2">Feb</button>
+          <button class="period-btn" onclick="setPeriod(3)"  id="p3">Mar</button>
+          <button class="period-btn" onclick="setPeriod(4)"  id="p4">Abr</button>
+          <button class="period-btn" onclick="setPeriod(5)"  id="p5">May</button>
+          <button class="period-btn" onclick="setPeriod(6)"  id="p6">Jun</button>
+          <button class="period-btn" onclick="setPeriod(7)"  id="p7">Jul</button>
+          <button class="period-btn" onclick="setPeriod(8)"  id="p8">Ago</button>
+          <button class="period-btn" onclick="setPeriod(9)"  id="p9">Sep</button>
+          <button class="period-btn" onclick="setPeriod(10)" id="p10">Oct</button>
+          <button class="period-btn" onclick="setPeriod(11)" id="p11">Nov</button>
+          <button class="period-btn" onclick="setPeriod(12)" id="p12">Dic</button>
+          <button class="period-btn" onclick="setPeriod(0)"  id="p0">Año</button>
+        </div>
+        <!-- Selector de período — mobile -->
+        <select class="s-sel mobile-sel" id="mobileSel"
+                style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px"
+                onchange="setPeriod(parseInt(this.value))">
+          <option value="1">Enero</option><option value="2">Febrero</option>
+          <option value="3">Marzo</option><option value="4">Abril</option>
+          <option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option>
+          <option value="9">Septiembre</option><option value="10">Octubre</option>
+          <option value="11">Noviembre</option><option value="12">Diciembre</option>
+          <option value="0">Todo el año</option>
+        </select>
+        <button class="tb-btn desktop-only" onclick="exportarPDF()">PDF</button>
+        <button class="tb-btn desktop-only" onclick="exportarExcel()">Excel</button>
+      </div>
+    </div><!-- /topbar -->
+
+    <!-- CONTENT AREA -->
+    <div class="content" id="mainContent">
+      <div class="error-box" id="errorBox"></div>
+
+      <!-- ─── VISTA: DASHBOARD ─── -->
+      <div id="vDashboard" style="display:none">
+        <div class="loading-wrap" id="loading">
+          <div class="spinner"></div>
+          <div class="loading-txt">Cargando datos...</div>
+        </div>
+        <div class="page" id="dashPage" style="display:none">
+          <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
+
+          <!-- Pocket -->
+          <div class="pocket-wrap">
+            <div class="pocket-lbl">Disponible para gastar</div>
+            <div class="pocket-amt" id="pocketAmt">--</div>
+            <div class="pocket-sub">
+              <div class="pocket-sub-item">Ingresos <span id="pocketIng">--</span></div>
+              <div class="pocket-sub-item">Gastos <span id="pocketGas">--</span></div>
+              <div class="pocket-sub-item">Fijos pendientes <span id="pocketFijos">--</span></div>
+              <div class="pocket-sub-item" id="pocketVencWrap" style="display:none">
+                Fijos vencidos <span id="pocketVenc" style="color:var(--red-tx)">--</span>
+              </div>
+            </div>
+            <div class="pocket-track"><div class="pocket-fill" id="pocketFill"></div></div>
+          </div>
+
+          <!-- Weekly -->
+          <div class="weekly-wrap">
+            <div class="weekly-card">
+              <div class="weekly-lbl">Esta semana</div>
+              <div class="weekly-val" id="wkGas">--</div>
+              <div class="weekly-delta" id="wkDelta"></div>
+            </div>
+            <div class="weekly-card">
+              <div class="weekly-lbl">Top categorias esta semana</div>
+              <div id="wkTopCats"></div>
+            </div>
+          </div>
+
+          <!-- Métricas -->
+          <div class="metrics">
+            <div class="metric"><div class="m-accent" style="background:var(--green)"></div><div class="m-label">Ingresos</div><div class="m-value" style="color:var(--green-tx)" id="mIng">--</div><div class="m-delta" id="dIng"></div></div>
+            <div class="metric"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Gastos</div><div class="m-value" style="color:var(--red-tx)" id="mGas">--</div><div class="m-delta" id="dGas"></div></div>
+            <div class="metric"><div class="m-accent" style="background:var(--gold)"></div><div class="m-label">Balance neto</div><div class="m-value" style="color:var(--gold)" id="mBal">--</div><div class="m-delta" id="dBal"></div></div>
+            <div class="metric"><div class="m-accent" style="background:#6a9acc"></div><div class="m-label">Tasa de ahorro</div><div class="m-value" style="color:var(--blue-tx)" id="mAho">--</div><div class="m-delta" id="dAho"></div></div>
+            <div class="metric metric-deuda" style="display:none" id="mDeudaWrap"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Deuda sobregiro</div><div class="m-value" style="color:var(--red-tx)" id="mDeuda">--</div><div class="m-delta" id="dDeuda"></div></div>
+          </div>
+
+          <!-- Gráficos principales -->
+          <div class="row r2">
+            <div class="card">
+              <div class="card-title">Evolucion mensual — <span id="lblEvol">año</span></div>
+              <div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div>
+              <div class="legend">
+                <div class="leg-item"><div class="leg-sq" style="background:#3d7a5c"></div>Ingresos</div>
+                <div class="leg-item"><div class="leg-sq" style="background:#8a3a3a"></div>Gastos</div>
+                <div class="leg-item"><div class="leg-sq" style="background:#c9a84c"></div>Balance</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Gastos por categoria</div>
+              <div class="chart-wrap" style="height:180px"><canvas id="cDonut"></canvas></div>
+              <div class="legend" id="legDonut"></div>
+            </div>
+          </div>
+          <div class="row r3">
+            <div class="card"><div class="card-title">Comparar meses</div><div class="chart-wrap" style="height:180px"><canvas id="cComp"></canvas></div></div>
+            <div class="card"><div class="card-title">Top 5 categorias</div><div class="chart-wrap" style="height:180px"><canvas id="cTop"></canvas></div></div>
+            <div class="card"><div class="card-title">Proyeccion ahorro</div><div class="chart-wrap" style="height:180px"><canvas id="cProyec"></canvas></div></div>
+          </div>
+
+          <!-- Drill-down panel -->
+          <div class="drill-panel" id="drillPanel">
+            <div class="drill-header">
+              <div class="drill-title" id="drillTitle">Detalle</div>
+              <button class="drill-close" onclick="closeDrill()">&#x2715;</button>
+            </div>
+            <div class="drill-body" id="drillBody"></div>
+          </div>
+        </div>
+      </div><!-- /vDashboard -->
+
+      <!-- ─── VISTA: PRESUPUESTO ─── -->
+      <div id="vPresupuesto" style="display:none">
+        <div class="page">
+          <div class="pres-stats" id="presStats"></div>
+          <div class="lm-row">
+            <div class="lm-item"><div class="lm-b" style="background:var(--green-tx)"></div>Gastado real</div>
+            <div class="lm-item"><div class="lm-mk"></div>Ritmo esperado hoy</div>
+          </div>
+          <div class="pres-cats" id="presCats"></div>
+          <div class="pres-cfg">
+            <div class="pcfg-card">
+              <div class="pcfg-title">Por categoria</div>
+              <div class="p-form"><select id="pCatSel"></select></div>
+              <div class="p-form">
+                <input type="number" id="pMens"  placeholder="S/ mensual" min="0">
+                <input type="number" id="pDaily" placeholder="S/ diario"  min="0">
+              </div>
+              <div class="p-form"><button class="tb-btn gold" onclick="guardarPresupCat()" style="width:100%;padding:9px">Guardar</button></div>
+              <div class="p-list" id="pCatList"></div>
+            </div>
+            <div class="pcfg-card">
+              <div class="pcfg-title">Por subcategoria</div>
+              <div class="p-form">
+                <select id="pSubCatSel" onchange="loadSubcats()"></select>
+                <select id="pSubSel"></select>
+              </div>
+              <div class="p-form">
+                <input type="number" id="pSubMens"  placeholder="S/ mensual" min="0">
+                <input type="number" id="pSubDaily" placeholder="S/ diario"  min="0">
+              </div>
+              <div class="p-form"><button class="tb-btn gold" onclick="guardarPresupSub()" style="width:100%;padding:9px">Guardar</button></div>
+              <div class="p-list" id="pSubList"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /vPresupuesto -->
+
+      <!-- ─── VISTA: HISTORIAL ─── -->
+      <div id="vHistorial" style="display:none">
+        <div class="page">
+          <div class="card">
+            <div class="card-title">Historial completo</div>
+            <div class="search-bar">
+              <input class="s-inp" id="searchInp" placeholder="Buscar..." oninput="filtrarTabla()">
+              <select class="s-sel" id="fTipo" onchange="filtrarTabla()">
+                <option value="">Todos</option>
+                <option value="gasto">Gastos</option>
+                <option value="ingreso">Ingresos</option>
+              </select>
+              <select class="s-sel" id="fCat" onchange="filtrarTabla()"><option value="">Categorias</option></select>
+            </div>
+            <div class="search-bar" style="margin-bottom:14px">
+              <div style="display:flex;align-items:center;gap:6px;flex:1;flex-wrap:wrap">
+                <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0">Desde</span>
+                <input type="date" class="s-inp" id="fDesde" onchange="filtrarTabla()" style="flex:1;min-width:120px">
+                <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0">Hasta</span>
+                <input type="date" class="s-inp" id="fHasta" onchange="filtrarTabla()" style="flex:1;min-width:120px">
+                <button class="tb-btn" onclick="clearDateFilter()" style="padding:7px 12px">Limpiar</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha real</th>
+                    <th>Fecha ingreso</th>
+                    <th>Descripcion</th>
+                    <th>Categoria</th>
+                    <th style="text-align:right">Monto</th>
+                    <th>Tipo</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tablaBody"></tbody>
+              </table>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px">
+              <div class="tbl-count" id="tblCount"></div>
+              <div class="pagination" id="pagination"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /vHistorial -->
+
+      <!-- ─── VISTA: ALERTAS ─── -->
+      <div id="vAlertas" style="display:none">
+        <div class="page">
+          <div class="card" style="margin-bottom:8px" id="smartAlertsCard">
+            <div class="card-title">Alertas inteligentes</div>
+            <div id="smartAlertsList">
+              <div style="color:var(--muted);font-size:12px;padding:8px 0">Analizando tus finanzas...</div>
+            </div>
+          </div>
+          <div class="row r2" style="margin-bottom:8px">
+            <div class="card">
+              <div class="card-title">Gasto por categoria</div>
+              <div class="chart-wrap" style="height:220px"><canvas id="cAlertDonut"></canvas></div>
+              <div class="legend" id="legAlertDonut"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">Evolucion 6 meses</div>
+              <div class="chart-wrap" style="height:220px"><canvas id="cAlertBar"></canvas></div>
+            </div>
+          </div>
+          <div class="a-section">
+            <div class="card-title" style="margin-bottom:14px">Limites de gasto mensual</div>
+            <div id="alertasContent"></div>
+          </div>
+          <div class="a-section" id="sobregiroAlertas" style="display:none">
+            <div class="card-title" style="margin-bottom:12px">Deudas de sobregiro pendientes</div>
+            <div id="sobregiroList"></div>
+          </div>
+          <div class="a-section">
+            <div class="card-title" style="margin-bottom:10px">Configurar limite</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select class="s-sel" id="alertCat" style="flex:1;min-width:130px"><option value="">Categoria...</option></select>
+              <input class="s-inp" id="alertLimit" type="number" placeholder="Limite S/" style="flex:1;min-width:90px;max-width:140px">
+              <button class="tb-btn gold" onclick="guardarAlerta()" style="padding:8px 16px">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /vAlertas -->
+
+      <!-- ─── VISTA: CALENDARIO ─── -->
+      <div id="vCalendario" style="display:none">
+        <div class="page">
+          <div class="card" style="margin-bottom:8px">
+            <div class="cal-header">
+              <button class="cal-nav" onclick="calPrev()">&#8592;</button>
+              <div class="cal-month-lbl" id="calMonthLbl">Cargando...</div>
+              <button class="cal-nav" onclick="calNext()">&#8594;</button>
+            </div>
+            <div class="cal-grid" id="calLabels"></div>
+            <div class="cal-grid" id="calGrid" style="margin-top:4px"></div>
+            <div class="cal-detail" id="calDetail">
+              <div class="cal-detail-title" id="calDetailTitle"></div>
+              <div id="calDetailRows"></div>
+            </div>
+          </div>
+          <div class="row r2">
+            <div class="card"><div class="card-title">Por dia de la semana</div><div class="chart-wrap" style="height:180px"><canvas id="cCalSemana"></canvas></div></div>
+            <div class="card"><div class="card-title">Dias con mayor gasto</div><div id="calTopDias"></div></div>
+          </div>
+          <div class="row r2" style="margin-top:8px">
+            <div class="card"><div class="card-title">Acumulado diario del mes</div><div class="chart-wrap" style="height:180px"><canvas id="cCalAcum"></canvas></div></div>
+            <div class="card"><div class="card-title">Ingresos vs Gastos diarios</div><div class="chart-wrap" style="height:180px"><canvas id="cCalIngGas"></canvas></div></div>
+          </div>
+          <div class="row r3" style="margin-top:8px">
+            <div class="card"><div class="card-title">Categorias del mes</div><div class="chart-wrap" style="height:160px"><canvas id="cCalCats"></canvas></div><div class="legend" id="legCalCats" style="margin-top:8px"></div></div>
+            <div class="card"><div class="card-title">Estadisticas del mes</div><div id="calPromedioStats" style="padding-top:4px"></div></div>
+            <div class="card"><div class="card-title">Semanas del mes</div><div class="chart-wrap" style="height:160px"><canvas id="cCalSemanas"></canvas></div></div>
+          </div>
+        </div>
+      </div><!-- /vCalendario -->
+
+      <!-- ─── VISTA: RECURRENTES ─── -->
+      <div id="vRecurrentes" style="display:none">
+        <div class="page">
+          <div class="card" style="margin-bottom:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div>
+                <div class="card-title" style="margin-bottom:0" id="recTitleLabel">Gastos fijos este mes</div>
+                <div id="recPeriodNote" style="font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:1px;text-transform:uppercase"></div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--green-tx)"></div>Pendiente</div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--red-tx)"></div>Vencido</div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:50%;background:var(--muted)"></div>Pagado</div>
+              </div>
+            </div>
+            <div id="recList"><div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos recurrentes configurados</div></div>
+            <div id="recResumen" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:none">
+              <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px">
+                <div>Pendientes: <span id="recResPend" style="font-family:IBM Plex Mono,monospace;color:var(--gold)">--</span></div>
+                <div>Vencidos:   <span id="recResVenc" style="font-family:IBM Plex Mono,monospace;color:var(--red-tx)">--</span></div>
+                <div>Pagados:    <span id="recResPag"  style="font-family:IBM Plex Mono,monospace;color:var(--green-tx)">--</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Agregar gasto recurrente</div>
+            <div class="search-bar" style="margin-bottom:8px">
+              <input class="s-inp" id="recNombre" placeholder="Nombre (ej. Alquiler)" style="flex:2">
+              <input class="s-inp" id="recMonto" type="number" placeholder="S/ monto" style="flex:1;min-width:80px">
+            </div>
+            <div class="search-bar">
+              <select class="s-sel" id="recDia" style="flex:1"><option value="">Dia del mes...</option></select>
+              <select class="s-sel" id="recCat" style="flex:1"><option value="">Categoria...</option></select>
+              <button class="tb-btn gold" onclick="agregarRecurrente()" style="padding:8px 16px">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /vRecurrentes -->
+
+      <!-- ─── VISTA: PATRIMONIO ─── -->
+      <div id="vPatrimonio" style="display:none">
+        <div class="page">
+          <div class="neto-summary" id="netoSummary"></div>
+          <div class="patri-layout">
+            <div class="patri-main">
+              <div class="row r2">
+                <div class="card">
+                  <div class="card-title">Activos</div>
+                  <div class="neto-list" id="activosList"></div>
+                  <div class="neto-form">
+                    <input id="activoNombre" placeholder="Nombre (ej. Ahorros BCP)" maxlength="40">
+                    <input id="activoMonto" type="number" placeholder="S/ monto" min="0">
+                    <button class="tb-btn gold" onclick="agregarActivo()" style="padding:8px 12px">+</button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-title">Pasivos</div>
+                  <div class="neto-list" id="pasivosList"></div>
+                  <div class="neto-form">
+                    <input id="pasivoNombre" placeholder="Nombre (ej. Deuda tarjeta)" maxlength="40">
+                    <input id="pasivoMonto" type="number" placeholder="S/ monto" min="0">
+                    <button class="tb-btn gold" onclick="agregarPasivo()" style="padding:8px 12px">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">Evolucion del patrimonio</div>
+                <div class="chart-wrap" style="height:200px"><canvas id="cPatrimonio"></canvas></div>
+              </div>
+            </div>
+            <div class="patri-side">
+              <div class="card">
+                <div class="card-title">Historial de movimientos</div>
+                <div id="patrimonioMovimientos" class="patri-history"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /vPatrimonio -->
+
+      <!-- ─── VISTA: AJUSTES ─── -->
+      <div id="vAjustes" style="display:none">
+        <div class="page">
+          <div class="row r2" style="margin-bottom:8px">
+            <div class="card">
+              <div class="card-title">Personalizacion</div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Nombre del dashboard</div>
+                <div style="display:flex;gap:8px">
+                  <input class="s-inp" id="cfgNombre" placeholder="Mis Finanzas" style="flex:1">
+                  <button class="tb-btn gold" onclick="guardarNombre()" style="padding:8px 12px">Ok</button>
+                </div>
+              </div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Tema</div>
+                <div style="display:flex;gap:8px">
+                  <button class="tb-btn" id="themeLight" onclick="setTheme('light')" style="flex:1;padding:9px">Claro</button>
+                  <button class="tb-btn" id="themeDark"  onclick="setTheme('dark')"  style="flex:1;padding:9px">Oscuro</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Color de acento</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="accent-btn" data-color="#c9a84c" onclick="setAccent('#c9a84c',this)" style="background:#c9a84c"></button>
+                  <button class="accent-btn" data-color="#6a9acc" onclick="setAccent('#6a9acc',this)" style="background:#6a9acc"></button>
+                  <button class="accent-btn" data-color="#5aaa80" onclick="setAccent('#5aaa80',this)" style="background:#5aaa80"></button>
+                  <button class="accent-btn" data-color="#c07070" onclick="setAccent('#c07070',this)" style="background:#c07070"></button>
+                  <button class="accent-btn" data-color="#a088cc" onclick="setAccent('#a088cc',this)" style="background:#a088cc"></button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Finanzas</div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Meta de ahorro mensual</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input class="s-inp" id="cfgMeta" type="number" placeholder="30" min="1" max="100" style="flex:1">
+                  <span style="font-size:12px;color:var(--muted)">%</span>
+                  <button class="tb-btn gold" onclick="guardarMetaPct()" style="padding:8px 12px">Ok</button>
+                </div>
+                <div style="font-size:10px;color:var(--muted);margin-top:6px">
+                  Actual: <span id="metaActualLabel" style="color:var(--gold)">30%</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Moneda</div>
+                <select class="s-sel" id="cfgMoneda" onchange="setMoneda(this.value)" style="width:100%">
+                  <option value="S/">Soles (S/)</option>
+                  <option value="$">Dolares ($)</option>
+                  <option value="EUR">Euros</option>
+                </select>
+              </div>
+              <div style="margin-top:14px">
+                <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Inicio de semana</div>
+                <select class="s-sel" id="cfgWeekStart" onchange="setWeekStart(this.value)" style="width:100%">
+                  <option value="0">Domingo</option>
+                  <option value="1">Lunes</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Resumen del sistema</div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px" id="statsSystem"></div>
+          </div>
+        </div>
+      </div><!-- /vAjustes -->
+
+    </div><!-- /content -->
+  </div><!-- /main-wrap -->
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════
+     LIBRERÍAS EXTERNAS
+════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Firebase (módulo ES) — debe ir antes de dashboard.js -->
+<script type="module" src="js/firebase-config.js"></script>
+
+<!-- Lógica del dashboard (script normal, accede a window._*) -->
+<script src="js/dashboard.js"></script>
+
+</body>
+</html>

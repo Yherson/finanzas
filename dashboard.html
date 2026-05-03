@@ -546,6 +546,8 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .credit-fill{height:100%;border-radius:2px;background:var(--green-tx);}
 .credit-alert{font-size:10px;line-height:1.45;color:var(--text2);margin-top:8px;}
 .credit-form{display:grid;grid-template-columns:1.2fr .9fr .75fr .75fr .75fr .75fr auto;gap:8px;}
+.year-sel{min-width:86px;font-family:'IBM Plex Mono',monospace;font-size:10px;}
+.report-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px;}
 
 
 /* ── RECURRENTES MEJORADO ── */
@@ -731,6 +733,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
         <button class="period-btn" onclick="setPeriod(12)" id="p12">Dic</button>
         <button class="period-btn" onclick="setPeriod(0)" id="p0">Año</button>
       </div>
+      <select class="s-sel year-sel" id="yearSel" onchange="setYear(parseInt(this.value))"></select>
       <select class="s-sel mobile-sel" id="mobileSel" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px" onchange="setPeriod(parseInt(this.value))">
         <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
         <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
@@ -738,6 +741,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
         <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
         <option value="0">Todo el anio</option>
       </select>
+      <select class="s-sel mobile-sel" id="mobileYearSel" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px" onchange="setYear(parseInt(this.value))"></select>
       <button class="tb-btn desktop-only" onclick="exportarPDF()">PDF</button>
       <button class="tb-btn desktop-only" onclick="exportarExcel()">Excel</button>
     </div>
@@ -750,7 +754,17 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="loading-wrap" id="loading"><div class="spinner"></div><div class="loading-txt">Cargando datos...</div></div>
       <div class="page" id="dashPage" style="display:none">
         <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
-                <div class="pocket-wrap">
+        <div class="score-wrap" id="scoreWrap">
+          <div class="score-circle"><div class="score-ring" id="scoreRing"></div><div class="score-num" id="scoreNum">--</div><div class="score-lbl">Score</div></div>
+          <div class="score-info">
+            <div class="score-title">Salud financiera</div>
+            <div class="score-desc" id="scoreDesc">Analizando tu periodo...</div>
+            <div id="scoreTendencia" style="font-size:10px;font-family:'IBM Plex Mono',monospace;margin-top:4px"></div>
+            <div id="scoreRecomendacion" style="font-size:11px;color:var(--text2);margin-top:6px;line-height:1.5;padding:6px 0;border-top:1px solid var(--border)"></div>
+          </div>
+          <div class="score-factors" id="scoreFactors"></div>
+        </div>
+        <div class="pocket-wrap">
           <div class="pocket-lbl">Disponible para gastar</div>
           <div class="pocket-amt" id="pocketAmt">--</div>
           <div class="pocket-sub">
@@ -1069,11 +1083,21 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
               </select>
             </div>
             <div style="margin-top:14px">
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Tipo de cambio USD</div>
+              <div style="display:flex;gap:8px"><input class="s-inp" id="cfgTcUsd" type="number" step="0.001" placeholder="3.75" style="flex:1"><button class="tb-btn gold" onclick="guardarTipoCambio()" style="padding:8px 12px">Ok</button></div>
+              <div style="font-size:10px;color:var(--muted);margin-top:6px">Usado para patrimonio referencial en soles.</div>
+            </div>
+            <div style="margin-top:14px">
               <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Inicio de semana</div>
               <select class="s-sel" id="cfgWeekStart" onchange="setWeekStart(this.value)" style="width:100%">
                 <option value="0">Domingo</option>
                 <option value="1">Lunes</option>
               </select>
+            </div>
+            <div style="margin-top:14px">
+              <div style="font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Migracion mensual</div>
+              <button class="tb-btn gold" onclick="migrarConfigMensual()" style="width:100%;padding:9px">Migrar configuracion a este anio</button>
+              <div class="report-note">Copia configuraciones antiguas a documentos mensuales vacios sin borrar meses ya configurados.</div>
             </div>
           </div>
         </div>
@@ -1227,6 +1251,7 @@ var ttOpts={backgroundColor:'#0d0d10',borderColor:'#1e1e28',borderWidth:1,titleF
 window._moneda='S/'; window._metaAhorro=30;
 var PAGE_SIZE=25, currentPage=1;
 var calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+var periodoAnio=new Date().getFullYear();
 var _weekStart=0; // loaded from Firestore _settings on app ready
 var _currentMonthKey='', _loadingMonth=false;
 Chart.defaults.color='#52505c';
@@ -1244,13 +1269,28 @@ function toast(msg,type,dur){
 function removeToast(t){ if(!t||!t.parentElement) return; t.classList.add('out'); setTimeout(function(){ if(t.parentElement) t.parentElement.removeChild(t); },300); }
 function cloneData(obj){ return JSON.parse(JSON.stringify(obj)); }
 function selectedMonth(){ return periodoActivo || (new Date().getMonth()+1); }
-function selectedYear(){ return new Date().getFullYear(); }
+function selectedYear(){ return periodoAnio || new Date().getFullYear(); }
 function monthKey(m){ return selectedYear()+'-'+String(m || selectedMonth()).padStart(2,'0'); }
 function currentScopedKey(){ return monthKey(selectedMonth()); }
 function monthNameFromKey(k){
   var p=String(k||'').split('-');
   var m=parseInt(p[1]||selectedMonth());
   return mesesFull[m-1]+' '+(p[0]||selectedYear());
+}
+function getAnioRows(y){ return allRows.filter(function(r){return r.anio===y;}); }
+function periodoLabel(){
+  return periodoActivo ? mesesFull[periodoActivo-1]+' '+selectedYear() : 'Año '+selectedYear();
+}
+function populateYearSelectors(){
+  var years={}; years[selectedYear()]=1; years[new Date().getFullYear()]=1;
+  allRows.forEach(function(r){ if(r.anio) years[r.anio]=1; });
+  var list=Object.keys(years).map(function(y){return parseInt(y);}).sort(function(a,b){return b-a;});
+  ['yearSel','mobileYearSel'].forEach(function(id){
+    var sel=document.getElementById(id); if(!sel) return;
+    sel.innerHTML='';
+    list.forEach(function(y){ sel.innerHTML+='<option value="'+y+'">'+y+'</option>'; });
+    sel.value=selectedYear();
+  });
 }
 async function loadMonthScopedState(force){
   var key=currentScopedKey();
@@ -2044,6 +2084,8 @@ function closeSidebar(){ document.getElementById('sidebar').classList.remove('op
 function handleResize(){
   var mob=window.innerWidth<=768;
   document.getElementById('mobileSel').style.display=mob?'block':'none';
+  var my=document.getElementById('mobileYearSel'); if(my) my.style.display=mob?'block':'none';
+  var ys=document.getElementById('yearSel'); if(ys) ys.style.display=mob?'none':'block';
 }
 window.addEventListener('resize',handleResize);
 
@@ -2054,14 +2096,20 @@ document.addEventListener('keydown',function(e){
 });
 
 /* DATA */
-function getRows(m){ return m?allRows.filter(function(r){return r.mes===m;}):allRows; }
+function getRows(m){
+  var y=selectedYear();
+  return allRows.filter(function(r){
+    if(r.anio!==y) return false;
+    return m ? r.mes===m : true;
+  });
+}
 
 function processRows(raw){
   return raw.map(function(r){
     var fechaRaw=r.fecha||'';
-    var mes=0;
+    var mes=0, anio=0;
     var fm=String(fechaRaw).match(/(\d{4})-(\d{2})-(\d{2})/);
-    if(fm) mes=parseInt(fm[2]);
+    if(fm){ anio=parseInt(fm[1]); mes=parseInt(fm[2]); }
     var fi=r.fecha_ingreso||'';
     if(!fi&&r.fechahora){ var p=String(r.fechahora).match(/(\d{2})\/(\d{2})\/(\d{4})/); if(p) fi=p[3]+'-'+p[2]+'-'+p[1]; }
     return {
@@ -2069,7 +2117,7 @@ function processRows(raw){
       fechahora:r.fechahora||'', tipo:String(r.tipo||'').toLowerCase().trim(),
       monto:parseFloat(r.monto)||0, categoria:r.categoria||'', subcategoria:r.subcategoria||'',
       descripcion:r.descripcion||'', nota:r.nota||'', etiquetas:r.etiquetas||[],
-      mes:mes, createdAt:r.createdAt
+      mes:mes, anio:anio, createdAt:r.createdAt
     };
   }).filter(function(r){ return r.tipo==='gasto'||r.tipo==='ingreso'; });
 }
@@ -2090,6 +2138,22 @@ function setPeriod(m){
       if(allRows.length) renderVista();
     });
   } else if(allRows.length) renderVista();
+}
+
+function setYear(y){
+  if(!y) return;
+  periodoAnio=y;
+  calYear=y;
+  populateYearSelectors();
+  setSyncState('loading','Cargando '+periodoLabel()+'...');
+  loadMonthScopedState(true).then(function(){
+    setSyncState('ok','Sincronizado');
+    renderVista();
+  }).catch(function(e){
+    console.error(e);
+    setSyncState('err','Error de sincronizacion');
+    renderVista();
+  });
 }
 
 var viewNames={dashboard:'Dashboard',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas',calendario:'Calendario',recurrentes:'Recurrentes',credito:'Credito',patrimonio:'Patrimonio',ajustes:'Ajustes'};
@@ -2215,11 +2279,68 @@ function renderDashboard(){
     var pG=pr.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
     setDelta('dIng',ing,pI,false); setDelta('dGas',gas,pG,true); setDelta('dBal',bal,pI-pG,false);
   } else ['dIng','dGas','dBal'].forEach(function(id){document.getElementById(id).textContent='';});
+  renderFinancialScore(rows, {ing:ing, gas:gas, bal:bal, aho:aho});
   checkAlertas(rows);
   renderPocket(getRows(periodoActivo||mesActual));
   renderWeekly();
   var mesDash=periodoActivo||mesActual;
   buildEvol(); buildDonut(rows); buildComp(); buildTop(rows); buildProyec();
+}
+
+function renderFinancialScore(rows, info){
+  var el=document.getElementById('scoreNum'); if(!el) return;
+  var ing=info.ing, gas=info.gas, bal=info.bal, aho=info.aho;
+  var recurrentesPend=_recurrentes.reduce(function(s,r){return s+(parseFloat(r.monto)||0);},0);
+  var deudaCredito=(_creditos||[]).reduce(function(s,c){return s+(parseFloat(c.usado)||0);},0);
+  var ratioGasto=ing>0?gas/ing:0;
+  var ratioFijos=ing>0?recurrentesPend/ing:0;
+  var ratioCredito=ing>0?deudaCredito/ing:0;
+  var score=100;
+  score-=Math.min(35, Math.max(0,(ratioGasto-0.55)*70));
+  score-=Math.min(20, Math.max(0,(ratioFijos-0.35)*55));
+  score-=Math.min(20, Math.max(0,(ratioCredito-0.25)*45));
+  if(aho>=window._metaAhorro) score+=8;
+  if(bal<0) score-=18;
+  score=Math.max(0,Math.min(100,Math.round(score)));
+  var color=score>=75?'var(--green-tx)':score>=55?'var(--gold)':'var(--red-tx)';
+  el.textContent=score;
+  var ring=document.getElementById('scoreRing');
+  if(ring) ring.style.background='conic-gradient('+color+' '+score+'%, var(--border2) 0)';
+  var desc=document.getElementById('scoreDesc');
+  if(desc){
+    desc.textContent=score>=75?'Periodo saludable: ahorro y gasto bajo control.':score>=55?'Periodo vigilable: revisa gasto fijo, credito o categorias con mayor consumo.':'Riesgo alto: prioriza bajar gasto y deuda antes de nuevos compromisos.';
+  }
+  var f=document.getElementById('scoreFactors');
+  if(f){
+    f.innerHTML=[
+      ['Ahorro',aho+'%',aho>=window._metaAhorro?'var(--green-tx)':'var(--gold)'],
+      ['Gasto/ingreso',ing>0?Math.round(ratioGasto*100)+'%':'0%',ratioGasto<=0.7?'var(--green-tx)':'var(--red-tx)'],
+      ['Credito/ingreso',ing>0?Math.round(ratioCredito*100)+'%':'0%',ratioCredito<=0.3?'var(--green-tx)':'var(--gold)']
+    ].map(function(x){return '<div class="score-factor"><div class="score-factor-dot" style="background:'+x[2]+'"></div><span>'+x[0]+'</span><span class="score-factor-val">'+x[1]+'</span></div>';}).join('');
+  }
+  // Recomendacion principal
+  var recEl=document.getElementById('scoreRecomendacion');
+  if(recEl){
+    var rec2;
+    if(score>=85) rec2='✅ Excelente mes. Mantén este ritmo y considera invertir el excedente.';
+    else if(aho<0) rec2='⚠️ Balance negativo. Prioriza reducir gastos variables inmediatamente.';
+    else if(ratioGasto>0.9) rec2='🔴 Gastas el '+Math.round(ratioGasto*100)+'% de tus ingresos. Frena gastos no esenciales esta semana.';
+    else if(ratioCredito>0.5) rec2='🏦 Deuda de tarjeta alta. Evita nuevos cargos y prioriza el pago mínimo.';
+    else if(aho<window._metaAhorro) rec2='💰 Ahorra S/ '+fmt(ing*(window._metaAhorro/100)-bal)+' más para llegar a tu meta del '+window._metaAhorro+'%.';
+    else rec2='📈 Periodo saludable. Puedes asignar excedente a metas de ahorro o inversión.';
+    recEl.textContent=rec2;
+  }
+  // Tendencia vs mes anterior
+  var tendEl=document.getElementById('scoreTendencia');
+  if(tendEl&&periodoActivo>1){
+    var prAnt=getRows(periodoActivo-1);
+    var ingAnt=prAnt.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+    var gasAnt=prAnt.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+    var balAnt=ingAnt-gasAnt;
+    var varBal=bal-balAnt;
+    tendEl.textContent=(varBal>=0?'↑ +':'↓ ')+fmt(Math.abs(varBal))+' vs mes anterior';
+    tendEl.style.color=varBal>=0?'var(--green-tx)':'var(--red-tx)';
+  } else if(tendEl) tendEl.textContent='';
 }
 
 function setDelta(id,curr,prev,inv){
@@ -2927,11 +3048,25 @@ function checkRecurrentes(){
 }
 
 /* CREDITO */
-function diasHastaDiaMes(dia){
+function _creditCicloActual(c){
+  var hoy=new Date().getDate();
+  var corte=parseInt(c.corte)||0;
+  if(!corte) return 'Ciclo actual';
+  return hoy<=corte?'Ciclo vigente (cierra dia '+corte+')':'Ciclo nuevo (cortó dia '+corte+')';
+}
+function _diasExactosHastaDia(dia){
   dia=parseInt(dia)||0;
   if(!dia) return null;
-  var objetivo=new Date(selectedYear(),selectedMonth()-1,dia);
-  return Math.ceil((objetivo-new Date())/(1000*60*60*24));
+  var hoy=new Date();
+  var objetivo=new Date(hoy.getFullYear(),hoy.getMonth(),dia);
+  if(objetivo<hoy) objetivo.setMonth(objetivo.getMonth()+1);
+  return Math.ceil((objetivo-hoy)/(1000*60*60*24));
+}
+function _nivelRiesgoCredito(pct,maxPct){
+  if(pct>90) return {label:'CRÍTICO',color:'var(--red-tx)'};
+  if(pct>maxPct) return {label:'ALTO',color:'var(--gold)'};
+  if(pct>maxPct*0.7) return {label:'VIGILAR',color:'var(--gold)'};
+  return {label:'OK',color:'var(--green-tx)'};
 }
 function renderCredito(){
   var cont=document.getElementById('creditList'); if(!cont) return;
@@ -2940,18 +3075,47 @@ function renderCredito(){
     cont.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin tarjetas configuradas para '+monthNameFromKey(currentScopedKey())+'</div>';
     return;
   }
+  var deudaTotal=_creditos.reduce(function(s,c){return s+(parseFloat(c.usado)||0);},0);
+  var resumen=document.createElement('div');
+  resumen.style.cssText='padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:3px;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap;font-size:11px;';
+  resumen.innerHTML='<span style="color:var(--muted)">Deuda total: <strong style="font-family:IBM Plex Mono,monospace;color:var(--red-tx)">'+fmt(deudaTotal)+'</strong></span>'+'<span style="color:var(--muted)">'+ _creditos.length+' tarjeta(s)</span>';
+  cont.appendChild(resumen);
   _creditos.forEach(function(c){
     var limite=parseFloat(c.limite)||0, usado=parseFloat(c.usado)||0, maxPct=parseFloat(c.maxPct)||30;
     var pct=limite>0?Math.min(100,Math.round(usado/limite*100)):0;
-    var pagoDias=diasHastaDiaMes(c.pago);
-    var corteDias=diasHastaDiaMes(c.corte);
-    var color=pct>80?'var(--red-tx)':pct>maxPct?'var(--gold)':'var(--green-tx)';
+    var pagoDias=_diasExactosHastaDia(c.pago);
+    var corteDias=_diasExactosHastaDia(c.corte);
+    var riesgo=_nivelRiesgoCredito(pct,maxPct);
+    var montoRecomendado=limite>0?Math.round(limite*maxPct/100):0;
+    var ciclo=_creditCicloActual(c);
+    var alertas=[];
+    if(pct>maxPct) alertas.push('⚠ Uso sobre límite recomendado ('+maxPct+'%)');
+    if(pagoDias!==null&&pagoDias<=5) alertas.push('⏰ Paga antes del día '+c.pago+' — '+pagoDias+' día(s) restantes');
+    if(corteDias!==null&&corteDias<=3) alertas.push('✂ Corte en '+corteDias+' día(s) (día '+c.corte+')');
+    if(pct>90) alertas.push('🔴 Riesgo crítico: revisa tu línea urgente');
     var div=document.createElement('div'); div.className='credit-card';
-    div.innerHTML='<div class="credit-head"><div><div class="credit-name">'+(c.nombre||'Tarjeta')+'</div><div class="credit-bank">'+(c.banco||'Banco')+' - '+monthNameFromKey(currentScopedKey())+'</div></div><button class="row-btn del" onclick="eliminarTarjetaCredito(\''+c.id+'\')">Eliminar</button></div>'+
-      '<div class="credit-metric"><div><span>Linea</span><strong>'+fmt(limite)+'</strong></div><div><span>Usado</span><strong style="color:'+color+'">'+fmt(usado)+' ('+pct+'%)</strong></div><div><span>Corte</span><strong>Dia '+(c.corte||'-')+'</strong></div><div><span>Pago</span><strong>Dia '+(c.pago||'-')+'</strong></div></div>'+
-      '<div class="credit-track"><div class="credit-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'+
-      '<div class="credit-alert">'+(pct>maxPct?'Uso sobre tu maximo configurado de '+maxPct+'%. ':'Uso dentro del margen configurado. ')+(pagoDias!==null&&pagoDias>=0&&pagoDias<=5?'Pago cercano en '+pagoDias+' dias. ':'')+(corteDias!==null&&corteDias>=0&&corteDias<=3?'Corte cercano en '+corteDias+' dias.':'')+'</div>'+
-      '<div style="display:flex;gap:6px;margin-top:10px"><button class="row-btn" onclick="editarUsoCredito(\''+c.id+'\')">Actualizar uso</button><button class="row-btn" onclick="editarTarjetaCredito(\''+c.id+'\')">Editar</button></div>';
+    div.innerHTML=
+      '<div class="credit-head">'+
+        '<div><div class="credit-name">'+(c.nombre||'Tarjeta')+'</div>'+
+        '<div class="credit-bank">'+(c.banco||'Banco')+' — '+ciclo+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:6px">'+
+        '<span style="font-size:9px;font-weight:500;letter-spacing:1px;padding:3px 8px;border-radius:10px;background:var(--s3);border:1px solid var(--border2);color:'+riesgo.color+'">'+riesgo.label+'</span>'+
+        '<button class="row-btn del" onclick="eliminarTarjetaCredito(\''+c.id+'\')">Eliminar</button>'+
+        '</div></div>'+
+      '<div class="credit-metric">'+
+        '<div><span>Línea</span><strong>'+fmt(limite)+'</strong></div>'+
+        '<div><span>Usado</span><strong style="color:'+riesgo.color+'">'+fmt(usado)+' ('+pct+'%)</strong></div>'+
+        '<div><span>Recomendado</span><strong style="color:var(--green-tx)">'+fmt(montoRecomendado)+'</strong></div>'+
+        '<div><span>Disponible</span><strong>'+fmt(Math.max(0,limite-usado))+'</strong></div>'+
+        '<div><span>Corte</span><strong>Día '+(c.corte||'-')+(corteDias!==null?' ('+corteDias+'d)':'')+'</strong></div>'+
+        '<div><span>Pago</span><strong>Día '+(c.pago||'-')+(pagoDias!==null?' ('+pagoDias+'d)':'')+'</strong></div>'+
+      '</div>'+
+      '<div class="credit-track"><div class="credit-fill" style="width:'+pct+'%;background:'+riesgo.color+'"></div></div>'+
+      (alertas.length?'<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">'+alertas.map(function(a){return '<div style="font-size:10px;color:var(--text2);line-height:1.5">'+a+'</div>';}).join('')+'</div>':'')+
+      '<div style="display:flex;gap:6px;margin-top:10px">'+
+        '<button class="row-btn" onclick="editarUsoCredito(\''+c.id+'\')" >Actualizar uso</button>'+
+        '<button class="row-btn" onclick="editarTarjetaCredito(\''+c.id+'\')" >Editar</button>'+
+      '</div>';
     cont.appendChild(div);
   });
 }
@@ -2994,9 +3158,11 @@ async function eliminarTarjetaCredito(id){
 function getTodayPatrimonio(){
   return new Date().toISOString().split('T')[0];
 }
+function tcUsd(){ return parseFloat(_settings.tcUsd)||3.75; }
+function toPen(n,moneda){ return (parseFloat(n)||0) * ((moneda||'PEN')==='USD'?tcUsd():1); }
 function getPatrimonioNeto(){
-  var tA=_activos.reduce(function(s,a){return s+a.monto;},0);
-  var tP=_pasivos.reduce(function(s,p){return s+p.monto;},0);
+  var tA=_activos.reduce(function(s,a){return s+toPen(a.monto,a.moneda);},0);
+  var tP=_pasivos.reduce(function(s,p){return s+toPen(p.monto,p.moneda);},0);
   return {activos:tA,pasivos:tP,neto:tA-tP};
 }
 function fmtMoneda(n,moneda){
@@ -3192,8 +3358,8 @@ async function eliminarPasivo(id){
   renderPatrimonio();
 }
 function renderPatrimonio(){
-  var tA=_activos.reduce(function(s,a){return s+a.monto;},0);
-  var tP=_pasivos.reduce(function(s,p){return s+p.monto;},0);
+  var tA=_activos.reduce(function(s,a){return s+toPen(a.monto,a.moneda);},0);
+  var tP=_pasivos.reduce(function(s,p){return s+toPen(p.monto,p.moneda);},0);
   var neto=tA-tP;
   var activosM=patrimonioPorMoneda(_activos), pasivosM=patrimonioPorMoneda(_pasivos);
   var kpis=document.getElementById('patriKpis');
@@ -3204,7 +3370,28 @@ function renderPatrimonio(){
       '<div class="patri-kpi"><div class="patri-kpi-lbl">Pasivos USD</div><div class="patri-kpi-val neg">'+fmtMoneda(pasivosM.USD,'USD')+'</div></div>';
   }
   var sum=document.getElementById('netoSummary');if(!sum)return;
-  sum.innerHTML='<div class="neto-card"><div class="neto-lbl">Total activos</div><div class="neto-val pos">'+fmt(tA)+'</div></div><div class="neto-card"><div class="neto-lbl">Total pasivos</div><div class="neto-val neg">'+fmt(tP)+'</div></div><div class="neto-card"><div class="neto-lbl">Patrimonio neto referencial</div><div class="neto-val '+(neto>=0?'neu':'neg')+'">'+fmt(neto)+'</div></div>';
+  var varMensual=0;
+  if(_patrimonioHistory.length>=2){
+    var last=_patrimonioHistory[_patrimonioHistory.length-1];
+    var prev2=_patrimonioHistory[_patrimonioHistory.length-2];
+    varMensual=last.valor-prev2.valor;
+  }
+  var activosPEN=_activos.filter(function(a){return (a.moneda||'PEN')==='PEN';}).reduce(function(s,a){return s+(parseFloat(a.monto)||0);},0);
+  var activosUSD=_activos.filter(function(a){return a.moneda==='USD';}).reduce(function(s,a){return s+(parseFloat(a.monto)||0);},0);
+  var pasivosPN=_pasivos.filter(function(p){return (p.moneda||'PEN')==='PEN';}).reduce(function(s,p){return s+(parseFloat(p.monto)||0);},0);
+  var pasivosUSD=_pasivos.filter(function(p){return p.moneda==='USD';}).reduce(function(s,p){return s+(parseFloat(p.monto)||0);},0);
+  var tc=tcUsd();
+  var netoUSD=neto/tc;
+  sum.innerHTML=
+    '<div class="neto-card"><div class="neto-lbl">Activos PEN</div><div class="neto-val pos">'+fmt(activosPEN)+'</div>'+
+      (activosUSD>0?'<div style="font-size:9px;color:var(--muted);margin-top:2px">+ $ '+activosUSD.toFixed(2)+' USD</div>':'')+
+    '</div>'+
+    '<div class="neto-card"><div class="neto-lbl">Pasivos PEN</div><div class="neto-val neg">'+fmt(pasivosPN)+'</div>'+
+      (pasivosUSD>0?'<div style="font-size:9px;color:var(--muted);margin-top:2px">+ $ '+pasivosUSD.toFixed(2)+' USD</div>':'')+
+    '</div>'+
+    '<div class="neto-card"><div class="neto-lbl">Neto PEN (TC '+tc+')</div><div class="neto-val '+(neto>=0?'neu':'neg')+'">'+fmt(neto)+'</div>'+
+      '<div style="font-size:9px;color:var(--muted);margin-top:2px">$ '+netoUSD.toFixed(2)+' USD</div></div>'+
+    '<div class="neto-card"><div class="neto-lbl">Var. mensual</div><div class="neto-val '+(varMensual>=0?'pos':'neg')+'">'+(varMensual>=0?'+':'')+fmt(varMensual)+'</div></div>';
   var aL=document.getElementById('activosList'),pL=document.getElementById('pasivosList');
   if(aL){
   aL.innerHTML='';
@@ -3433,6 +3620,56 @@ function setMoneda(m){
   });
   else { toast('Moneda: '+m,'ok'); renderVista(); }
 }
+function guardarTipoCambio(){
+  var prev=cloneData(_settings),prevTc=_settings.tcUsd;
+  var v=parseFloat(document.getElementById('cfgTcUsd').value)||3.75;
+  _settings.tcUsd=v;
+  if(window._saveSettings){
+    window._saveSettings(_settings).then(function(){
+      toast('Tipo de cambio: S/ '+v.toFixed(3)+' por USD','ok');
+      renderPatrimonio();
+    }).catch(function(){
+      _settings=prev;_settings.tcUsd=prevTc;
+      document.getElementById('cfgTcUsd').value=prevTc||3.75;
+      toast('No se pudo guardar en la nube','err');
+    });
+  } else { toast('Tipo de cambio actualizado','ok'); renderPatrimonio(); }
+}
+async function migrarConfigMensual(){
+  var anio=selectedYear();
+  var meses12=[1,2,3,4,5,6,7,8,9,10,11,12];
+  var migrados=0;
+  var safe=function(fn){return Promise.resolve().then(fn).catch(function(e){console.error('migrar:',e);});};
+  for(var i=0;i<meses12.length;i++){
+    var m=meses12[i];
+    var key=anio+'-'+String(m).padStart(2,'0');
+    var pres=await safe(function(){return window._loadPresupuestos(key);});
+    if(!pres||(!Object.keys(pres.cats||{}).length&&!Object.keys(pres.subs||{}).length)){
+      var global=await safe(function(){return window._loadPresupuestos();});
+      if(global&&(Object.keys(global.cats||{}).length||Object.keys(global.subs||{}).length)){
+        await safe(function(){return window._savePresupuestos(global,key);});
+        migrados++;
+      }
+    }
+    var rec=await safe(function(){return window._loadRecurrentes(key);});
+    if(!rec||!rec.length){
+      var globalRec=await safe(function(){return window._loadRecurrentes();});
+      if(globalRec&&globalRec.length){
+        await safe(function(){return window._saveRecurrentes(globalRec,key);});
+        migrados++;
+      }
+    }
+    var al=await safe(function(){return window._loadAlertasConfig(key);});
+    if(!al||!Object.keys(al.limites||{}).length){
+      var globalAl=await safe(function(){return window._loadAlertasConfig();});
+      if(globalAl&&Object.keys(globalAl.limites||{}).length){
+        await safe(function(){return window._saveAlertasConfig(globalAl,key);});
+        migrados++;
+      }
+    }
+  }
+  toast('Migracion completada: '+migrados+' documentos actualizados para '+anio,'ok',5000);
+}
 function renderStatsSystem(){
   var cont=document.getElementById('statsSystem');if(!cont)return;
   var stats=[{lbl:'Total registros',val:allRows.length},{lbl:'Meses con datos',val:new Set(allRows.map(function(r){return r.mes;})).size},{lbl:'Categorias',val:new Set(allRows.map(function(r){return r.categoria;})).size}];
@@ -3527,11 +3764,36 @@ function exportarExcel(){
   var presup=[['Categoria','Presupuesto mensual','Presupuesto diario','Gastado','Diferencia']];
   Object.keys(presupCat).forEach(function(c){var g=byCat[c]||0, p=presupCat[c].mensual||0; presup.push([c,p,presupCat[c].diario||0,g,p-g]);});
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(presup),'Presupuesto');
-  var cred=[['Tarjeta','Banco','Linea','Usado','% Uso','% Max','Corte','Pago']];
-  (_creditos||[]).forEach(function(c){var pct=c.limite?Math.round((c.usado||0)/c.limite*100):0; cred.push([c.nombre,c.banco,c.limite,c.usado,pct,c.maxPct,c.corte,c.pago]);});
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cred),'Credito');
-  XLSX.writeFile(wb,'finanzas_'+(periodoActivo?meses[periodoActivo-1]:'anual').toLowerCase()+'.xlsx');
-  toast('Excel profesional exportado','ok');
+  var cred=[['Tarjeta','Banco','Linea','Usado','% Uso','% Max','Corte (dia)','Pago (dia)','Riesgo','Deuda']];
+  (_creditos||[]).forEach(function(c){
+    var pct=c.limite?Math.round((c.usado||0)/c.limite*100):0;
+    var riesgoLbl=pct>90?'CRITICO':pct>(c.maxPct||30)?'ALTO':pct>(c.maxPct||30)*0.7?'VIGILAR':'OK';
+    cred.push([c.nombre,c.banco,c.limite,c.usado,pct+'%',c.maxPct+'%',c.corte,c.pago,riesgoLbl,c.usado||0]);
+  });
+  var wsC=XLSX.utils.aoa_to_sheet(cred);
+  wsC['!cols']=[{wch:20},{wch:14},{wch:12},{wch:12},{wch:8},{wch:8},{wch:10},{wch:10},{wch:10},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,wsC,'Credito');
+  var patri=[['Tipo','Nombre','Moneda','Monto','Monto PEN ref.']];
+  (_activos||[]).forEach(function(a){var pen=a.moneda==='USD'?(parseFloat(a.monto)||0)*tcUsd():(parseFloat(a.monto)||0);patri.push(['Activo',a.nombre,a.moneda||'PEN',a.monto,Math.round(pen*100)/100]);});
+  (_pasivos||[]).forEach(function(p){var pen=p.moneda==='USD'?(parseFloat(p.monto)||0)*tcUsd():(parseFloat(p.monto)||0);patri.push(['Pasivo',p.nombre,p.moneda||'PEN',p.monto,Math.round(pen*100)/100]);});
+  var tAexcel=(_activos||[]).reduce(function(s,a){return s+(a.moneda==='USD'?(parseFloat(a.monto)||0)*tcUsd():(parseFloat(a.monto)||0));},0);
+  var tPexcel=(_pasivos||[]).reduce(function(s,p){return s+(p.moneda==='USD'?(parseFloat(p.monto)||0)*tcUsd():(parseFloat(p.monto)||0));},0);
+  patri.push([]);patri.push(['','NETO','PEN','',Math.round((tAexcel-tPexcel)*100)/100]);
+  patri.push(['','TC USD usado','',tcUsd(),'']);
+  var wsP=XLSX.utils.aoa_to_sheet(patri);
+  wsP['!cols']=[{wch:10},{wch:28},{wch:8},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,wsP,'Patrimonio');
+  var alertasData=[['Categoria','Limite','Gastado','% Uso','Estado']];
+  var limites2=getLimites();
+  var byCatAl={}; rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCatAl[r.categoria]=(byCatAl[r.categoria]||0)+r.monto;});
+  Object.keys(limites2).forEach(function(cat){
+    var g=byCatAl[cat]||0, lim=limites2[cat];
+    var pctAl=lim>0?Math.round(g/lim*100):0;
+    alertasData.push([cat,lim,g,pctAl+'%',pctAl>=100?'SUPERADO':pctAl>=80?'ALERTA':'OK']);
+  });
+  if(alertasData.length>1) XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(alertasData),'Alertas');
+  XLSX.writeFile(wb,'finanzas_'+(periodoActivo?meses[periodoActivo-1]:'anual').toLowerCase()+'_'+selectedYear()+'.xlsx');
+  toast('Excel exportado: Resumen + Movimientos + Presupuesto + Credito + Patrimonio + Alertas','ok',5000);
 }
 
 /* SYNC STATE */

@@ -6,7 +6,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
-<title>Finanzas Formulario</title>
+<meta name="description" content="Registra tus transacciones personales con método de pago, notas y etiquetas.">
+<title>Finanzas — Registro</title>
 <link rel="icon" type="image/svg+xml" href="fav_formulario.svg">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
@@ -147,6 +148,32 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 .estado.fail{color:var(--red);}
 
 @media(max-width:360px){.monto-inp{font-size:36px;}.row{flex-direction:column;gap:0;}}
+
+/* METODO PAGO */
+.mpago-row{display:flex;gap:6px;flex-wrap:wrap;}
+.mp-btn{padding:7px 14px;border-radius:20px;border:1px solid var(--border2);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:400;letter-spacing:.5px;color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.mp-btn:hover{border-color:var(--muted);color:var(--text);}
+.mp-btn.sel{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold);}
+.mp-btn.sel-i{background:var(--green-d);border-color:var(--green-b);color:var(--green);}
+
+/* NOTA + ETIQUETAS */
+.nota-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;resize:none;}
+.nota-inp::placeholder{color:var(--muted);}
+.etiq-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.etiq{padding:4px 10px;border-radius:12px;border:1px solid var(--border2);background:var(--s2);font-size:9px;letter-spacing:.5px;color:var(--muted2);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.etiq.sel{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold);}
+.etiq.sel-i{background:var(--green-d);border-color:var(--green-b);color:var(--green);}
+
+/* ACCESOS RAPIDOS */
+.quick-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding:12px;background:var(--s1);border:1px solid var(--border);border-radius:3px;}
+.qbtn{padding:6px 12px;border-radius:2px;border:1px solid var(--border2);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.qbtn:hover{color:var(--text);border-color:var(--muted);}
+.qbtn.gold{color:var(--gold);border-color:var(--gold-b);}
+.plantilla-grid{display:flex;gap:6px;flex-wrap:wrap;width:100%;}
+.plant-chip{padding:5px 10px;border-radius:2px;border:1px dashed var(--border2);background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;color:var(--muted);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.plant-chip:hover{border-color:var(--muted);color:var(--text);}
+
+@media(max-width:360px){.monto-inp{font-size:36px;}.row{flex-direction:column;gap:0;}}
 </style>
 </head>
 <body>
@@ -169,13 +196,20 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 <!-- FORM -->
 <div class="page" id="mainPage">
   <div class="header">
-    <div><div class="brand">Finanzas</div><div class="brand-sub">Registro personal</div></div>
+    <div><div class="brand" id="brandName">Finanzas</div><div class="brand-sub">Registro personal</div></div>
     <div class="dt-wrap"><div class="dt-time" id="dtTime">--:--</div><div class="dt-date" id="dtDate">---</div></div>
   </div>
   <div class="rule"></div>
   <div class="user-row">
     <span class="user-name" id="userName">Cargando...</span>
     <button class="user-out" onclick="logout()">Salir</button>
+  </div>
+
+  <!-- ACCESOS RAPIDOS -->
+  <div class="quick-bar" id="quickBar">
+    <button class="qbtn gold" onclick="repetirUltimo()" id="btnRepetir" style="display:none">↩ Repetir último</button>
+    <div class="plantilla-grid" id="plantillaGrid"></div>
+    <button class="qbtn" onclick="mostrarFormPlantilla()">+ Plantilla</button>
   </div>
 
   <div class="tipo-row">
@@ -230,6 +264,29 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
       <div class="sec-label">Descripcion</div>
       <input type="text" class="text-inp" id="desc" placeholder="ej. Almuerzo trabajo" maxlength="80">
     </div>
+  </div>
+
+  <hr class="div">
+
+  <div class="section">
+    <div class="sec-label">Método de pago</div>
+    <div class="mpago-row" id="mpagoRow">
+      <button class="mp-btn" data-mp="efectivo" onclick="selMetodoPago('efectivo')">💵 Efectivo</button>
+      <button class="mp-btn" data-mp="debito" onclick="selMetodoPago('debito')">💳 Débito</button>
+      <button class="mp-btn" data-mp="credito" onclick="selMetodoPago('credito')">🏦 Crédito</button>
+      <button class="mp-btn" data-mp="yape" onclick="selMetodoPago('yape')">📱 Yape</button>
+      <button class="mp-btn" data-mp="plin" onclick="selMetodoPago('plin')">📲 Plin</button>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:14px">
+    <div class="sec-label">Etiquetas</div>
+    <div class="etiq-wrap" id="etiqWrap"></div>
+  </div>
+
+  <div class="section" style="margin-top:14px">
+    <div class="sec-label">Nota (opcional)</div>
+    <textarea class="nota-inp" id="nota" rows="2" placeholder="Agregar nota..." maxlength="200"></textarea>
   </div>
 
   <button class="btn-save btn-g" id="btnSave" onclick="guardar()">Registrar Gasto</button>
@@ -326,6 +383,10 @@ onAuthStateChanged(auth, user => {
 var tipo='gasto', rawMonto='', catSel='', subSel='';
 var modalMode='', modalTarget='', modalParent='';
 var today=new Date().toISOString().split('T')[0];
+var metodoPago='', etiquetasSel=[];
+var _etiquetasDisp=['trabajo','familia','viaje','salud','ocio','urgente','comida','transporte'];
+var _plantillas=JSON.parse(localStorage.getItem('fin_plantillas')||'[]');
+var _ultimoGasto=JSON.parse(localStorage.getItem('fin_ultimo')||'null');
 
 var defaultData={
   gasto:{
@@ -471,12 +532,81 @@ function validate(){
   return ok;
 }
 
+function selMetodoPago(mp){
+  metodoPago=metodoPago===mp?'':mp;
+  var cls=tipo==='gasto'?'sel':'sel-i';
+  document.querySelectorAll('.mp-btn').forEach(function(b){
+    b.classList.toggle(cls, b.dataset.mp===metodoPago);
+  });
+}
+function renderEtiquetas(){
+  var wrap=document.getElementById('etiqWrap'); if(!wrap) return;
+  wrap.innerHTML='';
+  var cls=tipo==='gasto'?'sel':'sel-i';
+  _etiquetasDisp.forEach(function(t){
+    var b=document.createElement('button');
+    b.className='etiq'+(etiquetasSel.indexOf(t)>=0?' '+cls:'');
+    b.textContent='#'+t;
+    b.onclick=function(){var i=etiquetasSel.indexOf(t);if(i>=0)etiquetasSel.splice(i,1);else etiquetasSel.push(t);renderEtiquetas();};
+    wrap.appendChild(b);
+  });
+  var inp=document.createElement('input');
+  inp.placeholder='+etiqueta'; inp.maxLength=20;
+  inp.style.cssText='background:none;border:none;border-bottom:1px solid var(--border);outline:none;font-family:IBM Plex Sans,sans-serif;font-size:10px;color:var(--text);width:70px;padding:2px 4px;';
+  inp.onkeydown=function(e){if(e.key==='Enter'&&this.value.trim()){var v=this.value.trim().toLowerCase().replace(/\s+/g,'_');if(_etiquetasDisp.indexOf(v)<0)_etiquetasDisp.push(v);etiquetasSel.push(v);this.value='';renderEtiquetas();}};
+  wrap.appendChild(inp);
+}
+function renderPlantillas(){
+  var grid=document.getElementById('plantillaGrid'); if(!grid) return;
+  grid.innerHTML='';
+  _plantillas.forEach(function(p,i){
+    var b=document.createElement('button');
+    b.className='plant-chip';
+    b.textContent=p.nombre||p.desc||('Plantilla '+(i+1));
+    b.onclick=function(){aplicarPlantilla(i);};
+    grid.appendChild(b);
+  });
+}
+function aplicarPlantilla(i){
+  var p=_plantillas[i]; if(!p) return;
+  if(p.tipo) setTipo(p.tipo);
+  if(p.monto){rawMonto=String(p.monto);document.getElementById('monto').value=parseFloat(p.monto).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  if(p.cat){catSel=p.cat;}
+  if(p.sub){subSel=p.sub;}
+  if(p.desc){document.getElementById('desc').value=p.desc;}
+  if(p.mp){metodoPago=p.mp;selMetodoPago(p.mp);}
+  renderCats();renderSubs();
+  showEstado('Plantilla aplicada','ok');
+}
+function mostrarFormPlantilla(){
+  var n=document.getElementById('desc').value.trim()||prompt('Nombre de plantilla','');
+  if(!n) return;
+  var p={nombre:n,tipo:tipo,monto:parseFloat(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
+  _plantillas.push(p);
+  localStorage.setItem('fin_plantillas',JSON.stringify(_plantillas));
+  renderPlantillas();
+  showEstado('Plantilla guardada','ok');
+}
+function repetirUltimo(){
+  if(!_ultimoGasto) return;
+  var u=_ultimoGasto;
+  if(u.tipo) setTipo(u.tipo);
+  if(u.monto){rawMonto=String(u.monto);document.getElementById('monto').value=parseFloat(u.monto).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  if(u.cat){catSel=u.cat;}
+  if(u.sub){subSel=u.sub;}
+  if(u.desc){document.getElementById('desc').value=u.desc;}
+  if(u.mp){metodoPago=u.mp;selMetodoPago(u.mp);}
+  renderCats();renderSubs();
+  showEstado('Último gasto cargado','ok');
+}
 function resetForm(){
-  rawMonto='';catSel='';subSel='';
+  rawMonto='';catSel='';subSel='';metodoPago='';etiquetasSel=[];
   document.getElementById('monto').value='';
   document.getElementById('desc').value='';
   document.getElementById('fecha').value=today;
-  renderCats();renderSubs();
+  document.getElementById('nota').value='';
+  document.querySelectorAll('.mp-btn').forEach(function(b){b.classList.remove('sel','sel-i');});
+  renderCats();renderSubs();renderEtiquetas();
 }
 
 async function guardar() {
@@ -491,6 +621,7 @@ async function guardar() {
 
     const now = new Date();
 
+    var notaVal=document.getElementById('nota')?document.getElementById('nota').value.trim():'';
     const registro = {
       fecha: document.getElementById('fecha').value,
       fecha_ingreso: now.toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}),
@@ -501,8 +632,15 @@ async function guardar() {
       categoria: catSel,
       subcategoria: subSel,
       descripcion: document.getElementById('desc').value.trim(),
+      nota: notaVal,
+      etiquetas: etiquetasSel.slice(),
+      metodo_pago: metodoPago||'',
       createdAt: window._serverTimestamp()
     };
+    // Guardar último gasto para repetir
+    _ultimoGasto={tipo:tipo,monto:parseFloat(rawMonto),cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
+    localStorage.setItem('fin_ultimo',JSON.stringify(_ultimoGasto));
+    document.getElementById('btnRepetir').style.display='block';
 
     await window._addRegistro(registro);
     await motorSobregiro(registro);
@@ -663,7 +801,10 @@ function agruparGastosPorDia(registros) {
   return mapa;
 }
 
-renderCats(); renderSubs();
+renderCats(); renderSubs(); renderEtiquetas(); renderPlantillas();
+if(_ultimoGasto) document.getElementById('btnRepetir').style.display='block';
+// Load dashboard name if available
+window._loadSettings && window._loadSettings && (function(){if(window._currentUser&&window._loadSettings){window._loadSettings().then(function(s){if(s&&s.dashName)document.getElementById('brandName').textContent=s.dashName;}).catch(function(){});}})();
 </script>
 </body>
 </html>

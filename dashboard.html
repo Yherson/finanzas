@@ -181,6 +181,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .row-btn{padding:4px 9px;border:1px solid var(--border2);background:none;border-radius:2px;font-size:9px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;}
 .row-btn:hover{color:var(--text);border-color:var(--muted);}
 .row-btn.del:hover{color:var(--red-tx);border-color:rgba(192,112,112,.4);}
+.row-btn.ok:hover{color:var(--green-tx);border-color:rgba(90,170,128,.4);}
 .tbl-count{margin-top:10px;font-size:9px;color:var(--muted);}
 .pagination{display:flex;align-items:center;gap:6px;margin-top:12px;justify-content:flex-end;}
 .pg-btn{padding:5px 10px;border:1px solid var(--border2);background:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;border-radius:2px;transition:all .15s;}
@@ -439,6 +440,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .drill-sub-back:hover{color:var(--text);}
 .drill-sub-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
 @media(max-width:600px){.drill-sub-charts{grid-template-columns:1fr!important;}}
+@media(max-width:768px){.sob-form,.credit-form,.patri-money{grid-template-columns:1fr!important;}.patri-kpis{grid-template-columns:1fr 1fr;}.credit-grid{grid-template-columns:1fr;}}
 .drill-sub-chart-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:12px;}
 .drill-sub-chart-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
 .drill-sub-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
@@ -459,6 +461,10 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .sob-alert-title{font-size:11px;font-weight:400;color:var(--red-tx);margin-bottom:2px;}
 .sob-alert-sub{font-size:10px;color:var(--muted);line-height:1.5;}
 .sob-alert-amt{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--red-tx);flex-shrink:0;}
+.sob-form{display:grid;grid-template-columns:1.2fr .8fr .8fr .8fr auto;gap:8px;margin-bottom:12px;}
+.sob-tabs{display:flex;gap:6px;margin:10px 0 8px;flex-wrap:wrap;}
+.sob-tab{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border:1px solid var(--border2);background:var(--s2);border-radius:2px;padding:5px 8px;}
+.sob-tab strong{font-family:'IBM Plex Mono',monospace;color:var(--text);font-weight:400;}
 
 
 /* ── SCORE FINANCIERO ── */
@@ -516,6 +522,30 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .patri-mov-del{background:none;border:1px solid var(--border2);border-radius:2px;color:var(--muted);font-size:10px;padding:4px 8px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
 .patri-mov-del:hover{color:var(--red-tx);border-color:rgba(192,112,112,0.35);}
 .patri-empty{color:var(--muted);font-size:11px;padding:10px 0;line-height:1.6;}
+.patri-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+.patri-kpi{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:12px 14px;}
+.patri-kpi-lbl{font-size:9px;letter-spacing:1.7px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.patri-kpi-val{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text);}
+.patri-kpi-val.pos{color:var(--green-tx);}
+.patri-kpi-val.neg{color:var(--red-tx);}
+.patri-money{display:grid;grid-template-columns:1fr minmax(90px,.5fr) minmax(82px,.35fr) auto;gap:6px;}
+.patri-money select{min-width:82px;}
+
+/* CREDITO */
+.credit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:12px;}
+.credit-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:16px;position:relative;overflow:hidden;}
+.credit-card::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:var(--gold);}
+.credit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.credit-name{font-size:13px;color:var(--text);}
+.credit-bank{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.credit-metric{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+.credit-metric div{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:8px;}
+.credit-metric span{display:block;font-size:9px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+.credit-metric strong{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:400;color:var(--text);}
+.credit-track{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;margin:8px 0;}
+.credit-fill{height:100%;border-radius:2px;background:var(--green-tx);}
+.credit-alert{font-size:10px;line-height:1.45;color:var(--text2);margin-top:8px;}
+.credit-form{display:grid;grid-template-columns:1.2fr .9fr .75fr .75fr .75fr .75fr auto;gap:8px;}
 
 
 /* ── RECURRENTES MEJORADO ── */
@@ -659,6 +689,10 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M7 4v3l2 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
       Recurrentes
     </div>
+    <div class="nav-item" onclick="showView('credito',this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="3" width="11" height="8" rx="1.2" stroke="currentColor" stroke-width="1"/><path d="M1.5 5.5h11M4 8.5h2.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      Credito
+    </div>
     <div class="nav-item" onclick="showView('patrimonio',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 12L4 8l3 2 3-4 3 2" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Patrimonio
@@ -695,7 +729,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
         <button class="period-btn" onclick="setPeriod(10)" id="p10">Oct</button>
         <button class="period-btn" onclick="setPeriod(11)" id="p11">Nov</button>
         <button class="period-btn" onclick="setPeriod(12)" id="p12">Dic</button>
-        <button class="period-btn" onclick="setPeriod(0)" id="p0">A?o</button>
+        <button class="period-btn" onclick="setPeriod(0)" id="p0">Año</button>
       </div>
       <select class="s-sel mobile-sel" id="mobileSel" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px" onchange="setPeriod(parseInt(this.value))">
         <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
@@ -746,7 +780,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           <div class="metric metric-deuda" style="display:none" id="mDeudaWrap"><div class="m-accent" style="background:var(--red)"></div><div class="m-label">Deuda sobregiro</div><div class="m-value" style="color:var(--red-tx)" id="mDeuda">--</div><div class="m-delta" id="dDeuda"></div></div>
         </div>
         <div class="row r2">
-          <div class="card"><div class="card-title">Evolucion mensual ? <span id="lblEvol">anio</span></div><div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div><div class="legend"><div class="leg-item"><div class="leg-sq" style="background:#3d7a5c"></div>Ingresos</div><div class="leg-item"><div class="leg-sq" style="background:#8a3a3a"></div>Gastos</div><div class="leg-item"><div class="leg-sq" style="background:#c9a84c"></div>Balance</div></div></div>
+          <div class="card"><div class="card-title">Evolucion mensual - <span id="lblEvol">año</span></div><div class="chart-wrap" style="height:220px"><canvas id="cEvol"></canvas></div><div class="legend"><div class="leg-item"><div class="leg-sq" style="background:#3d7a5c"></div>Ingresos</div><div class="leg-item"><div class="leg-sq" style="background:#8a3a3a"></div>Gastos</div><div class="leg-item"><div class="leg-sq" style="background:#c9a84c"></div>Balance</div></div></div>
           <div class="card"><div class="card-title">Gastos por categoria</div><div class="chart-wrap" style="height:180px"><canvas id="cDonut"></canvas></div><div class="legend" id="legDonut"></div></div>
         </div>
         <div class="row r3">
@@ -833,7 +867,14 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
         </div>
         <div class="a-section"><div class="card-title" style="margin-bottom:14px">Limites de gasto mensual</div><div id="alertasContent"></div></div>
         <div class="a-section" id="sobregiroAlertas" style="display:none">
-          <div class="card-title" style="margin-bottom:12px">Deudas de sobregiro pendientes</div>
+          <div class="card-title" style="margin-bottom:12px">Deudas de sobregiro del mes</div>
+          <div class="sob-form">
+            <input class="s-inp" id="sobDesc" placeholder="Descripcion">
+            <input class="s-inp" id="sobMonto" type="number" placeholder="Monto usado">
+            <input class="s-inp" id="sobCredito" type="number" placeholder="Deuda/penalizacion">
+            <input class="s-inp" id="sobVence" type="date">
+            <button class="tb-btn gold" onclick="agregarSobregiroManual()" style="padding:8px 12px">Agregar</button>
+          </div>
           <div id="sobregiroList"></div>
         </div>
         <div class="a-section">
@@ -916,8 +957,31 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       </div>
     </div>
 
+    <div id="vCredito" style="display:none">
+      <div class="page">
+        <div class="card" style="margin-bottom:8px">
+          <div class="card-title">Tarjetas de credito del mes</div>
+          <div id="creditList" class="credit-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Agregar tarjeta</div>
+          <div class="credit-form">
+            <input class="s-inp" id="ccNombre" placeholder="Tarjeta (ej. Visa BCP)">
+            <input class="s-inp" id="ccBanco" placeholder="Banco">
+            <input class="s-inp" id="ccLimite" type="number" placeholder="Linea">
+            <input class="s-inp" id="ccUsado" type="number" placeholder="Usado">
+            <input class="s-inp" id="ccMaxPct" type="number" placeholder="% max">
+            <input class="s-inp" id="ccCorte" type="number" min="1" max="31" placeholder="Corte">
+            <input class="s-inp" id="ccPago" type="number" min="1" max="31" placeholder="Pago">
+            <button class="tb-btn gold" onclick="agregarTarjetaCredito()" style="padding:8px 12px">Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="vPatrimonio" style="display:none">
       <div class="page">
+        <div class="patri-kpis" id="patriKpis"></div>
         <div class="neto-summary" id="netoSummary"></div>
         <div class="patri-layout">
           <div class="patri-main">
@@ -925,18 +989,20 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
               <div class="card">
                 <div class="card-title">Activos</div>
                 <div class="neto-list" id="activosList"></div>
-                <div class="neto-form">
+                <div class="neto-form patri-money">
                   <input id="activoNombre" placeholder="Nombre (ej. Ahorros BCP)" maxlength="40">
                   <input id="activoMonto" type="number" placeholder="S/ monto" min="0">
+                  <select id="activoMoneda" class="s-sel"><option value="PEN">Soles</option><option value="USD">Dolares</option></select>
                   <button class="tb-btn gold" onclick="agregarActivo()" style="padding:8px 12px">+</button>
                 </div>
               </div>
               <div class="card">
                 <div class="card-title">Pasivos</div>
                 <div class="neto-list" id="pasivosList"></div>
-                <div class="neto-form">
+                <div class="neto-form patri-money">
                   <input id="pasivoNombre" placeholder="Nombre (ej. Deuda tarjeta)" maxlength="40">
                   <input id="pasivoMonto" type="number" placeholder="S/ monto" min="0">
+                  <select id="pasivoMoneda" class="s-sel"><option value="PEN">Soles</option><option value="USD">Dolares</option></select>
                   <button class="tb-btn gold" onclick="agregarPasivo()" style="padding:8px 12px">+</button>
                 </div>
               </div>
@@ -1097,18 +1163,23 @@ window._startListener = (cb) => {
   );
 };
 
-window._loadPresupuestos = ()          => loadDoc(up('config/presupuestos'), {cats:{}, subs:{}});
-window._savePresupuestos = (d)         => saveDoc(up('config/presupuestos'), d);
+window._monthKey         = (m,y)       => (y || new Date().getFullYear()) + '-' + String(m || (new Date().getMonth()+1)).padStart(2,'0');
+window._loadPresupuestos = (k)         => loadDoc(up(k ? 'months/'+k+'/config/presupuestos' : 'config/presupuestos'), {cats:{}, subs:{}});
+window._savePresupuestos = (d,k)       => saveDoc(up(k ? 'months/'+k+'/config/presupuestos' : 'config/presupuestos'), d);
 window._loadSettings     = ()          => loadDoc(up('config/settings'), {});
 window._saveSettings     = (d)         => saveDoc(up('config/settings'), d);
 window._loadMetas        = async ()    => { const d = await loadDoc(up('config/metas'), {lista:[]}); return d.lista || []; };
 window._saveMetas        = async (l)   => { console.log('[FB] _saveMetas called, count:', l.length); await saveDoc(up('config/metas'), {lista: l}); };
-window._loadRecurrentes  = async ()    => { const d = await loadDoc(up('config/recurrentes'), {lista:[]}); return d.lista || []; };
-window._saveRecurrentes  = (l)         => saveDoc(up('config/recurrentes'), {lista: l});
-window._loadPatrimonio   = ()          => loadDoc(up('config/patrimonio'), {activos:[], pasivos:[], history:[], movimientos:[]});
-window._savePatrimonio   = (d)         => saveDoc(up('config/patrimonio'), d);
-window._loadSobregiros   = async ()    => { const d = await loadDoc(up('config/sobregiros'), {lista:[]}); return d.lista||[]; };
-window._saveSobregiros   = async (l)   => { await saveDoc(up('config/sobregiros'), {lista:l}); };
+window._loadRecurrentes  = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/recurrentes' : 'config/recurrentes'), {lista:[]}); return d.lista || []; };
+window._saveRecurrentes  = (l,k)       => saveDoc(up(k ? 'months/'+k+'/config/recurrentes' : 'config/recurrentes'), {lista: l});
+window._loadPatrimonio   = (k)         => loadDoc(up(k ? 'months/'+k+'/config/patrimonio' : 'config/patrimonio'), {activos:[], pasivos:[], history:[], movimientos:[]});
+window._savePatrimonio   = (d,k)       => saveDoc(up(k ? 'months/'+k+'/config/patrimonio' : 'config/patrimonio'), d);
+window._loadSobregiros   = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/sobregiros' : 'config/sobregiros'), {lista:[]}); return d.lista||[]; };
+window._saveSobregiros   = async (l,k) => { await saveDoc(up(k ? 'months/'+k+'/config/sobregiros' : 'config/sobregiros'), {lista:l}); };
+window._loadAlertasConfig= async (k)   => loadDoc(up(k ? 'months/'+k+'/config/alertas' : 'config/alertas'), {limites:{}});
+window._saveAlertasConfig= async (d,k) => saveDoc(up(k ? 'months/'+k+'/config/alertas' : 'config/alertas'), d);
+window._loadCreditos     = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/creditos' : 'config/creditos'), {lista:[]}); return d.lista||[]; };
+window._saveCreditos     = async (l,k) => saveDoc(up(k ? 'months/'+k+'/config/creditos' : 'config/creditos'), {lista:l});
 window._addRegistroFuturo = async (data) => {
   data.createdAt = serverTimestamp();
   return addDoc(collection(db,'users',currentUser.uid,'registros'), data);
@@ -1142,7 +1213,7 @@ onAuthStateChanged(auth, user => {
 
 /* GLOBALS */
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
-var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={};
+var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={}, _alertLimits={}, _creditos=[];
 var _configLoaded=false;
 var _activos=[], _pasivos=[], _patrimonioHistory=[], _patrimonioMovimientos=[];
 var _etiquetas=['trabajo','familia','viaje','salud','ocio','urgente'], _etiquetasActivas=[];
@@ -1157,6 +1228,7 @@ window._moneda='S/'; window._metaAhorro=30;
 var PAGE_SIZE=25, currentPage=1;
 var calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 var _weekStart=0; // loaded from Firestore _settings on app ready
+var _currentMonthKey='', _loadingMonth=false;
 Chart.defaults.color='#52505c';
 Chart.defaults.font={family:"'IBM Plex Sans',sans-serif",size:10,weight:'300'};
 
@@ -1171,6 +1243,49 @@ function toast(msg,type,dur){
 }
 function removeToast(t){ if(!t||!t.parentElement) return; t.classList.add('out'); setTimeout(function(){ if(t.parentElement) t.parentElement.removeChild(t); },300); }
 function cloneData(obj){ return JSON.parse(JSON.stringify(obj)); }
+function selectedMonth(){ return periodoActivo || (new Date().getMonth()+1); }
+function selectedYear(){ return new Date().getFullYear(); }
+function monthKey(m){ return selectedYear()+'-'+String(m || selectedMonth()).padStart(2,'0'); }
+function currentScopedKey(){ return monthKey(selectedMonth()); }
+function monthNameFromKey(k){
+  var p=String(k||'').split('-');
+  var m=parseInt(p[1]||selectedMonth());
+  return mesesFull[m-1]+' '+(p[0]||selectedYear());
+}
+async function loadMonthScopedState(force){
+  var key=currentScopedKey();
+  if(!force && _currentMonthKey===key) return;
+  _loadingMonth=true;
+  var safe=function(fn,def){ return Promise.resolve().then(fn).catch(function(e){ console.error('month load error:',e); return def; }); };
+  var legacyNeeded=!_currentMonthKey;
+  var results=await Promise.all([
+    safe(function(){return window._loadPresupuestos(key);},{cats:{},subs:{}}),
+    safe(function(){return window._loadRecurrentes(key);},[]),
+    safe(function(){return window._loadPatrimonio(key);},{activos:[],pasivos:[],history:[],movimientos:[]}),
+    safe(function(){return window._loadSobregiros(key);},[]),
+    safe(function(){return window._loadAlertasConfig(key);},{limites:{}}),
+    safe(function(){return window._loadCreditos(key);},[])
+  ]);
+  if(legacyNeeded && !(Object.keys(results[0].cats||{}).length || Object.keys(results[0].subs||{}).length)){
+    var oldPres=await safe(function(){return window._loadPresupuestos();},{cats:{},subs:{}});
+    if(Object.keys(oldPres.cats||{}).length || Object.keys(oldPres.subs||{}).length) results[0]=oldPres;
+  }
+  if(legacyNeeded && !results[1].length) results[1]=await safe(function(){return window._loadRecurrentes();},[]);
+  if(legacyNeeded && !(results[2].activos||[]).length && !(results[2].pasivos||[]).length) results[2]=await safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[],movimientos:[]});
+  if(legacyNeeded && !results[3].length) results[3]=await safe(function(){return window._loadSobregiros();},[]);
+  var oldAlerts=legacyNeeded ? await safe(function(){return window._loadAlertasConfig();},{limites:{}}) : {limites:{}};
+  presupCat=results[0].cats||{}; presupSub=results[0].subs||{};
+  _recurrentes=results[1]||[];
+  _activos=(results[2].activos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; return x; });
+  _pasivos=(results[2].pasivos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; return x; });
+  _patrimonioHistory=results[2].history||[];
+  _patrimonioMovimientos=results[2].movimientos||[];
+  _sobregiros=dedupeSobregirosLista(results[3]||[]);
+  _alertLimits=(results[4].limites && Object.keys(results[4].limites).length) ? results[4].limites : (oldAlerts.limites||_settings.limites||{});
+  _creditos=results[5]||[];
+  _currentMonthKey=key;
+  _loadingMonth=false;
+}
 
 /* FMT */
 function fmt(n){ return (window._moneda||'S/')+' '+Math.abs(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -1411,7 +1526,7 @@ function dedupeAlertItems(lista, keyFn){
   return Object.keys(map).map(function(k){return map[k];});
 }
 function esSobregiroConPenalizacion(s){
-  return !!s && (s.tipo==='SUELDO BBVA' || s.tipo==='AHORRO AGORA');
+  return !!s && (s.tipo==='SUELDO BBVA' || s.tipo==='AHORRO AGORA' || s.tipo==='MANUAL' || s.manual);
 }
 function existeMovimientoPatrimonioSobregiro(registroId){
   return _patrimonioMovimientos.some(function(m){
@@ -1484,7 +1599,7 @@ async function detectarSobregiro(row, rows, opts){
       });
       await savePatrimonio();
       cambios=true;
-      if(!opts.silent) toast('Patrimonio actualizado: AHORRO AGORA '+fmt(antes)+' ? '+fmt(_activos[idx2].monto),'info',6000);
+      if(!opts.silent) toast('Patrimonio actualizado: AHORRO AGORA '+fmt(antes)+' a '+fmt(_activos[idx2].monto),'info',6000);
     } else {
       if(!yaMov && !opts.silent) toast('Activo AHORRO AGORA no encontrado en Patrimonio','err',6000);
     }
@@ -1501,7 +1616,7 @@ async function detectarSobregiro(row, rows, opts){
         mostrarAlerta:true
       });
       _sobregiros=dedupeSobregirosLista(_sobregiros);
-      await window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+      await window._saveSobregiros(_sobregiros, monthKey(parseInt((row.fecha||'').split('-')[1]||selectedMonth()))).catch(function(e){console.error('saveSob:',e);});
       cambios=true;
       if(!opts.silent) toast('Penalizacion de ahorro: '+fmt(creditoAgora)+' registrada','info',5000);
     }
@@ -1563,7 +1678,7 @@ async function detectarSobregiro(row, rows, opts){
     if(!yaLog2){
       _sobregiros.push(sob);
       _sobregiros=dedupeSobregirosLista(_sobregiros);
-      await window._saveSobregiros(_sobregiros).catch(function(e){console.error('saveSob:',e);});
+      await window._saveSobregiros(_sobregiros, monthKey(mesSig)).catch(function(e){console.error('saveSob:',e);});
       cambios=true;
       if(!opts.silent) toast('Penalizacion de ahorro: '+fmt(credito)+' registrada','info',5000);
     }
@@ -1572,7 +1687,7 @@ async function detectarSobregiro(row, rows, opts){
 }
 async function reconciliarSobregiros(rows, prevIds, isFirstLoad){
   var candidatos=(rows||[]).filter(function(r){
-    return r.tipo==='ingreso' && (r.categoria||'').toUpperCase()==='SOBREGIRO';
+    return r.mes===selectedMonth() && r.tipo==='ingreso' && (r.categoria||'').toUpperCase()==='SOBREGIRO';
   });
   var changed=false;
   for(var i=0;i<candidatos.length;i++){
@@ -1595,31 +1710,35 @@ function renderSobregiroAlertas(){
   var lista=document.getElementById('sobregiroList');
   if(!seccion||!lista) return;
 
-  var hoyDate=new Date();
-  var hoy=hoyDate.toISOString().split('T')[0];
-  var mesActual=hoyDate.getMonth()+1;
-  var anioActual=hoyDate.getFullYear();
-  var pendientes=dedupeSobregirosLista(_sobregiros).filter(function(s){
-    if(s.pagado||!esSobregiroConPenalizacion(s)||s.mostrarAlerta===false||!s.fechaAlerta) return false;
-    var partes=s.fechaAlerta.split('-');
-    return parseInt(partes[0]||0)===anioActual && parseInt(partes[1]||0)===mesActual;
+  var hoy=new Date().toISOString().split('T')[0];
+  var key=currentScopedKey();
+  var items=dedupeSobregirosLista(_sobregiros).filter(function(s){
+    if(!esSobregiroConPenalizacion(s) && !s.manual) return false;
+    var fechaRef=s.fechaPago||s.fechaAlerta||s.fechaVence||s.fecha||'';
+    return fechaRef.indexOf(key)===0 || (s.monthKey===key);
   });
-  pendientes=dedupeAlertItems(pendientes,function(s){
+  items=dedupeAlertItems(items,function(s){
     return [s.registroId||'',s.tipo||'',s.fecha||'',s.monto||0,s.creditoDeuda||0,s.fechaAlerta||'',s.fechaVence||''].join('|');
-  }).sort(function(a,b){ return a.fechaAlerta>b.fechaAlerta?1:-1; });
+  }).sort(function(a,b){ return (a.pagado?1:0)-(b.pagado?1:0) || ((a.fechaVence||a.fechaAlerta||'')>(b.fechaVence||b.fechaAlerta||'')?1:-1); });
 
-  if(!pendientes.length){ seccion.style.display='none'; return; }
   seccion.style.display='block';
   lista.innerHTML='';
+  var pend=items.filter(function(s){return !s.pagado;});
+  var pag=items.filter(function(s){return s.pagado;});
+  lista.innerHTML='<div class="sob-tabs"><div class="sob-tab">Pendientes <strong>'+pend.length+'</strong></div><div class="sob-tab">Pagados <strong>'+pag.length+'</strong></div><div class="sob-tab">'+monthNameFromKey(key)+'</div></div>';
+  if(!items.length){
+    lista.innerHTML+='<div style="color:var(--muted);font-size:11px;padding:8px 0">Sin deudas de sobregiro para este mes.</div>';
+    return;
+  }
 
-  pendientes.forEach(function(s){
-    var activa=s.fechaAlerta<=hoy;
-    var vencida=s.fechaVence<hoy;
-    var diasParaAlerta=Math.ceil((new Date(s.fechaAlerta)-new Date())/(1000*60*60*24));
-    var diasRestantes=Math.ceil((new Date(s.fechaVence)-new Date())/(1000*60*60*24));
+  items.forEach(function(s){
+    var activa=(s.fechaAlerta||s.fecha||'')<=hoy;
+    var vencida=!s.pagado && (s.fechaVence||'9999-12-31')<hoy;
+    var diasParaAlerta=s.fechaAlerta?Math.ceil((new Date(s.fechaAlerta)-new Date())/(1000*60*60*24)):0;
+    var diasRestantes=s.fechaVence?Math.ceil((new Date(s.fechaVence)-new Date())/(1000*60*60*24)):0;
 
-    var estado=vencida?'VENCIDA':activa?'ACTIVA':'PROXIMA';
-    var color=vencida?'var(--red-tx)':activa?'var(--gold)':'var(--muted)';
+    var estado=s.pagado?'PAGADA':vencida?'VENCIDA':activa?'PENDIENTE':'PROXIMA';
+    var color=s.pagado?'var(--green-tx)':vencida?'var(--red-tx)':activa?'var(--gold)':'var(--muted)';
 
     var div=document.createElement('div'); div.className='sob-alert';
     div.style.borderColor=vencida?'rgba(192,112,112,0.4)':activa?'rgba(201,168,76,0.3)':'var(--border)';
@@ -1632,37 +1751,78 @@ function renderSobregiroAlertas(){
 
     var title=document.createElement('div'); title.className='sob-alert-title';
     title.style.color=color;
-    title.textContent=estado+' - Penalizacion de sobregiro ('+fmt(s.creditoDeuda)+')';
+    title.textContent=estado+' - Deuda de sobregiro ('+fmt(s.creditoDeuda||s.monto||0)+')';
 
     var sub2=document.createElement('div'); sub2.className='sob-alert-sub';
     var info='Registro '+(s.registroId||s.id)+' del '+s.fecha+' - '+fmt(s.monto)+' usados de '+(s.tipo||'sobregiro');
-    if(vencida) info+=' - Vencio el '+s.fechaVence;
-    else if(activa) info+=' - Vence en '+diasRestantes+' dias ('+s.fechaVence+')';
-    else info+=' - Se activa el '+s.fechaAlerta+' (en '+diasParaAlerta+' dias)';
+    if(s.pagado) info+=' - Pagado en '+(s.fechaPago||key);
+    else if(vencida) info+=' - Vencio el '+s.fechaVence;
+    else if(activa && s.fechaVence) info+=' - Vence en '+diasRestantes+' dias ('+s.fechaVence+')';
+    else if(s.fechaAlerta) info+=' - Se activa el '+s.fechaAlerta+' (en '+diasParaAlerta+' dias)';
     sub2.textContent=info;
 
     var btnPag=document.createElement('button'); btnPag.className='row-btn';
-    btnPag.textContent='Marcar como pagado'; btnPag.style.marginTop='6px';
-    btnPag.onclick=(function(id){ return function(){
-      var found=_sobregiros.find(function(x){return x.id===id;});
-      if(found){ found.pagado=true; window._saveSobregiros(_sobregiros).catch(function(){}); }
-      renderSobregiroAlertas(); toast('Penalizacion marcada como pagada','ok');
-    };})(s.id);
+    btnPag.textContent=s.pagado?'Marcar pendiente':'Marcar pagado'; btnPag.style.marginTop='6px';
+    btnPag.onclick=(function(id){ return function(){ toggleSobregiroPagado(id); };})(s.id);
+    var btnEdit=document.createElement('button'); btnEdit.className='row-btn'; btnEdit.textContent='Editar'; btnEdit.style.marginTop='6px'; btnEdit.onclick=(function(id){return function(){editarSobregiro(id);};})(s.id);
+    var btnDel=document.createElement('button'); btnDel.className='row-btn del'; btnDel.textContent='Eliminar'; btnDel.style.marginTop='6px'; btnDel.onclick=(function(id){return function(){eliminarSobregiro(id);};})(s.id);
 
     var amt=document.createElement('div'); amt.className='sob-alert-amt';
-    amt.style.color=color; amt.textContent=fmt(s.creditoDeuda);
+    amt.style.color=color; amt.textContent=fmt(s.creditoDeuda||s.monto||0);
 
-    body2.appendChild(title); body2.appendChild(sub2); body2.appendChild(btnPag);
+    body2.appendChild(title); body2.appendChild(sub2); body2.appendChild(btnPag); body2.appendChild(btnEdit); body2.appendChild(btnDel);
     div.appendChild(dot); div.appendChild(body2); div.appendChild(amt);
     lista.appendChild(div);
   });
+}
+
+async function toggleSobregiroPagado(id){
+  var found=_sobregiros.find(function(x){return x.id===id;});
+  if(!found) return;
+  found.pagado=!found.pagado;
+  found.fechaPago=found.pagado?currentScopedKey():'';
+  try{ await window._saveSobregiros(_sobregiros,currentScopedKey()); toast(found.pagado?'Marcado como pagado':'Marcado como pendiente','ok'); }
+  catch(e){ toast('No se pudo guardar en la nube','err'); }
+  renderSobregiroAlertas(); renderSmartAlerts(getRows(selectedMonth()), selectedMonth());
+}
+
+async function agregarSobregiroManual(){
+  var desc=document.getElementById('sobDesc').value.trim()||'Sobregiro manual';
+  var monto=parseFloat(document.getElementById('sobMonto').value)||0;
+  var cred=parseFloat(document.getElementById('sobCredito').value)||0;
+  var vence=document.getElementById('sobVence').value||currentScopedKey()+'-28';
+  if(!monto&&!cred){toast('Agrega monto o deuda','err');return;}
+  _sobregiros.push({id:Date.now().toString(),manual:true,monthKey:currentScopedKey(),fecha:currentScopedKey()+'-01',monto:monto,creditoDeuda:cred||monto,tipo:'MANUAL',descripcion:desc,fechaAlerta:currentScopedKey()+'-01',fechaVence:vence,pagado:false,mostrarAlerta:true});
+  try{ await window._saveSobregiros(_sobregiros,currentScopedKey()); toast('Sobregiro agregado','ok'); }
+  catch(e){ _sobregiros.pop(); toast('No se pudo guardar en la nube','err'); }
+  ['sobDesc','sobMonto','sobCredito','sobVence'].forEach(function(id){var el=document.getElementById(id); if(el) el.value='';});
+  renderSobregiroAlertas();
+}
+
+async function editarSobregiro(id){
+  var s=_sobregiros.find(function(x){return x.id===id;}); if(!s) return;
+  var desc=prompt('Descripcion',s.descripcion||''); if(desc===null) return;
+  var cred=parseFloat(prompt('Deuda/penalizacion',s.creditoDeuda||s.monto||0)); if(isNaN(cred)) return;
+  var vence=prompt('Fecha de vencimiento (YYYY-MM-DD)',s.fechaVence||currentScopedKey()+'-28'); if(vence===null) return;
+  s.descripcion=desc; s.creditoDeuda=cred; s.fechaVence=vence;
+  try{ await window._saveSobregiros(_sobregiros,currentScopedKey()); toast('Sobregiro actualizado','ok'); }
+  catch(e){ toast('No se pudo guardar en la nube','err'); }
+  renderSobregiroAlertas();
+}
+
+async function eliminarSobregiro(id){
+  var prev=cloneData(_sobregiros);
+  _sobregiros=_sobregiros.filter(function(x){return x.id!==id;});
+  try{ await window._saveSobregiros(_sobregiros,currentScopedKey()); toast('Sobregiro eliminado','info'); }
+  catch(e){ _sobregiros=prev; toast('No se pudo eliminar en la nube','err'); }
+  renderSobregiroAlertas();
 }
 
 async function pagarSobregiro(id){
   var s=_sobregiros.find(function(x){return x.id===id;});
   if(!s) return;
   s.pagado=true;
-  await window._saveSobregiros(_sobregiros).catch(function(e){console.error(e);});
+  await window._saveSobregiros(_sobregiros,currentScopedKey()).catch(function(e){console.error(e);});
   renderSobregiroAlertas();
   toast('Credito de penalizacion marcado como pagado','ok');
 }
@@ -1738,7 +1898,8 @@ function generarSmartAlerts(rows, mes){
   // 5. Límites de alertas superados
   var limites2=getLimites();
   Object.keys(limites2).forEach(function(cat){
-    if((byCat2[cat]||0)>limites2[cat]){
+    var presupuestoExcedido=presupCat[cat] && presupCat[cat].mensual>0 && (byCat2[cat]||0)>presupCat[cat].mensual;
+    if(!presupuestoExcedido && (byCat2[cat]||0)>limites2[cat]){
       alerts.push({
         nivel:'alto', icon:'⚠',
         title:'Límite de '+cat+' superado',
@@ -1750,11 +1911,10 @@ function generarSmartAlerts(rows, mes){
   // 6. Recurrentes vencidos sin pagar
   var hoyReal=new Date().getDate();
   var mesActualNum=new Date().getMonth()+1;
-  var anioActual=new Date().getFullYear();
-  var mesKeyReal=anioActual+'-'+String(mesActualNum).padStart(2,'0');
+  var mesKeyReal=currentScopedKey();
   var recVencidos=_recurrentes.filter(function(r){
     var pagado=r.pagos&&r.pagos[mesKeyReal]===true;
-    return !pagado && r.dia<hoyReal;
+    return !pagado && (mes===mesActualNum ? r.dia<hoyReal : true);
   });
   if(recVencidos.length>0){
     var totalVenc=recVencidos.reduce(function(s,r){return s+(parseFloat(r.monto)||0);},0);
@@ -1813,6 +1973,19 @@ function generarSmartAlerts(rows, mes){
   });
 
   // 9. Día del mes con mayor concentración de gasto
+  (_creditos||[]).forEach(function(c){
+    var limite=parseFloat(c.limite)||0, usado=parseFloat(c.usado)||0, maxPct=parseFloat(c.maxPct)||30;
+    var usoPct=limite>0?Math.round(usado/limite*100):0;
+    var pago=parseInt(c.pago)||0;
+    var diasPago=pago?Math.ceil((new Date(selectedYear(),mes-1,pago)-new Date())/(1000*60*60*24)):99;
+    if(limite>0 && usoPct>maxPct){
+      alerts.push({nivel:usoPct>80?'alto':'medio',icon:'!',title:'Credito alto en '+c.nombre+': '+usoPct+'%',sub:'Tu maximo configurado es '+maxPct+'%. Usado: '+fmt(usado)+' de '+fmt(limite)+'.'});
+    }
+    if(pago && diasPago>=0 && diasPago<=5){
+      alerts.push({nivel:diasPago<=1?'alto':'medio',icon:'!',title:'Pago cercano: '+c.nombre,sub:'Fecha de pago dia '+pago+'. Quedan '+diasPago+' dias para revisar esta tarjeta.'});
+    }
+  });
+
   if(hoy2>=10){
     var byDay={};
     rows.filter(function(r){return r.tipo==='gasto'&&r.fecha;}).forEach(function(r){
@@ -1905,11 +2078,21 @@ function setPeriod(m){
   document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('p'+m).classList.add('active');
   var mob=document.getElementById('mobileSel'); if(mob) mob.value=m;
-  if(allRows.length) renderVista();
+  if(window._loadPresupuestos){
+    setSyncState('loading','Cargando '+monthNameFromKey(currentScopedKey())+'...');
+    loadMonthScopedState(true).then(function(){
+      setSyncState('ok','Sincronizado');
+      if(allRows.length) renderVista();
+    }).catch(function(e){
+      console.error(e);
+      setSyncState('err','Error de sincronizacion');
+      if(allRows.length) renderVista();
+    });
+  } else if(allRows.length) renderVista();
 }
 
-var viewNames={dashboard:'Dashboard',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas',calendario:'Calendario',recurrentes:'Recurrentes',patrimonio:'Patrimonio',ajustes:'Ajustes'};
-var viewIds=['vDashboard','vPresupuesto','vHistorial','vAlertas','vCalendario','vRecurrentes','vPatrimonio','vAjustes'];
+var viewNames={dashboard:'Dashboard',presupuesto:'Presupuesto',historial:'Historial',alertas:'Alertas',calendario:'Calendario',recurrentes:'Recurrentes',credito:'Credito',patrimonio:'Patrimonio',ajustes:'Ajustes'};
+var viewIds=['vDashboard','vPresupuesto','vHistorial','vAlertas','vCalendario','vRecurrentes','vCredito','vPatrimonio','vAjustes'];
 
 function showView(v,el){
   vistaActiva=v; currentPage=1;
@@ -1934,16 +2117,9 @@ function renderVista(){
   else if(vistaActiva==='alertas') renderAlertas();
   else if(vistaActiva==='calendario') renderCalendario();
   else if(vistaActiva==='recurrentes') renderRecurrentes();
+  else if(vistaActiva==='credito') renderCredito();
   else if(vistaActiva==='patrimonio'){
-    if(window._loadPatrimonio){
-      window._loadPatrimonio().then(function(d){
-        _activos=d.activos||[];
-        _pasivos=d.pasivos||[];
-        _patrimonioHistory=d.history||[];
-        _patrimonioMovimientos=d.movimientos||[];
-        renderPatrimonio();
-      }).catch(function(){ renderPatrimonio(); });
-    } else { renderPatrimonio(); }
+    renderPatrimonio();
   }
   else if(vistaActiva==='ajustes') renderStatsSystem();
 }
@@ -2028,7 +2204,7 @@ function renderDashboard(){
   document.getElementById('mGas').textContent=fmt(gas);
   document.getElementById('mBal').textContent=fmt(bal);
   document.getElementById('mAho').textContent=aho+'%';
-  document.getElementById('lblEvol').textContent=periodoActivo?meses[periodoActivo-1]:'anio';
+  document.getElementById('lblEvol').textContent=periodoActivo?meses[periodoActivo-1]:'año';
   var meta=window._metaAhorro||30;
   document.getElementById('dAho').textContent=aho>=meta?'Meta cumplida':'Meta: '+meta+'%';
   document.getElementById('dAho').className='m-delta'+(aho>=meta?' up':'');
@@ -2098,7 +2274,7 @@ function buildProyec(){
 /* METAS */
 /* PRESUPUESTO */
 function diasMes(m){ return new Date(new Date().getFullYear(),m,0).getDate(); }
-async function savePresupuestos(){ await window._savePresupuestos({cats:presupCat,subs:presupSub}); }
+async function savePresupuestos(){ await window._savePresupuestos({cats:presupCat,subs:presupSub}, currentScopedKey()); }
 function renderPresupuesto(){
   var mes=periodoActivo||(new Date().getMonth()+1);
   var rows=getRows(mes);
@@ -2337,7 +2513,7 @@ function buildPagination(total){
 function clearDateFilter(){var d=document.getElementById('fDesde'),h=document.getElementById('fHasta');if(d)d.value='';if(h)h.value='';filtrarTabla();}
 
 /* ALERTAS */
-function getLimites(){ return _settings.limites||{}; }
+function getLimites(){ return _alertLimits||{}; }
 function checkAlertas(rows){
   var limites=getLimites(),gas=rows.filter(function(r){return r.tipo==='gasto';}),bc={};
   gas.forEach(function(r){bc[r.categoria]=(bc[r.categoria]||0)+r.monto;});
@@ -2382,15 +2558,15 @@ function renderAlertas(){
 
   renderSobregiroAlertas();}
 function guardarAlerta(){
-  var prev=cloneData(_settings);
+  var prev=cloneData(_alertLimits);
   var cat=document.getElementById('alertCat').value,limit=parseFloat(document.getElementById('alertLimit').value);
   if(!cat||!limit||limit<=0){toast('Completa categoria y limite','err');return;}
-  var l=getLimites();l[cat]=limit;_settings.limites=l;
-  if(window._saveSettings){
-    window._saveSettings(_settings).then(function(){
+  var l=cloneData(getLimites());l[cat]=limit;_alertLimits=l;
+  if(window._saveAlertasConfig){
+    window._saveAlertasConfig({limites:_alertLimits}, currentScopedKey()).then(function(){
       document.getElementById('alertLimit').value=''; toast('Limite guardado para '+cat,'ok'); renderAlertas();
     }).catch(function(){
-      _settings=prev;
+      _alertLimits=prev;
       toast('No se pudo guardar en la nube','err');
       renderAlertas();
     });
@@ -2616,7 +2792,7 @@ function renderRecurrentes(){
     var nombre=document.createElement('div'); nombre.className='rec-item-nombre'; nombre.textContent=rec.nombre;
     var sub=document.createElement('div'); sub.className='rec-item-sub';
     sub.style.color=estadoColor;
-    sub.textContent=estadoTxt+(rec.categoria?' ? '+rec.categoria:'');
+    sub.textContent=estadoTxt+(rec.categoria?' - '+rec.categoria:'');
     info.appendChild(nombre); info.appendChild(sub);
 
     var monto=document.createElement('div');
@@ -2689,7 +2865,7 @@ async function confirmarRecEdit(){
   rec.dia       = parseInt(document.getElementById('reDia').value) || rec.dia;
   rec.categoria = document.getElementById('reCatEdit').value.trim() || rec.categoria;
   try{
-    await window._saveRecurrentes(_recurrentes);
+    await window._saveRecurrentes(_recurrentes,currentScopedKey());
     toast(rec.nombre+' actualizado','ok');
   }catch(e){ toast('Error guardando','err'); }
   hideRecEditModal();
@@ -2701,7 +2877,7 @@ async function confirmarRecDelete(){
   var nombre = _recurrentes[_recEditIdx].nombre;
   _recurrentes.splice(_recEditIdx,1);
   try{
-    await window._saveRecurrentes(_recurrentes);
+    await window._saveRecurrentes(_recurrentes,currentScopedKey());
     toast(nombre+' eliminado','info');
   }catch(e){ toast('Error eliminando','err'); }
   hideRecEditModal();
@@ -2719,7 +2895,7 @@ async function togglePagoRecurrente(idx2, mesKey, isPagado){
     toast(rec.nombre+' pagado en '+mesKey,'ok');
   }
   try{
-    await window._saveRecurrentes(_recurrentes);
+    await window._saveRecurrentes(_recurrentes,currentScopedKey());
   }catch(e){ toast('Error guardando','err'); }
   renderRecurrentes();
   // Update pocket using the current viewed period
@@ -2731,7 +2907,7 @@ async function agregarRecurrente(){
   var nombre=document.getElementById('recNombre').value.trim(),monto=parseFloat(document.getElementById('recMonto').value)||0,dia=parseInt(document.getElementById('recDia').value)||0,cat=document.getElementById('recCat').value;
   if(!nombre||!monto||!dia){toast('Completa todos los campos','err');return;}
   _recurrentes.push({nombre:nombre,monto:monto,dia:dia,categoria:cat||'General'});
-  try{await window._saveRecurrentes(_recurrentes);toast(nombre+' agregado','ok');}
+  try{await window._saveRecurrentes(_recurrentes,currentScopedKey());toast(nombre+' agregado','ok');}
   catch(e){_recurrentes=prev;toast('No se pudo guardar en la nube','err');}
   document.getElementById('recNombre').value='';document.getElementById('recMonto').value='';
   renderRecurrentes();
@@ -2739,7 +2915,7 @@ async function agregarRecurrente(){
 async function eliminarRecurrente(idx){
   var prev=cloneData(_recurrentes);
   _recurrentes.splice(idx,1);
-  try{await window._saveRecurrentes(_recurrentes);toast('Eliminado','info');}
+  try{await window._saveRecurrentes(_recurrentes,currentScopedKey());toast('Eliminado','info');}
   catch(e){_recurrentes=prev;toast('No se pudo eliminar en la nube','err');}
   renderRecurrentes();
 }
@@ -2747,6 +2923,70 @@ function checkRecurrentes(){
   var hoy=new Date().getDate();
   var hoyList=_recurrentes.filter(function(r){return r.dia===hoy;});
   if(hoyList.length>0) toast('Vencen hoy: '+hoyList.map(function(r){return r.nombre;}).join(', '),'info',6000);
+}
+
+/* CREDITO */
+function diasHastaDiaMes(dia){
+  dia=parseInt(dia)||0;
+  if(!dia) return null;
+  var objetivo=new Date(selectedYear(),selectedMonth()-1,dia);
+  return Math.ceil((objetivo-new Date())/(1000*60*60*24));
+}
+function renderCredito(){
+  var cont=document.getElementById('creditList'); if(!cont) return;
+  cont.innerHTML='';
+  if(!_creditos.length){
+    cont.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin tarjetas configuradas para '+monthNameFromKey(currentScopedKey())+'</div>';
+    return;
+  }
+  _creditos.forEach(function(c){
+    var limite=parseFloat(c.limite)||0, usado=parseFloat(c.usado)||0, maxPct=parseFloat(c.maxPct)||30;
+    var pct=limite>0?Math.min(100,Math.round(usado/limite*100)):0;
+    var pagoDias=diasHastaDiaMes(c.pago);
+    var corteDias=diasHastaDiaMes(c.corte);
+    var color=pct>80?'var(--red-tx)':pct>maxPct?'var(--gold)':'var(--green-tx)';
+    var div=document.createElement('div'); div.className='credit-card';
+    div.innerHTML='<div class="credit-head"><div><div class="credit-name">'+(c.nombre||'Tarjeta')+'</div><div class="credit-bank">'+(c.banco||'Banco')+' - '+monthNameFromKey(currentScopedKey())+'</div></div><button class="row-btn del" onclick="eliminarTarjetaCredito(\''+c.id+'\')">Eliminar</button></div>'+
+      '<div class="credit-metric"><div><span>Linea</span><strong>'+fmt(limite)+'</strong></div><div><span>Usado</span><strong style="color:'+color+'">'+fmt(usado)+' ('+pct+'%)</strong></div><div><span>Corte</span><strong>Dia '+(c.corte||'-')+'</strong></div><div><span>Pago</span><strong>Dia '+(c.pago||'-')+'</strong></div></div>'+
+      '<div class="credit-track"><div class="credit-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'+
+      '<div class="credit-alert">'+(pct>maxPct?'Uso sobre tu maximo configurado de '+maxPct+'%. ':'Uso dentro del margen configurado. ')+(pagoDias!==null&&pagoDias>=0&&pagoDias<=5?'Pago cercano en '+pagoDias+' dias. ':'')+(corteDias!==null&&corteDias>=0&&corteDias<=3?'Corte cercano en '+corteDias+' dias.':'')+'</div>'+
+      '<div style="display:flex;gap:6px;margin-top:10px"><button class="row-btn" onclick="editarUsoCredito(\''+c.id+'\')">Actualizar uso</button><button class="row-btn" onclick="editarTarjetaCredito(\''+c.id+'\')">Editar</button></div>';
+    cont.appendChild(div);
+  });
+}
+async function guardarCreditos(prev,msg){
+  try{ await window._saveCreditos(_creditos,currentScopedKey()); toast(msg||'Credito actualizado','ok'); }
+  catch(e){ if(prev) _creditos=prev; toast('No se pudo guardar en la nube','err'); }
+  renderCredito(); renderAlertas();
+}
+async function agregarTarjetaCredito(){
+  var n=document.getElementById('ccNombre').value.trim(), b=document.getElementById('ccBanco').value.trim();
+  var limite=parseFloat(document.getElementById('ccLimite').value)||0, usado=parseFloat(document.getElementById('ccUsado').value)||0;
+  var maxPct=parseFloat(document.getElementById('ccMaxPct').value)||30, corte=parseInt(document.getElementById('ccCorte').value)||0, pago=parseInt(document.getElementById('ccPago').value)||0;
+  if(!n||!limite||!corte||!pago){toast('Completa tarjeta, linea, corte y pago','err');return;}
+  var prev=cloneData(_creditos);
+  _creditos.push({id:Date.now().toString(),nombre:n,banco:b||'Banco',limite:limite,usado:usado,maxPct:maxPct,corte:corte,pago:pago});
+  ['ccNombre','ccBanco','ccLimite','ccUsado','ccMaxPct','ccCorte','ccPago'].forEach(function(id){document.getElementById(id).value='';});
+  await guardarCreditos(prev,'Tarjeta agregada');
+}
+async function editarUsoCredito(id){
+  var c=_creditos.find(function(x){return x.id===id;}); if(!c) return;
+  var v=parseFloat(prompt('Monto usado actual',c.usado||0)); if(isNaN(v)) return;
+  var prev=cloneData(_creditos); c.usado=v; await guardarCreditos(prev,'Uso actualizado');
+}
+async function editarTarjetaCredito(id){
+  var c=_creditos.find(function(x){return x.id===id;}); if(!c) return;
+  var prev=cloneData(_creditos);
+  var n=prompt('Nombre de tarjeta',c.nombre||''); if(n===null) return;
+  var limite=parseFloat(prompt('Linea de credito',c.limite||0)); if(isNaN(limite)) return;
+  var maxPct=parseFloat(prompt('Porcentaje maximo recomendado',c.maxPct||30)); if(isNaN(maxPct)) return;
+  c.nombre=n||c.nombre; c.limite=limite; c.maxPct=maxPct;
+  await guardarCreditos(prev,'Tarjeta actualizada');
+}
+async function eliminarTarjetaCredito(id){
+  var prev=cloneData(_creditos);
+  _creditos=_creditos.filter(function(x){return x.id!==id;});
+  await guardarCreditos(prev,'Tarjeta eliminada');
 }
 
 /* PATRIMONIO */
@@ -2757,6 +2997,17 @@ function getPatrimonioNeto(){
   var tA=_activos.reduce(function(s,a){return s+a.monto;},0);
   var tP=_pasivos.reduce(function(s,p){return s+p.monto;},0);
   return {activos:tA,pasivos:tP,neto:tA-tP};
+}
+function fmtMoneda(n,moneda){
+  var pre=moneda==='USD'?'$':(window._moneda||'S/');
+  return pre+' '+Math.abs(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function patrimonioPorMoneda(lista){
+  return (lista||[]).reduce(function(acc,item){
+    var m=item.moneda||'PEN';
+    acc[m]=(acc[m]||0)+(parseFloat(item.monto)||0);
+    return acc;
+  },{PEN:0,USD:0});
 }
 function registrarMovimientoPatrimonio(data){
   var netoInfo=getPatrimonioNeto();
@@ -2822,7 +3073,7 @@ async function eliminarMovimientoPatrimonio(id){
     var sob=_sobregiros.find(function(s){return s.registroId===mov.registroId && s.tipo==='AHORRO AGORA';});
     if(sob){
       sob.movimientoEliminado=true;
-      try{ await window._saveSobregiros(_sobregiros); }
+      try{ await window._saveSobregiros(_sobregiros,currentScopedKey()); }
       catch(e){
         _activos=prevActivos; _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _sobregiros=prevSob;
         toast('No se pudo guardar en la nube','err');
@@ -2853,13 +3104,14 @@ async function savePatrimonio(){
     pasivos:_pasivos,
     history:_patrimonioHistory,
     movimientos:_patrimonioMovimientos
-  });
+  }, currentScopedKey());
 }
 async function agregarActivo(){
   var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var n=document.getElementById('activoNombre').value.trim(),m=parseFloat(document.getElementById('activoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
-  _activos.push({id:Date.now().toString(),nombre:n,monto:m});
+  var moneda=document.getElementById('activoMoneda')?document.getElementById('activoMoneda').value:'PEN';
+  _activos.push({id:Date.now().toString(),nombre:n,monto:m,moneda:moneda});
   registrarMovimientoPatrimonio({tipo:'agrega',entidad:'activo',nombre:n,monto:m,motivo:'Activo agregado manualmente'});
   try{ await savePatrimonio(); toast(n+' agregado','ok'); }
   catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo guardar en la nube','err'); }
@@ -2870,7 +3122,8 @@ async function agregarPasivo(){
   var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
   var n=document.getElementById('pasivoNombre').value.trim(),m=parseFloat(document.getElementById('pasivoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
-  _pasivos.push({id:Date.now().toString(),nombre:n,monto:m});
+  var moneda=document.getElementById('pasivoMoneda')?document.getElementById('pasivoMoneda').value:'PEN';
+  _pasivos.push({id:Date.now().toString(),nombre:n,monto:m,moneda:moneda});
   registrarMovimientoPatrimonio({tipo:'agrega',entidad:'pasivo',nombre:n,monto:m,motivo:'Pasivo agregado manualmente'});
   try{ await savePatrimonio(); toast(n+' agregado','ok'); }
   catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo guardar en la nube','err'); }
@@ -2941,8 +3194,16 @@ function renderPatrimonio(){
   var tA=_activos.reduce(function(s,a){return s+a.monto;},0);
   var tP=_pasivos.reduce(function(s,p){return s+p.monto;},0);
   var neto=tA-tP;
+  var activosM=patrimonioPorMoneda(_activos), pasivosM=patrimonioPorMoneda(_pasivos);
+  var kpis=document.getElementById('patriKpis');
+  if(kpis){
+    kpis.innerHTML='<div class="patri-kpi"><div class="patri-kpi-lbl">Activos PEN</div><div class="patri-kpi-val pos">'+fmtMoneda(activosM.PEN,'PEN')+'</div></div>'+
+      '<div class="patri-kpi"><div class="patri-kpi-lbl">Pasivos PEN</div><div class="patri-kpi-val neg">'+fmtMoneda(pasivosM.PEN,'PEN')+'</div></div>'+
+      '<div class="patri-kpi"><div class="patri-kpi-lbl">Activos USD</div><div class="patri-kpi-val pos">'+fmtMoneda(activosM.USD,'USD')+'</div></div>'+
+      '<div class="patri-kpi"><div class="patri-kpi-lbl">Pasivos USD</div><div class="patri-kpi-val neg">'+fmtMoneda(pasivosM.USD,'USD')+'</div></div>';
+  }
   var sum=document.getElementById('netoSummary');if(!sum)return;
-  sum.innerHTML='<div class="neto-card"><div class="neto-lbl">Total activos</div><div class="neto-val pos">'+fmt(tA)+'</div></div><div class="neto-card"><div class="neto-lbl">Total pasivos</div><div class="neto-val neg">'+fmt(tP)+'</div></div><div class="neto-card"><div class="neto-lbl">Patrimonio neto</div><div class="neto-val '+(neto>=0?'neu':'neg')+'">'+fmt(neto)+'</div></div>';
+  sum.innerHTML='<div class="neto-card"><div class="neto-lbl">Total activos</div><div class="neto-val pos">'+fmt(tA)+'</div></div><div class="neto-card"><div class="neto-lbl">Total pasivos</div><div class="neto-val neg">'+fmt(tP)+'</div></div><div class="neto-card"><div class="neto-lbl">Patrimonio neto referencial</div><div class="neto-val '+(neto>=0?'neu':'neg')+'">'+fmt(neto)+'</div></div>';
   var aL=document.getElementById('activosList'),pL=document.getElementById('pasivosList');
   if(aL){
   aL.innerHTML='';
@@ -2955,7 +3216,7 @@ function renderPatrimonio(){
     var row=document.createElement('div'); row.className='neto-item';
     var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=a.nombre;
     var right=document.createElement('div'); right.style.cssText='display:flex;align-items:center;gap:6px';
-    var val=document.createElement('div'); val.className='neto-item-val pos'; val.textContent=fmt(a.monto);
+    var val=document.createElement('div'); val.className='neto-item-val pos'; val.textContent=fmtMoneda(a.monto,a.moneda||'PEN');
     var btnE=document.createElement('button'); btnE.textContent='Editar';
     btnE.style.cssText='font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:IBM Plex Sans,sans-serif';
     btnE.onclick=(function(id){return function(){editarPatrimonio('activo',id);};})(a.id);
@@ -2976,7 +3237,7 @@ function renderPatrimonio(){
     var row=document.createElement('div'); row.className='neto-item';
     var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=p.nombre;
     var right=document.createElement('div'); right.style.cssText='display:flex;align-items:center;gap:6px';
-    var val=document.createElement('div'); val.className='neto-item-val neg'; val.textContent=fmt(p.monto);
+    var val=document.createElement('div'); val.className='neto-item-val neg'; val.textContent=fmtMoneda(p.monto,p.moneda||'PEN');
     var btnE=document.createElement('button'); btnE.textContent='Editar';
     btnE.style.cssText='font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:IBM Plex Sans,sans-serif';
     btnE.onclick=(function(id){return function(){editarPatrimonio('pasivo',id);};})(p.id);
@@ -3016,7 +3277,7 @@ function renderPatrimonio(){
         var detalles=[mov.fecha||'', mov.categoria||'PATRIMONIO'];
         if(mov.subcategoria) detalles.push(mov.subcategoria);
         if(mov.saldoPosterior!==undefined&&mov.saldoPosterior!==null) detalles.push('Patrimonio neto: '+fmt(mov.saldoPosterior));
-        sub.textContent=detalles.filter(Boolean).join(' ? ');
+        sub.textContent=detalles.filter(Boolean).join(' - ');
         actions.appendChild(amt); actions.appendChild(btnDel);
         top.appendChild(title); top.appendChild(actions);
         body.appendChild(top); body.appendChild(sub);
@@ -3181,7 +3442,7 @@ function renderStatsSystem(){
 /* EXPORTAR PDF */
 function exportarPDF(){
   var rows=getRows(periodoActivo);
-  var periodo=periodoActivo?meses[periodoActivo-1]:'A?o completo';
+  var periodo=periodoActivo?meses[periodoActivo-1]:'Año completo';
   var ing=rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
   var gas=rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
   var bal=ing-gas,aho=ing>0?Math.round(bal/ing*100):0;
@@ -3205,7 +3466,8 @@ function exportarPDF(){
   doc.setFontSize(7);doc.setTextColor(82,80,92);
   doc.text('FECHA',m+2,y+4.5);doc.text('DESCRIPCION',m+28,y+4.5);doc.text('CATEGORIA',m+90,y+4.5);doc.text('TIPO',m+130,y+4.5);doc.text('MONTO',W-m-2,y+4.5,{align:'right'});
   y+=9;
-  rows.slice(0,40).forEach(function(r,i){
+  var pdfRows=rows.slice(0,40);
+  pdfRows.forEach(function(r,i){
     if(y>270){doc.addPage();y=20;}
     if(i%2===0){doc.setFillColor(17,17,20);doc.rect(m,y-2,W-m*2,7,'F');}
     var isG=r.tipo==='gasto';
@@ -3218,6 +3480,12 @@ function exportarPDF(){
     doc.text((isG?'-':'+')+fmt(r.monto),W-m-2,y+3,{align:'right'});
     doc.setTextColor(168,166,160);y+=7;
   });
+  if(rows.length>pdfRows.length){
+    if(y>262){doc.addPage();y=20;}
+    doc.setFontSize(8);doc.setTextColor(201,168,76);
+    doc.text('Reporte resumido: se muestran '+pdfRows.length+' de '+rows.length+' movimientos. Exporta Excel para el detalle completo.',m,y+6);
+    toast('PDF resumido: '+pdfRows.length+' de '+rows.length+' movimientos. Excel incluye el detalle completo.','info',6000);
+  }
   var pages=doc.getNumberOfPages();
   for(var p=1;p<=pages;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(52,50,60);doc.text('Finanzas Personales - Reporte confidencial',m,290);doc.text('Pag '+p+'/'+pages,W-m,290,{align:'right'});doc.setFillColor(201,168,76);doc.rect(0,292,W,2,'F');}
   doc.save('finanzas_'+periodo.toLowerCase().replace(/ /g,'_')+'.pdf');
@@ -3227,12 +3495,42 @@ function exportarPDF(){
 /* EXPORTAR EXCEL */
 function exportarExcel(){
   var rows=getRows(periodoActivo);
+  var periodo=periodoActivo?mesesFull[periodoActivo-1]:'Año completo';
+  var ing=rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
+  var gas=rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
+  var wb=XLSX.utils.book_new();
+  var resumen=[
+    ['INFORME FINANCIERO PERSONAL'],
+    ['Periodo',periodo],
+    ['Generado',new Date().toLocaleString('es-PE')],
+    [],
+    ['Indicador','Monto'],
+    ['Ingresos',ing],
+    ['Gastos',gas],
+    ['Balance',ing-gas],
+    ['Tasa de ahorro',ing>0?Math.round((ing-gas)/ing*100)+'%':'0%'],
+    [],
+    ['Categoria','Gasto']
+  ];
+  var byCat={}; rows.filter(function(r){return r.tipo==='gasto';}).forEach(function(r){byCat[r.categoria]=(byCat[r.categoria]||0)+r.monto;});
+  Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a];}).forEach(function(c){resumen.push([c,byCat[c]]);});
+  var wsResumen=XLSX.utils.aoa_to_sheet(resumen);
+  wsResumen['!cols']=[{wch:28},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,wsResumen,'Resumen');
   var data=[['Fecha Real','Fecha Ingreso','Hora Ingreso','Tipo','Monto','Categoria','Subcategoria','Descripcion','Nota','Etiquetas']];
   rows.forEach(function(r){data.push([r.fecha||'',r.fecha_ingreso||'',r.hora_ingreso||'',r.tipo,r.monto,r.categoria,r.subcategoria,r.descripcion,r.nota||'',(r.etiquetas||[]).join(', ')]);});
-  var ws=XLSX.utils.aoa_to_sheet(data),wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Registros');
+  var ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:12},{wch:14},{wch:12},{wch:10},{wch:12},{wch:18},{wch:18},{wch:32},{wch:24},{wch:18}];
+  ws['!autofilter']={ref:'A1:J'+Math.max(1,data.length)};
+  XLSX.utils.book_append_sheet(wb,ws,'Movimientos');
+  var presup=[['Categoria','Presupuesto mensual','Presupuesto diario','Gastado','Diferencia']];
+  Object.keys(presupCat).forEach(function(c){var g=byCat[c]||0, p=presupCat[c].mensual||0; presup.push([c,p,presupCat[c].diario||0,g,p-g]);});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(presup),'Presupuesto');
+  var cred=[['Tarjeta','Banco','Linea','Usado','% Uso','% Max','Corte','Pago']];
+  (_creditos||[]).forEach(function(c){var pct=c.limite?Math.round((c.usado||0)/c.limite*100):0; cred.push([c.nombre,c.banco,c.limite,c.usado,pct,c.maxPct,c.corte,c.pago]);});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cred),'Credito');
   XLSX.writeFile(wb,'finanzas_'+(periodoActivo?meses[periodoActivo-1]:'anual').toLowerCase()+'.xlsx');
-  toast('Excel exportado','ok');
+  toast('Excel profesional exportado','ok');
 }
 
 /* SYNC STATE */
@@ -3240,29 +3538,18 @@ function setSyncState(s,t){document.getElementById('syncDot').className='sync-do
 
 /* INIT */
 window.onAppReady = async function(){
-  setPeriod(new Date().getMonth()+1);
+  periodoActivo=new Date().getMonth()+1;
+  document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('p'+periodoActivo).classList.add('active');
+  var mob=document.getElementById('mobileSel'); if(mob) mob.value=periodoActivo;
   document.getElementById('vDashboard').style.display='block';
   document.getElementById('vDashboard').classList.add('view-active');
   setSyncState('loading','Cargando...');
   handleResize();
 
   var safe=function(fn,def){ return Promise.resolve().then(fn).catch(function(e){ console.error('load error:',e); return def; }); };
-  var results=await Promise.all([
-    safe(function(){return window._loadPresupuestos();},{cats:{},subs:{}}),
-    safe(function(){return window._loadSettings();},{}),
-    safe(function(){return window._loadRecurrentes();}, []),
-    safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[],movimientos:[]}),
-    safe(function(){return window._loadSobregiros();}, [])
-  ]);
-  presupCat=results[0].cats||{};presupSub=results[0].subs||{};
-  _settings=results[1];
-  _recurrentes=results[2];
-  _activos=results[3].activos||[];
-  _pasivos=results[3].pasivos||[];
-  _patrimonioHistory=results[3].history||[];
-  _patrimonioMovimientos=results[3].movimientos||[];
-  _sobregiros=dedupeSobregirosLista(results[4]||[]);
-
+  _settings=await safe(function(){return window._loadSettings();},{});
+  await loadMonthScopedState(true);
 
   if(_settings.dashName) document.getElementById('dashName').textContent=_settings.dashName;
   if(_settings.moneda){window._moneda=_settings.moneda;var cm=document.getElementById('cfgMoneda');if(cm)cm.value=_settings.moneda;}

@@ -1173,7 +1173,7 @@ window._saveMetas        = async (l)   => { console.log('[FB] _saveMetas called,
 window._loadRecurrentes  = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/recurrentes' : 'config/recurrentes'), {lista:[]}); return d.lista || []; };
 window._saveRecurrentes  = (l,k)       => saveDoc(up(k ? 'months/'+k+'/config/recurrentes' : 'config/recurrentes'), {lista: l});
 window._loadPatrimonio   = (k)         => loadDoc(up(k ? 'months/'+k+'/config/patrimonio' : 'config/patrimonio'), {activos:[], pasivos:[], history:[], movimientos:[]});
-window._savePatrimonio   = (d,k)       => saveDoc(up(k ? 'months/'+k+'/config/patrimonio' : 'config/patrimonio'), d);
+window._savePatrimonio   = (d)         => saveDoc(up('config/patrimonio'), d);
 window._loadSobregiros   = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/sobregiros' : 'config/sobregiros'), {lista:[]}); return d.lista||[]; };
 window._saveSobregiros   = async (l,k) => { await saveDoc(up(k ? 'months/'+k+'/config/sobregiros' : 'config/sobregiros'), {lista:l}); };
 window._loadAlertasConfig= async (k)   => loadDoc(up(k ? 'months/'+k+'/config/alertas' : 'config/alertas'), {limites:{}});
@@ -1257,23 +1257,24 @@ async function loadMonthScopedState(force){
   if(!force && _currentMonthKey===key) return;
   _loadingMonth=true;
   var safe=function(fn,def){ return Promise.resolve().then(fn).catch(function(e){ console.error('month load error:',e); return def; }); };
-  var legacyNeeded=!_currentMonthKey;
   var results=await Promise.all([
     safe(function(){return window._loadPresupuestos(key);},{cats:{},subs:{}}),
     safe(function(){return window._loadRecurrentes(key);},[]),
-    safe(function(){return window._loadPatrimonio(key);},{activos:[],pasivos:[],history:[],movimientos:[]}),
+    safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[],movimientos:[]}),
     safe(function(){return window._loadSobregiros(key);},[]),
     safe(function(){return window._loadAlertasConfig(key);},{limites:{}}),
     safe(function(){return window._loadCreditos(key);},[])
   ]);
-  if(legacyNeeded && !(Object.keys(results[0].cats||{}).length || Object.keys(results[0].subs||{}).length)){
+  if(!(Object.keys(results[0].cats||{}).length || Object.keys(results[0].subs||{}).length)){
     var oldPres=await safe(function(){return window._loadPresupuestos();},{cats:{},subs:{}});
     if(Object.keys(oldPres.cats||{}).length || Object.keys(oldPres.subs||{}).length) results[0]=oldPres;
   }
-  if(legacyNeeded && !results[1].length) results[1]=await safe(function(){return window._loadRecurrentes();},[]);
-  if(legacyNeeded && !(results[2].activos||[]).length && !(results[2].pasivos||[]).length) results[2]=await safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[],movimientos:[]});
-  if(legacyNeeded && !results[3].length) results[3]=await safe(function(){return window._loadSobregiros();},[]);
-  var oldAlerts=legacyNeeded ? await safe(function(){return window._loadAlertasConfig();},{limites:{}}) : {limites:{}};
+  if(!results[1].length) results[1]=await safe(function(){return window._loadRecurrentes();},[]);
+  if(!(results[2].activos||[]).length && !(results[2].pasivos||[]).length){
+    results[2]=await safe(function(){return window._loadPatrimonio(key);},{activos:[],pasivos:[],history:[],movimientos:[]});
+  }
+  if(!results[3].length) results[3]=await safe(function(){return window._loadSobregiros();},[]);
+  var oldAlerts=await safe(function(){return window._loadAlertasConfig();},{limites:{}});
   presupCat=results[0].cats||{}; presupSub=results[0].subs||{};
   _recurrentes=results[1]||[];
   _activos=(results[2].activos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; return x; });
@@ -3104,7 +3105,7 @@ async function savePatrimonio(){
     pasivos:_pasivos,
     history:_patrimonioHistory,
     movimientos:_patrimonioMovimientos
-  }, currentScopedKey());
+  });
 }
 async function agregarActivo(){
   var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);

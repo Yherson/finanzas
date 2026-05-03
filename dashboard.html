@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Finanzas Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="fav_dashboard.svg">
-<link rel="manifest" href="manifest.json">
-<meta name="description" content="Panel de control financiero personal con dashboard ejecutivo, credito inteligente y patrimonio.">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 
@@ -551,6 +549,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .year-sel{min-width:86px;font-family:'IBM Plex Mono',monospace;font-size:10px;}
 .report-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px;}
 
+
 /* ── RECURRENTES MEJORADO ── */
 .rec-item{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);gap:8px;}
 .rec-item:last-child{border-bottom:none;}
@@ -565,86 +564,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .rec-paid-btn:hover{background:var(--green-d);color:var(--green-tx);border-color:rgba(90,170,128,.4);}
 .rec-paid-btn.active{background:var(--green-d);color:var(--green-tx);border-color:rgba(90,170,128,.4);}
 
-/* ── COMMAND PALETTE (Ctrl+K) ── */
-.cmdpal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-start;justify-content:center;padding-top:80px;}
-.cmdpal-ov.show{display:flex;}
-.cmdpal-box{width:100%;max-width:580px;background:var(--s1);border:1px solid var(--border2);border-radius:6px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);}
-.cmdpal-inp-wrap{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
-.cmdpal-icon{color:var(--muted);flex-shrink:0;}
-.cmdpal-inp{flex:1;background:none;border:none;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
-.cmdpal-inp::placeholder{color:var(--muted);}
-.cmdpal-kbd{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);background:var(--s3);border:1px solid var(--border2);padding:2px 6px;border-radius:3px;flex-shrink:0;}
-.cmdpal-results{max-height:360px;overflow-y:auto;}
-.cmdpal-section{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:10px 16px 4px;}
-.cmdpal-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent;}
-.cmdpal-item:hover,.cmdpal-item.active{background:var(--s2);border-left-color:var(--gold);}
-.cmdpal-item-icon{width:24px;height:24px;border-radius:4px;background:var(--s3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
-.cmdpal-item-info{flex:1;}
-.cmdpal-item-name{font-size:12px;color:var(--text);}
-.cmdpal-item-sub{font-size:10px;color:var(--muted);margin-top:1px;}
-.cmdpal-item-badge{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;padding:2px 6px;background:var(--s3);border-radius:3px;flex-shrink:0;}
-.cmdpal-footer{padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:14px;}
-.cmdpal-hint{font-size:9px;color:var(--muted);display:flex;align-items:center;gap:4px;}
-.cmdpal-hint kbd{font-family:'IBM Plex Mono',monospace;background:var(--s3);border:1px solid var(--border2);padding:1px 5px;border-radius:2px;font-size:8px;}
-
-/* ── HEATMAP ANUAL ── */
-.heatmap-wrap{overflow-x:auto;padding-bottom:4px;}
-.heatmap-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,14px);gap:3px;width:max-content;}
-.heat-cell{width:14px;height:14px;border-radius:2px;cursor:pointer;transition:opacity .15s;}
-.heat-cell:hover{opacity:.75;ring:2px solid var(--gold);}
-.heat-month-labels{display:flex;gap:0;width:max-content;margin-bottom:4px;}
-.heat-month-lbl{font-size:8px;color:var(--muted);letter-spacing:.5px;}
-.heat-day-labels{display:grid;grid-template-rows:repeat(7,14px);gap:3px;margin-right:4px;flex-shrink:0;}
-.heat-day-lbl{font-size:8px;color:var(--muted);line-height:14px;}
-.heatmap-container{display:flex;align-items:flex-start;}
-
-/* ── REGLA 50/30/20 ── */
-.rule-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
-.rule-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:14px 16px;position:relative;overflow:hidden;}
-.rule-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.rule-card.needs::before{background:#6a9acc;}
-.rule-card.wants::before{background:var(--gold);}
-.rule-card.savings::before{background:var(--green-tx);}
-.rule-lbl{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.rule-target{font-size:9px;color:var(--muted);margin-bottom:8px;}
-.rule-val{font-family:'IBM Plex Mono',monospace;font-size:18px;margin-bottom:4px;}
-.rule-val.ok{color:var(--green-tx);}
-.rule-val.warn{color:var(--gold);}
-.rule-val.bad{color:var(--red-tx);}
-.rule-track{width:100%;height:3px;background:var(--border2);border-radius:2px;overflow:hidden;margin-bottom:4px;}
-.rule-fill{height:100%;border-radius:2px;transition:width .8s ease;}
-.rule-pct{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
-
-/* ── MODAL CIERRE DE MES ── */
-.month-close-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:450;align-items:center;justify-content:center;padding:20px;}
-.month-close-ov.show{display:flex;}
-.month-close-box{width:100%;max-width:460px;background:var(--s1);border:1px solid var(--border2);border-radius:6px;padding:28px;}
-.month-close-header{text-align:center;margin-bottom:20px;}
-.month-close-icon{font-size:32px;margin-bottom:8px;}
-.month-close-title{font-family:'IBM Plex Serif',serif;font-size:18px;color:var(--text);margin-bottom:6px;}
-.month-close-sub{font-size:11px;color:var(--muted);line-height:1.6;}
-.month-close-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0;}
-.month-close-kpi{background:var(--s2);border:1px solid var(--border);border-radius:3px;padding:10px 12px;text-align:center;}
-.month-close-kpi-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.month-close-kpi-val{font-family:'IBM Plex Mono',monospace;font-size:16px;}
-.month-close-btns{display:flex;gap:8px;margin-top:16px;}
-
-/* ── MÉTODO PAGO BADGE (historial) ── */
-.mp-badge{display:inline-block;padding:2px 6px;border-radius:8px;font-size:8px;letter-spacing:.3px;border:1px solid var(--border2);background:var(--s3);color:var(--muted);}
-.mp-badge.efectivo{border-color:rgba(90,170,128,.3);color:var(--green-tx);background:var(--green-d);}
-.mp-badge.debito{border-color:rgba(106,154,204,.3);color:#6a9acc;background:rgba(106,154,204,.1);}
-.mp-badge.credito{border-color:var(--gold-b);color:var(--gold);background:var(--gold-d);}
-.mp-badge.yape{border-color:rgba(160,136,204,.3);color:#a088cc;background:rgba(160,136,204,.1);}
-.mp-badge.plin{border-color:rgba(90,170,128,.3);color:#5aaa80;background:var(--green-d);}
-
-/* ── SWIPE (mobile) ── */
-@media(max-width:768px){
-  .swipe-row{position:relative;overflow:hidden;transition:transform .2s;}
-  .swipe-actions{position:absolute;right:0;top:0;bottom:0;display:flex;align-items:stretch;}
-  .swipe-action{padding:0 16px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;}
-  .swipe-action.edit{background:var(--s3);color:var(--text2);}
-  .swipe-action.del{background:var(--red-d);color:var(--red-tx);}
-}
 </style>
 </head>
 <body>
@@ -728,40 +647,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 </div>
 
 <div class="sb-overlay" id="sbOverlay" style="display:none;position:fixed;inset:0;z-index:45;" onclick="closeSidebar()"></div>
-
-<!-- COMMAND PALETTE Ctrl+K -->
-<div class="cmdpal-ov" id="cmdpalOv" onclick="if(event.target===this)closeCmdPal()">
-  <div class="cmdpal-box">
-    <div class="cmdpal-inp-wrap">
-      <svg class="cmdpal-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <input class="cmdpal-inp" id="cmdpalInp" placeholder="Buscar vistas, registros, acciones..." autocomplete="off" oninput="cmdpalSearch(this.value)" onkeydown="cmdpalKeydown(event)">
-      <span class="cmdpal-kbd">ESC</span>
-    </div>
-    <div class="cmdpal-results" id="cmdpalResults"></div>
-    <div class="cmdpal-footer">
-      <span class="cmdpal-hint"><kbd>↑↓</kbd> navegar</span>
-      <span class="cmdpal-hint"><kbd>↵</kbd> abrir</span>
-      <span class="cmdpal-hint"><kbd>ESC</kbd> cerrar</span>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CIERRE DE MES -->
-<div class="month-close-ov" id="monthCloseOv">
-  <div class="month-close-box">
-    <div class="month-close-header">
-      <div class="month-close-icon">📊</div>
-      <div class="month-close-title" id="monthCloseTitle">Resumen del mes</div>
-      <div class="month-close-sub" id="monthCloseSub">Tu resumen financiero del mes anterior</div>
-    </div>
-    <div class="month-close-kpis" id="monthCloseKpis"></div>
-    <div class="month-close-btns">
-      <button class="mbtn mbtn-save" onclick="exportarPDF();closeMonthClose()">Exportar PDF</button>
-      <button class="mbtn" style="background:var(--s2);border:1px solid var(--border2);color:var(--text2)" onclick="exportarExcel();closeMonthClose()">Exportar Excel</button>
-      <button class="mbtn mbtn-cancel" onclick="closeMonthClose()">Cerrar</button>
-    </div>
-  </div>
-</div>
 
 <div class="app" id="app">
 <nav class="sidebar" id="sidebar">
@@ -859,7 +744,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <select class="s-sel mobile-sel" id="mobileYearSel" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px" onchange="setYear(parseInt(this.value))"></select>
       <button class="tb-btn desktop-only" onclick="exportarPDF()">PDF</button>
       <button class="tb-btn desktop-only" onclick="exportarExcel()">Excel</button>
-      <button class="tb-btn" onclick="openCmdPal()" title="Ctrl+K — Buscar todo" style="border-color:var(--gold-b);color:var(--gold);font-family:'IBM Plex Mono',monospace">⌘K</button>
     </div>
   </div>
 
@@ -870,30 +754,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
       <div class="loading-wrap" id="loading"><div class="spinner"></div><div class="loading-txt">Cargando datos...</div></div>
       <div class="page" id="dashPage" style="display:none">
         <div class="alert-banner" id="alertBanner"><span id="alertMsg"></span></div>
-        <!-- REGLA 50/30/20 -->
-        <div class="rule-wrap" id="ruleWrap" style="display:none">
-          <div class="rule-card needs">
-            <div class="rule-lbl">Necesidades</div>
-            <div class="rule-target" id="ruleNeedsTarget">Meta: 50%</div>
-            <div class="rule-val" id="ruleNeedsVal">--</div>
-            <div class="rule-track"><div class="rule-fill" id="ruleNeedsFill" style="background:#6a9acc"></div></div>
-            <div class="rule-pct" id="ruleNeedsPct">0%</div>
-          </div>
-          <div class="rule-card wants">
-            <div class="rule-lbl">Deseos</div>
-            <div class="rule-target" id="ruleWantsTarget">Meta: 30%</div>
-            <div class="rule-val" id="ruleWantsVal">--</div>
-            <div class="rule-track"><div class="rule-fill" id="ruleWantsFill" style="background:var(--gold)"></div></div>
-            <div class="rule-pct" id="ruleWantsPct">0%</div>
-          </div>
-          <div class="rule-card savings">
-            <div class="rule-lbl">Ahorro / Deuda</div>
-            <div class="rule-target" id="ruleSavTarget">Meta: 20%</div>
-            <div class="rule-val" id="ruleSavVal">--</div>
-            <div class="rule-track"><div class="rule-fill" id="ruleSavFill" style="background:var(--green-tx)"></div></div>
-            <div class="rule-pct" id="ruleSavPct">0%</div>
-          </div>
-        </div>
         <div class="score-wrap" id="scoreWrap">
           <div class="score-circle"><div class="score-ring" id="scoreRing"></div><div class="score-num" id="scoreNum">--</div><div class="score-lbl">Score</div></div>
           <div class="score-info">
@@ -996,7 +856,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Fecha real</th><th>Fecha ingreso</th><th>Descripcion</th><th>Categoria</th><th style="text-align:right">Monto</th><th>Pago</th><th>Tipo</th><th></th></tr></thead>
+              <thead><tr><th>Fecha real</th><th>Fecha ingreso</th><th>Descripcion</th><th>Categoria</th><th style="text-align:right">Monto</th><th>Tipo</th><th></th></tr></thead>
               <tbody id="tablaBody"></tbody>
             </table>
           </div>
@@ -1004,24 +864,6 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
             <div class="tbl-count" id="tblCount"></div>
             <div class="pagination" id="pagination"></div>
           </div>
-          <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:center;gap:8px">
-            <button class="tb-btn" onclick="renderHeatmap()" style="font-size:9px">&#x1F525; Ver heatmap anual</button>
-            <span style="font-size:9px;color:var(--muted)">Presiona ? para ver todos los atajos</span>
-          </div>
-        </div>
-        <!-- HEATMAP ANUAL -->
-        <div id="heatmapSection" class="card" style="display:none;margin-top:8px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div class="card-title" style="margin-bottom:0">Mapa de calor anual — gastos por dia</div>
-            <button class="tb-btn" onclick="document.getElementById('heatmapSection').style.display='none'">Ocultar</button>
-          </div>
-          <div class="heatmap-container">
-            <div class="heat-day-labels">
-              <div class="heat-day-lbl">D</div><div class="heat-day-lbl">L</div><div class="heat-day-lbl">M</div><div class="heat-day-lbl">M</div><div class="heat-day-lbl">J</div><div class="heat-day-lbl">V</div><div class="heat-day-lbl">S</div>
-            </div>
-            <div class="heatmap-wrap"><div class="heatmap-grid" id="heatmapGrid"></div></div>
-          </div>
-          <div class="heat-legend" id="heatLegend" style="margin-top:8px"></div>
         </div>
       </div>
     </div>
@@ -2763,12 +2605,10 @@ function filtrarTabla(){
   var pageRows=filtered.slice(start,start+PAGE_SIZE);
   var tbody=document.getElementById('tablaBody'); if(!tbody) return;
   tbody.innerHTML='';
-  if(!pageRows.length){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted);font-size:12px">Sin registros para este periodo</td></tr>'; }
+  if(!pageRows.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:12px">Sin registros para este periodo</td></tr>'; }
   else pageRows.forEach(function(r){
     var isG=r.tipo==='gasto';
     var tr=document.createElement('tr');
-    tr.setAttribute('data-swipeable','1');
-    tr.setAttribute('data-row-id',r.id||'');
     var t1=document.createElement('td');t1.setAttribute('data-label','Fecha');t1.style.fontFamily="'IBM Plex Mono',monospace";t1.textContent=r.fecha||'-';tr.appendChild(t1);
     var t2=document.createElement('td');t2.setAttribute('data-label','Ingresado');t2.style.color='var(--muted)';t2.style.fontSize='11px';t2.style.fontFamily="'IBM Plex Mono',monospace";t2.textContent=(r.fecha_ingreso||'-')+(r.hora_ingreso?' '+r.hora_ingreso:'');tr.appendChild(t2);
     var t3=document.createElement('td');t3.className='td-main';t3.setAttribute('data-label','Descripcion');t3.textContent=r.descripcion||'-';
@@ -2776,9 +2616,6 @@ function filtrarTabla(){
     tr.appendChild(t3);
     var t4=document.createElement('td');t4.setAttribute('data-label','Categoria');t4.textContent=(r.categoria||'-')+(r.subcategoria?' / '+r.subcategoria:'');tr.appendChild(t4);
     var t5=document.createElement('td');t5.className='td-amt '+(isG?'r':'g');t5.setAttribute('data-label','Monto');t5.style.textAlign='right';t5.textContent=(isG?'-':'+')+fmt(r.monto);tr.appendChild(t5);
-    var tPago=document.createElement('td');tPago.setAttribute('data-label','Pago');
-    var mp=r.metodo_pago||'';if(mp){var mpBadge=document.createElement('span');mpBadge.className='mp-badge '+mp;mpBadge.textContent=mp.charAt(0).toUpperCase()+mp.slice(1);tPago.appendChild(mpBadge);} else tPago.innerHTML='<span style="color:var(--muted);font-size:10px">—</span>';
-    tr.appendChild(tPago);
     var t6=document.createElement('td');t6.setAttribute('data-label','Tipo');var b=document.createElement('div');b.className='badge '+(isG?'r':'g');b.textContent=r.tipo;t6.appendChild(b);tr.appendChild(t6);
     var t7=document.createElement('td');t7.setAttribute('data-label','');var wrap=document.createElement('div');wrap.className='row-actions';
     var be=document.createElement('button');be.className='row-btn';be.textContent='Editar';be.onclick=(function(rec){return function(){showEditModal(rec);};})(r);
@@ -3999,349 +3836,8 @@ window.onAppReady = async function(){
   });
 };
 
-document.addEventListener('DOMContentLoaded',function(){ handleResize(); initKeyboardShortcuts(); initSwipeGestures(); checkMonthClose(); registerPWA(); });
+document.addEventListener('DOMContentLoaded',function(){ handleResize(); });
 
-/* ══════════════════════════════════════════════
-   PERFORMANCE: Map index para getRows O(1)
-══════════════════════════════════════════════ */
-var _rowsIndex = new Map();
-var _getRowsOrig = getRows;
-function _rebuildIndex(){
-  _rowsIndex.clear();
-  allRows.forEach(function(r){
-    if(!r.mes) return;
-    var yr = r.anio||String(r.mes).split('-')[0]||'';
-    var key = yr+'-'+String(r.mes).padStart ? (r.anio+'-'+String(r.mes).padStart(2,'0')) : r.mes;
-    if(!_rowsIndex.has(key)) _rowsIndex.set(key,[]);
-    _rowsIndex.get(key).push(r);
-  });
-}
-var _origProcessRows = processRows;
-function processRows(rows){
-  var result = _origProcessRows(rows);
-  _rebuildIndex();
-  return result;
-}
-
-/* ══════════════════════════════════════════════
-   PERFORMANCE: Debounce renderVista
-══════════════════════════════════════════════ */
-var _renderVistaTimer = null;
-var _renderVistaCore = renderVista;
-renderVista = function(){
-  clearTimeout(_renderVistaTimer);
-  _renderVistaTimer = setTimeout(_renderVistaCore, 80);
-};
-
-/* ══════════════════════════════════════════════
-   PERFORMANCE: Lazy-load de vistas
-══════════════════════════════════════════════ */
-var _viewRendered = new Set();
-var _origShowView = showView;
-showView = function(v, el){
-  _origShowView(v, el);
-};
-
-/* ══════════════════════════════════════════════
-   COMMAND PALETTE (Ctrl+K)
-══════════════════════════════════════════════ */
-var _cmdpalIdx = 0;
-var _cmdpalItems = [];
-var _cmdpalActions = [
-  {icon:'⊞',name:'Dashboard',sub:'Vista principal',badge:'D',fn:function(){showView('dashboard',document.querySelector('.nav-item'));}},
-  {icon:'📋',name:'Presupuesto',sub:'Gestion por categoria',badge:'P',fn:function(){var el=document.querySelectorAll('.nav-item')[1];showView('presupuesto',el);}},
-  {icon:'📜',name:'Historial',sub:'Todos los movimientos',badge:'H',fn:function(){var el=document.querySelectorAll('.nav-item')[2];showView('historial',el);}},
-  {icon:'🔔',name:'Alertas',sub:'Limites y alertas',badge:'A',fn:function(){var el=document.querySelectorAll('.nav-item')[3];showView('alertas',el);}},
-  {icon:'📅',name:'Calendario',sub:'Vista por dia',badge:'C',fn:function(){var el=document.querySelectorAll('.nav-item')[4];showView('calendario',el);}},
-  {icon:'🔁',name:'Recurrentes',sub:'Gastos fijos',badge:'R',fn:function(){var el=document.querySelectorAll('.nav-item')[5];showView('recurrentes',el);}},
-  {icon:'💳',name:'Credito',sub:'Tarjetas de credito',fn:function(){var el=document.querySelectorAll('.nav-item')[6];showView('credito',el);}},
-  {icon:'📈',name:'Patrimonio',sub:'Activos y pasivos',fn:function(){var el=document.querySelectorAll('.nav-item')[7];showView('patrimonio',el);}},
-  {icon:'⚙',name:'Ajustes',sub:'Configuracion',fn:function(){var el=document.querySelectorAll('.nav-item')[8];showView('ajustes',el);}},
-  {icon:'📊',name:'Exportar Excel',sub:'Descarga el reporte',fn:function(){exportarExcel();}},
-  {icon:'📄',name:'Exportar PDF',sub:'Genera el informe',fn:function(){exportarPDF();}},
-  {icon:'🔄',name:'Migrar datos',sub:'Copiar config a meses',fn:function(){migrarConfigMensual();}},
-  {icon:'🗓',name:'Heatmap anual',sub:'Ver mapa de calor',fn:function(){renderHeatmap();toast('Heatmap en seccion Historial','info');}},
-];
-function openCmdPal(){
-  document.getElementById('cmdpalOv').classList.add('show');
-  var inp=document.getElementById('cmdpalInp');inp.value='';inp.focus();
-  cmdpalSearch('');
-}
-function closeCmdPal(){document.getElementById('cmdpalOv').classList.remove('show');}
-function cmdpalSearch(q){
-  q=q.toLowerCase();
-  var rows=getRows(periodoActivo);
-  _cmdpalItems=[];
-  var actions=_cmdpalActions.filter(function(a){return !q||a.name.toLowerCase().includes(q)||a.sub.toLowerCase().includes(q);});
-  _cmdpalItems=actions.map(function(a){return {type:'action',data:a};});
-  if(q.length>=2){
-    var matched=rows.filter(function(r){return ((r.descripcion||'').toLowerCase().includes(q)||(r.categoria||'').toLowerCase().includes(q));}).slice(0,6);
-    matched.forEach(function(r){_cmdpalItems.push({type:'record',data:r});});
-  }
-  _cmdpalIdx=0;
-  renderCmdPalResults();
-}
-function renderCmdPalResults(){
-  var cont=document.getElementById('cmdpalResults');if(!cont)return;
-  cont.innerHTML='';
-  if(!_cmdpalItems.length){cont.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Sin resultados</div>';return;}
-  var actions=_cmdpalItems.filter(function(i){return i.type==='action';});
-  var records=_cmdpalItems.filter(function(i){return i.type==='record';});
-  if(actions.length){
-    var s=document.createElement('div');s.className='cmdpal-section';s.textContent='Acciones';cont.appendChild(s);
-    actions.forEach(function(item,idx){cont.appendChild(makeCmdPalItem(item,idx));});
-  }
-  if(records.length){
-    var s2=document.createElement('div');s2.className='cmdpal-section';s2.textContent='Registros';cont.appendChild(s2);
-    records.forEach(function(item,idx){cont.appendChild(makeCmdPalItem(item,actions.length+idx));});
-  }
-}
-function makeCmdPalItem(item,idx){
-  var div=document.createElement('div');
-  div.className='cmdpal-item'+(idx===_cmdpalIdx?' active':'');
-  if(item.type==='action'){
-    var a=item.data;
-    div.innerHTML='<div class="cmdpal-item-icon">'+a.icon+'</div><div class="cmdpal-item-info"><div class="cmdpal-item-name">'+a.name+'</div><div class="cmdpal-item-sub">'+a.sub+'</div></div>'+(a.badge?'<span class="cmdpal-item-badge">'+a.badge+'</span>':'');
-    div.onclick=function(){closeCmdPal();a.fn();};
-  } else {
-    var r=item.data;var isG=r.tipo==='gasto';
-    div.innerHTML='<div class="cmdpal-item-icon" style="font-size:9px">'+(isG?'↓':'↑')+'</div><div class="cmdpal-item-info"><div class="cmdpal-item-name">'+(r.descripcion||r.categoria||'-')+'</div><div class="cmdpal-item-sub">'+(r.fecha||'')+' · '+(r.categoria||'')+'</div></div><span class="cmdpal-item-badge" style="color:'+(isG?'var(--red-tx)':'var(--green-tx)')+'">'+(isG?'-':'+')+fmt(r.monto)+'</span>';
-    div.onclick=function(){closeCmdPal();showView('historial',null);setTimeout(function(){showEditModal(r);},300);};
-  }
-  return div;
-}
-function cmdpalKeydown(e){
-  if(e.key==='Escape'){closeCmdPal();return;}
-  if(e.key==='ArrowDown'){_cmdpalIdx=Math.min(_cmdpalIdx+1,_cmdpalItems.length-1);renderCmdPalResults();return;}
-  if(e.key==='ArrowUp'){_cmdpalIdx=Math.max(_cmdpalIdx-1,0);renderCmdPalResults();return;}
-  if(e.key==='Enter'&&_cmdpalItems[_cmdpalIdx]){var it=_cmdpalItems[_cmdpalIdx];closeCmdPal();if(it.type==='action')it.data.fn();else{showView('historial',null);setTimeout(function(){showEditModal(it.data);},300);}}
-}
-
-/* ══════════════════════════════════════════════
-   ATAJOS DE TECLADO GLOBALES
-══════════════════════════════════════════════ */
-function initKeyboardShortcuts(){
-  document.addEventListener('keydown',function(e){
-    var tag=(e.target.tagName||'').toLowerCase();
-    if(tag==='input'||tag==='textarea'||tag==='select') return;
-    if(e.ctrlKey||e.metaKey){
-      if(e.key==='k'){e.preventDefault();openCmdPal();return;}
-      if(e.key==='e'){e.preventDefault();exportarExcel();return;}
-      if(e.key==='p'){e.preventDefault();exportarPDF();return;}
-    }
-    if(e.altKey) return;
-    switch(e.key){
-      case 'd': showView('dashboard',document.querySelector('.nav-item')); break;
-      case 'h': showView('historial',document.querySelectorAll('.nav-item')[2]); break;
-      case 'p': showView('presupuesto',document.querySelectorAll('.nav-item')[1]); break;
-      case 'a': showView('alertas',document.querySelectorAll('.nav-item')[3]); break;
-      case 'c': showView('calendario',document.querySelectorAll('.nav-item')[4]); break;
-      case 'r': showView('recurrentes',document.querySelectorAll('.nav-item')[5]); break;
-      case '?': toast('Atajos: D=Dashboard H=Historial P=Presupuesto A=Alertas C=Calendario R=Recurrentes Ctrl+K=Buscar Ctrl+E=Excel','info',5000); break;
-    }
-  });
-}
-
-/* ══════════════════════════════════════════════
-   HEATMAP ANUAL (Github-style)
-══════════════════════════════════════════════ */
-function renderHeatmap(){
-  var cont=document.getElementById('heatmapSection');if(!cont)return;
-  cont.style.display='block';
-  var year=selectedYear();
-  var dayMap={};
-  allRows.filter(function(r){return r.tipo==='gasto'&&r.fecha&&r.fecha.startsWith(String(year));}).forEach(function(r){
-    dayMap[r.fecha]=(dayMap[r.fecha]||0)+r.monto;
-  });
-  var vals=Object.values(dayMap);
-  var max=vals.length?Math.max.apply(null,vals):1;
-  function heatColor(v){
-    if(!v) return 'var(--s3)';
-    var pct=v/max;
-    if(pct>0.8) return '#8a3a3a';
-    if(pct>0.6) return '#a05050';
-    if(pct>0.4) return '#c07070';
-    if(pct>0.2) return 'rgba(192,112,112,.5)';
-    return 'rgba(192,112,112,.2)';
-  }
-  var wrap=document.getElementById('heatmapGrid');if(!wrap)return;
-  wrap.innerHTML='';
-  var start=new Date(year,0,1);
-  var end=new Date(year,11,31);
-  var dayOfWeek=start.getDay();
-  for(var i=0;i<dayOfWeek;i++){var e2=document.createElement('div');e2.style.cssText='width:14px;height:14px;';wrap.appendChild(e2);}
-  for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-    var ds=d.toISOString().split('T')[0];
-    var cell=document.createElement('div');
-    cell.className='heat-cell';
-    cell.style.background=heatColor(dayMap[ds]||0);
-    cell.title=ds+(dayMap[ds]?' — '+fmt(dayMap[ds]):'');
-    cell.onclick=(function(date,amt){return function(){toast(date+(amt?' S/ '+fmt(amt):''),'info');};})(ds,dayMap[ds]||0);
-    wrap.appendChild(cell);
-  }
-  var leg=document.getElementById('heatLegend');if(leg)leg.innerHTML='<span>Menos</span><div class="heat-sq" style="background:rgba(192,112,112,.2)"></div><div class="heat-sq" style="background:rgba(192,112,112,.5)"></div><div class="heat-sq" style="background:var(--red-tx)"></div><div class="heat-sq" style="background:var(--red)"></div><span>Más gasto</span>';
-}
-
-/* ══════════════════════════════════════════════
-   REGLA 50/30/20
-══════════════════════════════════════════════ */
-function renderRule503020(rows){
-  var rw=document.getElementById('ruleWrap');if(!rw)return;
-  var ing=rows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
-  if(!ing){rw.style.display='none';return;}
-  rw.style.display='grid';
-  var NEEDS_CATS=['alimentacion','comida','salud','transporte','vivienda','servicios','educacion','mercado'];
-  var SAVINGS_CATS=['ahorro','inversion','deuda','credito'];
-  var gastos=rows.filter(function(r){return r.tipo==='gasto';});
-  var needs=0,savings=0,wants=0;
-  gastos.forEach(function(r){
-    var cat=(r.categoria||'').toLowerCase();
-    if(NEEDS_CATS.some(function(n){return cat.includes(n);})) needs+=r.monto;
-    else if(SAVINGS_CATS.some(function(n){return cat.includes(n);})) savings+=r.monto;
-    else wants+=r.monto;
-  });
-  function setRule(valId,fillId,pctId,amt,target){
-    var pct=ing>0?Math.round(amt/ing*100):0;
-    var cls=pct<=target?'ok':pct<=target*1.1?'warn':'bad';
-    var el=document.getElementById(valId);if(el){el.className='rule-val '+cls;el.textContent=fmt(amt);}
-    var fl=document.getElementById(fillId);if(fl)fl.style.width=Math.min(100,pct)+'%';
-    var pe=document.getElementById(pctId);if(pe)pe.textContent=pct+'% (meta '+target+'%)';
-  }
-  setRule('ruleNeedsVal','ruleNeedsFill','ruleNeedsPct',needs,50);
-  setRule('ruleWantsVal','ruleWantsFill','ruleWantsPct',wants,30);
-  setRule('ruleSavVal','ruleSavFill','ruleSavPct',savings,20);
-}
-
-/* ══════════════════════════════════════════════
-   MODAL CIERRE DE MES (día 1)
-══════════════════════════════════════════════ */
-function checkMonthClose(){
-  if(new Date().getDate()!==1) return;
-  var key='fin_monthclose_'+new Date().getFullYear()+'-'+new Date().getMonth();
-  if(localStorage.getItem(key)) return;
-  setTimeout(function(){
-    var prevMonth=new Date().getMonth();// mes anterior (0-based = mes actual - 1)
-    var prevRows=getRows(prevMonth||12);
-    var ing=prevRows.filter(function(r){return r.tipo==='ingreso';}).reduce(function(s,r){return s+r.monto;},0);
-    var gas=prevRows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
-    var bal=ing-gas, aho=ing>0?Math.round(bal/ing*100):0;
-    var title=document.getElementById('monthCloseTitle');if(title)title.textContent='Cierre de '+meses[prevMonth-1]||'Mes anterior';
-    var kpis=document.getElementById('monthCloseKpis');
-    if(kpis) kpis.innerHTML=[
-      {l:'Ingresos',v:fmt(ing),c:'var(--green-tx)'},
-      {l:'Gastos',v:fmt(gas),c:'var(--red-tx)'},
-      {l:'Balance',v:fmt(bal),c:bal>=0?'var(--green-tx)':'var(--red-tx)'},
-      {l:'Ahorro',v:aho+'%',c:aho>=20?'var(--green-tx)':aho>=10?'var(--gold)':'var(--red-tx)'},
-    ].map(function(k){return '<div class="month-close-kpi"><div class="month-close-kpi-lbl">'+k.l+'</div><div class="month-close-kpi-val" style="color:'+k.c+'">'+k.v+'</div></div>';}).join('');
-    document.getElementById('monthCloseOv').classList.add('show');
-    localStorage.setItem(key,'1');
-  },2500);
-}
-function closeMonthClose(){document.getElementById('monthCloseOv').classList.remove('show');}
-
-/* ══════════════════════════════════════════════
-   SCORE HISTÓRICO (guardar mensual en Firestore)
-══════════════════════════════════════════════ */
-function guardarScoreHistorico(score,mes,anio){
-  if(!window._saveDoc) return;
-  var key=(anio||selectedYear())+'-'+String(mes||periodoActivo).padStart(2,'0');
-  try{window._saveDoc('config/scoreHistory',key,{score:score,fecha:new Date().toISOString(),mes:key});}catch(e){}
-}
-
-/* ══════════════════════════════════════════════
-   PROYECCIÓN INTELIGENTE (weighted average 3 meses)
-══════════════════════════════════════════════ */
-function buildProyecIntelligente(ctx){
-  var mes=periodoActivo;
-  if(!mes){if(ctx&&ctx.canvas){ctx.canvas.style.display='none';}return;}
-  var totalDias=diasMes(mes);
-  var diaHoy=mes===(new Date().getMonth()+1)?new Date().getDate():totalDias;
-  var rows=getRows(mes);
-  var gasActual=rows.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
-  var ritmoActual=diaHoy>0?gasActual/diaHoy:0;
-  // Promediar los últimos 3 meses para calcular ritmo esperado
-  var ritmos=[];
-  for(var m=mes-1;m>=Math.max(1,mes-3);m--){
-    var prevR=getRows(m);
-    var prevG=prevR.filter(function(r){return r.tipo==='gasto';}).reduce(function(s,r){return s+r.monto;},0);
-    var dm=diasMes(m);
-    if(dm>0&&prevG>0) ritmos.push(prevG/dm);
-  }
-  var ritmoHist=ritmos.length?ritmos.reduce(function(s,r){return s+r;},0)/ritmos.length:ritmoActual;
-  var pesoActual=0.7, pesoHist=0.3;
-  var ritmoMix=ritmos.length?(pesoActual*ritmoActual+pesoHist*ritmoHist):(ritmoActual);
-  var labels=[],dataAct=[],dataProj=[];
-  for(var d=1;d<=totalDias;d++){
-    labels.push(d);
-    var gasHastaD=rows.filter(function(r){return r.tipo==='gasto'&&parseInt((r.fecha||'').split('-')[2])<=d;}).reduce(function(s,r){return s+r.monto;},0);
-    dataAct.push(d<=diaHoy?gasHastaD:null);
-    dataProj.push(ritmoMix*d);
-  }
-  if(window._chartProyec){try{window._chartProyec.destroy();}catch(e){}}
-  window._chartProyec=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'Real',data:dataAct,borderColor:'rgba(201,168,76,.8)',backgroundColor:'rgba(201,168,76,.08)',borderWidth:1.5,pointRadius:0,spanGaps:false},{label:'Proyección ('+(ritmos.length?'3m':'ritmo')+' hist.)',data:dataProj,borderColor:'rgba(106,154,204,.6)',borderWidth:1,borderDash:[4,4],pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'var(--muted)',font:{size:9},callback:function(v){return 'S/'+Math.round(v);}}}}}});
-}
-
-/* ══════════════════════════════════════════════
-   COMPARACIÓN AÑO vs AÑO (toggle en evol chart)
-══════════════════════════════════════════════ */
-var _evolCompareMode = false;
-function toggleEvolCompare(){
-  _evolCompareMode=!_evolCompareMode;
-  var btn=document.getElementById('btnEvolCompare');
-  if(btn) btn.textContent=_evolCompareMode?'Ver año actual':'Comparar años';
-  renderVista();
-}
-
-/* ══════════════════════════════════════════════
-   SWIPE GESTURES (móvil)
-══════════════════════════════════════════════ */
-function initSwipeGestures(){
-  if(window.innerWidth>768) return;
-  document.addEventListener('touchstart',function(e){
-    if(e.touches.length!==1) return;
-    var touch=e.touches[0];
-    var tr=touch.target.closest('tr[data-swipeable]');
-    if(!tr) return;
-    tr._swipeStartX=touch.clientX;
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    var touch=e.changedTouches[0];
-    var tr=touch.target.closest('tr[data-swipeable]');
-    if(!tr||tr._swipeStartX===undefined) return;
-    var dx=touch.clientX-tr._swipeStartX;
-    if(dx<-60){var rowId=tr.dataset.rowId;if(rowId){var r=allRows.find(function(x){return x.id===rowId;});if(r)quickDelete(r);}}
-    else if(dx>60){var rowId2=tr.dataset.rowId;if(rowId2){var r2=allRows.find(function(x){return x.id===rowId2;});if(r2)showEditModal(r2);}}
-    tr._swipeStartX=undefined;
-  },{passive:true});
-}
-
-/* ══════════════════════════════════════════════
-   PWA: manifest + service worker
-══════════════════════════════════════════════ */
-function registerPWA(){
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(function(){});
-  }
-}
-
-/* ══════════════════════════════════════════════
-   HOOK: renderDashboard extendido con nuevas funciones
-══════════════════════════════════════════════ */
-var _origRenderDashboard = typeof renderDashboard==='function'?renderDashboard:null;
-function renderDashboard(){
-  if(_origRenderDashboard) _origRenderDashboard();
-  var rows=getRows(periodoActivo);
-  try{renderRule503020(rows);}catch(e){}
-  try{renderHeatmap();}catch(e){}
-  // Score history
-  var scoreEl=document.getElementById('scoreNum');
-  if(scoreEl&&scoreEl.textContent&&scoreEl.textContent!=='--'){
-    try{guardarScoreHistorico(parseInt(scoreEl.textContent),periodoActivo,selectedYear());}catch(e){}
-  }
-  // Proyección mejorada
-  var cProyec=document.getElementById('cProyec');
-  if(cProyec){try{buildProyecIntelligente(cProyec.getContext('2d'));}catch(e){}}
-}
 
 </script>
 </body>

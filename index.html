@@ -276,7 +276,11 @@ window._serverTimestamp = serverTimestamp;
 
 window._loginGoogle = async () => {
   try { await signInWithPopup(auth, provider); }
-  catch(e) { alert('Error: ' + e.message); }
+  catch(e) {
+    const st = document.getElementById('estado');
+    if(st){ st.className='estado fail'; st.textContent='Error al iniciar sesion'; }
+    console.error(e);
+  }
 };
 
 window._logout = () => signOut(auth);
@@ -297,6 +301,7 @@ onAuthStateChanged(auth, user => {
   if(user){
     window._currentUser = user;
     window._addRegistro = async (data) => addDoc(collection(db,'users',user.uid,'registros'), data);
+    window._addPatrimonioSobregiro = async (data) => addDoc(collection(db,'users',user.uid,'patrimonio'), data);
     window._firebaseReady = true;
     document.getElementById('authScreen').classList.remove('show');
     document.getElementById('mainPage').classList.add('show');
@@ -304,7 +309,7 @@ onAuthStateChanged(auth, user => {
     // Load categories from Firestore
     window._loadCats(user.uid).then(function(cats){
       if(cats && (cats.gasto || cats.ingreso)){
-        data = cats;
+        if(window._setCategoryData) window._setCategoryData(cats);
       }
       renderCats(); renderSubs();
     });
@@ -342,6 +347,13 @@ async function saveData(d){
   await window._saveCats(window._currentUser.uid, d);
 }
 var data=loadData();
+window._setCategoryData=function(cats){ data=cats; };
+function showEstado(msg,type){
+  var st=document.getElementById('estado');
+  if(!st) return;
+  st.className='estado '+(type||'');
+  st.textContent=msg;
+}
 
 // DateTime
 function updateDT(){
@@ -406,7 +418,7 @@ async function confirmAddCat(){
   var prev=cloneData(data);
   if(!data[tipo].cats.includes(v)){
     data[tipo].cats.push(v);data[tipo].subs[v]=[];
-    try{await saveData(data);}catch(e){data=prev;alert('No se pudo guardar en la nube');renderCats();renderSubs();return;}
+    try{await saveData(data);}catch(e){data=prev;showEstado('No se pudo guardar en la nube','fail');renderCats();renderSubs();return;}
   }
   catSel=v;subSel='';cancelInline('cat');renderCats();renderSubs();
 }
@@ -416,7 +428,7 @@ async function confirmAddSub(){
   if(!data[tipo].subs[catSel])data[tipo].subs[catSel]=[];
   if(!data[tipo].subs[catSel].includes(v)){
     data[tipo].subs[catSel].push(v);
-    try{await saveData(data);}catch(e){data=prev;alert('No se pudo guardar en la nube');renderCats();renderSubs();return;}
+    try{await saveData(data);}catch(e){data=prev;showEstado('No se pudo guardar en la nube','fail');renderCats();renderSubs();return;}
   }
   subSel=v;cancelInline('sub');renderSubs();
 }
@@ -429,14 +441,14 @@ async function confirmModalEdit(){
   var prev=cloneData(data), prevCatSel=catSel, prevSubSel=subSel;
   if(modalMode==='cat'){var idx=data[tipo].cats.indexOf(modalTarget);if(idx>=0){data[tipo].cats[idx]=v;var old=data[tipo].subs[modalTarget]||[];delete data[tipo].subs[modalTarget];data[tipo].subs[v]=old;if(catSel===modalTarget)catSel=v;}}
   else{var subs=data[tipo].subs[modalParent]||[];var idx2=subs.indexOf(modalTarget);if(idx2>=0){subs[idx2]=v;if(subSel===modalTarget)subSel=v;}}
-  try{await saveData(data);}catch(e){data=prev;catSel=prevCatSel;subSel=prevSubSel;alert('No se pudo guardar en la nube');renderCats();renderSubs();return;}
+  try{await saveData(data);}catch(e){data=prev;catSel=prevCatSel;subSel=prevSubSel;showEstado('No se pudo guardar en la nube','fail');renderCats();renderSubs();return;}
   hideModal();renderCats();renderSubs();
 }
 async function confirmModalDelete(){
   var prev=cloneData(data), prevCatSel=catSel, prevSubSel=subSel;
   if(modalMode==='cat'){data[tipo].cats=data[tipo].cats.filter(function(c){return c!==modalTarget;});delete data[tipo].subs[modalTarget];if(catSel===modalTarget){catSel='';subSel='';}}
   else{data[tipo].subs[modalParent]=(data[tipo].subs[modalParent]||[]).filter(function(s){return s!==modalTarget;});if(subSel===modalTarget)subSel='';}
-  try{await saveData(data);}catch(e){data=prev;catSel=prevCatSel;subSel=prevSubSel;alert('No se pudo guardar en la nube');renderCats();renderSubs();return;}
+  try{await saveData(data);}catch(e){data=prev;catSel=prevCatSel;subSel=prevSubSel;showEstado('No se pudo guardar en la nube','fail');renderCats();renderSubs();return;}
   hideModal();renderCats();renderSubs();
 }
 
@@ -470,7 +482,7 @@ function resetForm(){
 async function guardar() {
   try {
     if(!window._firebaseReady || !window._addRegistro){
-      alert("Primero inicia sesi?n");
+      showEstado('Primero inicia sesion','fail');
       return;
     }
     document.getElementById('eMonto').textContent='';
@@ -493,6 +505,7 @@ async function guardar() {
     };
 
     await window._addRegistro(registro);
+    await motorSobregiro(registro);
     resetForm();
     document.getElementById('estado').className='estado ok';
     document.getElementById('estado').textContent='Registro guardado correctamente';
@@ -505,7 +518,7 @@ async function guardar() {
 }
 
 // ===============================
-// ? MOTOR SOBREGIRO INTELIGENTE (MEJORADO)
+// MOTOR SOBREGIRO INTELIGENTE
 // ===============================
 
 function esAhorro(subcategoria) {
@@ -519,26 +532,19 @@ function getPrimerDiaSiguienteMes(fechaStr) {
     .split("T")[0];
 }
 
-// FUNCI?N PRINCIPAL: detecta SOBREGIRO y aplica caso 1 / caso 2
+// FUNCION PRINCIPAL: detecta SOBREGIRO y aplica caso 1 / caso 2
 async function motorSobregiro(data) {
   try {
     if (data.tipo === "ingreso" && data.categoria && data.categoria.toUpperCase() === "SOBREGIRO") {
-      console.log("? Detectado SOBREGIRO:", data);
+      console.log("Detectado SOBREGIRO:", data);
 
       const subUpper = (data.subcategoria || "").toUpperCase();
 
-      // Caso 2: si la subcategor?a contiene "AHORRO AGORA" -> gasto inmediato en Patrimonio (mismo d?a)
+      // Caso 2: si la subcategoria contiene "AHORRO AGORA" -> gasto inmediato en Patrimonio (mismo dia)
       if (subUpper.includes("AHORRO AGORA") || subUpper.includes("AHORRO")) {
-        // Registrar gasto inmediato en Patrimonio (historial)
-        await registrarHistorial({
-          fecha: data.fecha || new Date().toISOString().split('T')[0],
-          tipo: "gasto",
-          monto: data.monto,
-          categoria: "SOBREGIRO",
-          subcategoria: data.subcategoria || ""
-        });
+        await procesarPatrimonioSobregiro(data);
 
-        // Tambi?n guardar en Firestore como gasto (opcional, mantiene consistencia)
+        // Tambien guardar en Firestore como gasto para mantener consistencia
         if (window._addRegistro) {
           await window._addRegistro({
             fecha: data.fecha || new Date().toISOString().split('T')[0],
@@ -549,13 +555,13 @@ async function motorSobregiro(data) {
             monto: data.monto,
             categoria: "SOBREGIRO",
             subcategoria: data.subcategoria || "",
-            descripcion: data.descripcion || "Gasto autom?tico por SOBREGIRO -> AHORRO",
+            descripcion: data.descripcion || "Gasto automatico por SOBREGIRO -> AHORRO",
             createdAt: window._serverTimestamp()
           });
         }
 
       } else {
-        // Caso 1: crear gasto autom?tico el primer d?a del mes siguiente
+        // Caso 1: crear gasto automatico el primer dia del mes siguiente
         await crearSobregiroFuturo(data);
       }
     }
@@ -564,11 +570,11 @@ async function motorSobregiro(data) {
   }
 }
 
-// Crear gasto autom?tico en el primer d?a del mes siguiente y registrar en historial
+// Crear gasto automatico en el primer dia del mes siguiente
 async function crearSobregiroFuturo(data) {
   try {
     const fechaFutura = getPrimerDiaSiguienteMes(data.fecha || new Date().toISOString().split('T')[0]);
-    console.log("? Creando gasto autom?tico para:", fechaFutura);
+    console.log("Creando gasto automatico para:", fechaFutura);
 
     // Guardar registro en Firestore (gasto)
     if (window._addRegistro) {
@@ -581,19 +587,10 @@ async function crearSobregiroFuturo(data) {
         monto: data.monto,
         categoria: "SOBREGIRO",
         subcategoria: data.subcategoria || "",
-        descripcion: "Gasto autom?tico SOBREGIRO",
+        descripcion: "Gasto automatico SOBREGIRO",
         createdAt: window._serverTimestamp()
       });
     }
-
-    // Registrar en historial local/UI
-    await registrarHistorial({
-      fecha: fechaFutura,
-      tipo: "gasto",
-      monto: data.monto,
-      categoria: "SOBREGIRO",
-      subcategoria: data.subcategoria || ""
-    });
 
   } catch (e) {
     console.error("crearSobregiroFuturo error:", e);
@@ -601,35 +598,34 @@ async function crearSobregiroFuturo(data) {
 }
 
 // ===============================
-// ? IMPACTO EN PATRIMONIO
+// IMPACTO EN PATRIMONIO
 // ===============================
 async function procesarPatrimonioSobregiro(data) {
   if (!esAhorro(data.subcategoria)) return;
 
-  console.log("? Impactando patrimonio");
+  console.log("Impactando patrimonio");
 
   const user = window._currentUser;
   if (!user) return;
 
   try {
-    await addDoc(
-      collection(db, 'users', user.uid, 'patrimonio'),
-      {
+    if(window._addPatrimonioSobregiro){
+      await window._addPatrimonioSobregiro({
         tipo: "deuda_sobregiro",
         origen: data.subcategoria,
         monto: data.monto,
         fecha: data.fecha,
         estado: "pendiente",
         createdAt: window._serverTimestamp()
-      }
-    );
+      });
+    }
   } catch (e) {
     console.error("Error patrimonio:", e);
   }
 }
 
 // ===============================
-// ? ALERTAS
+// ALERTAS
 // ===============================
 function calcularPenalizacionSobregiro(registros) {
   let sobregiro = 0;
@@ -652,7 +648,7 @@ function calcularPenalizacionSobregiro(registros) {
 }
 
 // ===============================
-// ? HEATMAP
+// HEATMAP
 // ===============================
 function agruparGastosPorDia(registros) {
   const mapa = {};

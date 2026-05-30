@@ -563,6 +563,13 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .rec-paid-btn{padding:4px 9px;border:1px solid var(--border2);background:none;border-radius:2px;font-size:9px;color:var(--muted);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;transition:all .15s;}
 .rec-paid-btn:hover{background:var(--green-d);color:var(--green-tx);border-color:rgba(90,170,128,.4);}
 .rec-paid-btn.active{background:var(--green-d);color:var(--green-tx);border-color:rgba(90,170,128,.4);}
+.drill-sub-note{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:12px;}
+.tag-pill-inline{display:inline-block;padding:1px 6px;border-radius:8px;font-size:8px;background:var(--gold-d);border:1px solid var(--gold-b);color:var(--gold);margin-left:4px;}
+.credit-summary{padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:3px;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap;font-size:11px;}
+.neto-empty{color:var(--muted);font-size:11px;padding:8px 0;}
+.neto-actions{display:flex;align-items:center;gap:6px;}
+.neto-edit-btn{font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.tag-input-inline{background:none;border:none;border-bottom:1px solid var(--border);outline:none;font-family:'IBM Plex Sans',sans-serif;font-size:10px;color:var(--text);width:70px;padding:2px 4px;appearance:none;-webkit-appearance:none;}
 
 </style>
 </head>
@@ -1406,7 +1413,7 @@ function openDrill(titulo, filtroFn, tipo){
 
       // Subcategory list (clickable)
       var listTitle=document.createElement('div');
-      listTitle.style.cssText='font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:12px';
+      listTitle.className='drill-sub-note';
       listTitle.textContent='Haz clic en una subcategoría para ver sus transacciones';
       subPanel.appendChild(listTitle);
 
@@ -2612,7 +2619,7 @@ function filtrarTabla(){
     var t1=document.createElement('td');t1.setAttribute('data-label','Fecha');t1.style.fontFamily="'IBM Plex Mono',monospace";t1.textContent=r.fecha||'-';tr.appendChild(t1);
     var t2=document.createElement('td');t2.setAttribute('data-label','Ingresado');t2.style.color='var(--muted)';t2.style.fontSize='11px';t2.style.fontFamily="'IBM Plex Mono',monospace";t2.textContent=(r.fecha_ingreso||'-')+(r.hora_ingreso?' '+r.hora_ingreso:'');tr.appendChild(t2);
     var t3=document.createElement('td');t3.className='td-main';t3.setAttribute('data-label','Descripcion');t3.textContent=r.descripcion||'-';
-    if(r.etiquetas&&r.etiquetas.length){r.etiquetas.forEach(function(tg){var sp=document.createElement('span');sp.style.cssText='display:inline-block;padding:1px 6px;border-radius:8px;font-size:8px;background:var(--gold-d);border:1px solid var(--gold-b);color:var(--gold);margin-left:4px;';sp.textContent='#'+tg;t3.appendChild(sp);});}
+    if(r.etiquetas&&r.etiquetas.length){r.etiquetas.forEach(function(tg){var sp=document.createElement('span');sp.className='tag-pill-inline';sp.textContent='#'+tg;t3.appendChild(sp);});}
     tr.appendChild(t3);
     var t4=document.createElement('td');t4.setAttribute('data-label','Categoria');t4.textContent=(r.categoria||'-')+(r.subcategoria?' / '+r.subcategoria:'');tr.appendChild(t4);
     var t5=document.createElement('td');t5.className='td-amt '+(isG?'r':'g');t5.setAttribute('data-label','Monto');t5.style.textAlign='right';t5.textContent=(isG?'-':'+')+fmt(r.monto);tr.appendChild(t5);
@@ -3077,7 +3084,7 @@ function renderCredito(){
   }
   var deudaTotal=_creditos.reduce(function(s,c){return s+(parseFloat(c.usado)||0);},0);
   var resumen=document.createElement('div');
-  resumen.style.cssText='padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:3px;margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap;font-size:11px;';
+  resumen.className='credit-summary';
   resumen.innerHTML='<span style="color:var(--muted)">Deuda total: <strong style="font-family:IBM Plex Mono,monospace;color:var(--red-tx)">'+fmt(deudaTotal)+'</strong></span>'+'<span style="color:var(--muted)">'+ _creditos.length+' tarjeta(s)</span>';
   cont.appendChild(resumen);
   _creditos.forEach(function(c){
@@ -3397,16 +3404,16 @@ function renderPatrimonio(){
   aL.innerHTML='';
   if(!_activos.length){
     var empty=document.createElement('div');
-    empty.style.cssText='color:var(--muted);font-size:11px;padding:8px 0';
+    empty.className='neto-empty';
     empty.textContent='Sin activos registrados';
     aL.appendChild(empty);
   } else _activos.forEach(function(a){
     var row=document.createElement('div'); row.className='neto-item';
     var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=a.nombre;
-    var right=document.createElement('div'); right.style.cssText='display:flex;align-items:center;gap:6px';
+    var right=document.createElement('div'); right.className='neto-actions';
     var val=document.createElement('div'); val.className='neto-item-val pos'; val.textContent=fmtMoneda(a.monto,a.moneda||'PEN');
     var btnE=document.createElement('button'); btnE.textContent='Editar';
-    btnE.style.cssText='font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:IBM Plex Sans,sans-serif';
+    btnE.className='neto-edit-btn';
     btnE.onclick=(function(id){return function(){editarPatrimonio('activo',id);};})(a.id);
     var btnD=document.createElement('button'); btnD.className='neto-item-del'; btnD.innerHTML='&#x2715;';
     btnD.onclick=(function(id){return function(){eliminarActivo(id);};})(a.id);
@@ -3418,16 +3425,16 @@ function renderPatrimonio(){
   pL.innerHTML='';
   if(!_pasivos.length){
     var empty2=document.createElement('div');
-    empty2.style.cssText='color:var(--muted);font-size:11px;padding:8px 0';
+    empty2.className='neto-empty';
     empty2.textContent='Sin pasivos registrados';
     pL.appendChild(empty2);
   } else _pasivos.forEach(function(p){
     var row=document.createElement('div'); row.className='neto-item';
     var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=p.nombre;
-    var right=document.createElement('div'); right.style.cssText='display:flex;align-items:center;gap:6px';
+    var right=document.createElement('div'); right.className='neto-actions';
     var val=document.createElement('div'); val.className='neto-item-val neg'; val.textContent=fmtMoneda(p.monto,p.moneda||'PEN');
     var btnE=document.createElement('button'); btnE.textContent='Editar';
-    btnE.style.cssText='font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:2px;color:var(--muted);background:none;cursor:pointer;font-family:IBM Plex Sans,sans-serif';
+    btnE.className='neto-edit-btn';
     btnE.onclick=(function(id){return function(){editarPatrimonio('pasivo',id);};})(p.id);
     var btnD=document.createElement('button'); btnD.className='neto-item-del'; btnD.innerHTML='&#x2715;';
     btnD.onclick=(function(id){return function(){eliminarPasivo(id);};})(p.id);
@@ -3489,7 +3496,7 @@ function renderEtiquetas(){
   });
   var addInp=document.createElement('input');
   addInp.placeholder='+etiqueta';
-  addInp.style.cssText='background:none;border:none;border-bottom:1px solid var(--border);outline:none;font-family:IBM Plex Sans,sans-serif;font-size:10px;color:var(--text);width:70px;padding:2px 4px;';
+  addInp.className='tag-input-inline';
   addInp.onkeydown=function(e){if(e.key==='Enter'&&this.value.trim()){var v=this.value.trim().toLowerCase().replace(/\s+/g,'_');if(_etiquetas.indexOf(v)<0)_etiquetas.push(v);_etiquetasActivas.push(v);this.value='';renderEtiquetas();}};
   cont.appendChild(addInp);
 }

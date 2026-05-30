@@ -408,8 +408,8 @@ async function loadSettingsDoc() {
 
 async function loadPatrimonioState() {
   _patrimonioState = await loadUserDoc(PATRIMONIO_PATH, { activos: [], pasivos: [], history: [], movimientos: [] });
-  _patrimonioState.activos = Array.isArray(_patrimonioState.activos) ? _patrimonioState.activos : [];
-  _patrimonioState.pasivos = Array.isArray(_patrimonioState.pasivos) ? _patrimonioState.pasivos : [];
+  _patrimonioState.activos = Array.isArray(_patrimonioState.activos) ? _patrimonioState.activos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
+  _patrimonioState.pasivos = Array.isArray(_patrimonioState.pasivos) ? _patrimonioState.pasivos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
   _patrimonioState.history = Array.isArray(_patrimonioState.history) ? _patrimonioState.history : [];
   _patrimonioState.movimientos = Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : [];
   return _patrimonioState;
@@ -905,25 +905,24 @@ async function procesarPatrimonioSobregiro(data) {
 
   try {
     await loadPatrimonioState();
-    const activo = _patrimonioState.activos.find((item) => String(item.nombre || '').toUpperCase().includes('AGORA'));
     const monto = parseFloat(data.monto) || 0;
-    if (activo) {
-      const antes = parseFloat(activo.monto) || 0;
-      activo.monto = Math.max(0, Math.round((antes - monto) * 100) / 100);
-      _patrimonioState.movimientos.push({
-        id: `sob-${Date.now()}`,
-        fecha: data.fecha || today,
-        tipo: 'sobregiro',
-        entidad: 'activo',
-        nombre: activo.nombre,
-        monto: -monto,
-        motivo: 'Salida por sobregiro desde ahorro',
-        categoria: 'SOBREGIRO',
-        subcategoria: 'AHORRO AGORA',
-        registroId: data.id || `${Date.now()}`
-      });
-      await savePatrimonioState();
-    }
+    const activo = _patrimonioState.activos.find((item) => String(item.nombre || '').toUpperCase().includes('AGORA'));
+    _patrimonioState.movimientos.push({
+      id: `sob-${Date.now()}`,
+      fecha: data.fecha || today,
+      tipo: 'decremento',
+      entidad: 'activo',
+      itemId: activo ? activo.id : null,
+      nombre: activo ? activo.nombre : 'Ahorro Agora',
+      monto: monto,
+      impacto: -monto,
+      motivo: 'Penalización por Sobregiro',
+      categoria: 'SOBREGIRO',
+      subcategoria: 'AHORRO AGORA',
+      registroId: data.id || `${Date.now()}`,
+      monthKey: monthKeyFromDate(data.fecha || today)
+    });
+    await savePatrimonioState();
   } catch (e) {
     console.error("Error patrimonio:", e);
   }

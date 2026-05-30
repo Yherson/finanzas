@@ -407,16 +407,26 @@ async function loadSettingsDoc() {
 }
 
 async function loadPatrimonioState() {
-  _patrimonioState = await loadUserDoc(PATRIMONIO_PATH, { activos: [], pasivos: [], history: [], movimientos: [] });
+  _patrimonioState = await loadUserDoc(PATRIMONIO_PATH, { initialized:false, activos: [], pasivos: [], patrimonio_historial: [] });
   _patrimonioState.activos = Array.isArray(_patrimonioState.activos) ? _patrimonioState.activos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
   _patrimonioState.pasivos = Array.isArray(_patrimonioState.pasivos) ? _patrimonioState.pasivos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
-  _patrimonioState.history = Array.isArray(_patrimonioState.history) ? _patrimonioState.history : [];
-  _patrimonioState.movimientos = Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : [];
+  _patrimonioState.patrimonio_historial = Array.isArray(_patrimonioState.patrimonio_historial) ? _patrimonioState.patrimonio_historial : (Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : (Array.isArray(_patrimonioState.history) ? _patrimonioState.history : []));
+  if (_patrimonioState.initialized === undefined || _patrimonioState.initialized === null) {
+    _patrimonioState.initialized = !!(_patrimonioState.activos.length || _patrimonioState.pasivos.length || _patrimonioState.patrimonio_historial.length);
+  }
   return _patrimonioState;
 }
 
 async function savePatrimonioState() {
-  await saveUserDoc(PATRIMONIO_PATH, _patrimonioState);
+  await saveUserDoc(PATRIMONIO_PATH, {
+    initialized: !!_patrimonioState.initialized,
+    activos: _patrimonioState.activos || [],
+    pasivos: _patrimonioState.pasivos || [],
+    patrimonio_historial: _patrimonioState.patrimonio_historial || [],
+    history: _patrimonioState.patrimonio_historial || [],
+    movimientos: _patrimonioState.patrimonio_historial || [],
+    resetAt: _patrimonioState.resetAt || ''
+  });
 }
 
 async function loadSobregirosState(monthKey) {
@@ -907,7 +917,7 @@ async function procesarPatrimonioSobregiro(data) {
     await loadPatrimonioState();
     const monto = parseFloat(data.monto) || 0;
     const activo = _patrimonioState.activos.find((item) => String(item.nombre || '').toUpperCase().includes('AGORA'));
-    _patrimonioState.movimientos.push({
+    _patrimonioState.patrimonio_historial.push({
       id: `sob-${Date.now()}`,
       fecha: data.fecha || today,
       tipo: 'decremento',

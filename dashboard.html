@@ -567,6 +567,28 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .patri-ledger-amt.neg{color:var(--red-tx);}
 .patri-ledger-more{margin-top:8px;align-self:flex-end;padding:5px 10px;border:1px solid var(--border2);border-radius:2px;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;}
 .patri-ledger-more:hover{color:var(--text);}
+.patri-shell{display:flex;flex-direction:column;gap:10px;}
+.patri-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.patri-top-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.patri-reset{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.patri-reset-btn{padding:5px 10px;border:1px solid var(--border2);background:none;border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;}
+.patri-reset-btn:hover{color:var(--text);}
+.patri-reset-confirm{display:none;align-items:center;gap:6px;}
+.patri-reset-confirm.show{display:flex;}
+.patri-reset-note{font-size:9px;color:var(--muted);}
+.patri-reset-yes{padding:5px 10px;border:1px solid rgba(192,112,112,.35);background:var(--red-d);border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--red-tx);cursor:pointer;}
+.patri-reset-no{padding:5px 10px;border:1px solid var(--border2);background:none;border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;}
+.patri-init{display:none;background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:18px 18px 16px;margin-top:10px;}
+.patri-init.show{display:block;}
+.patri-init-title{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:400;color:var(--text);margin-bottom:6px;}
+.patri-init-sub{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.patri-init-form{display:grid;grid-template-columns:130px minmax(0,1fr) minmax(96px,.5fr) auto;gap:8px;align-items:center;}
+.patri-init-form input,.patri-init-form select{background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
+.patri-init-form button{padding:9px 12px;border:1px solid var(--gold-b);background:var(--gold-d);border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);cursor:pointer;white-space:nowrap;}
+.patri-init-form button:hover{background:var(--gold);color:var(--bg);}
+.patri-init-hint{font-size:9px;color:var(--muted);margin-top:10px;letter-spacing:.7px;text-transform:uppercase;}
+.patri-main-view{display:block;}
+.patri-main-view.hide{display:none;}
 
 /* CREDITO */
 .credit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:12px;}
@@ -1039,41 +1061,68 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 
     <div id="vPatrimonio" style="display:none">
       <div class="page">
-        <div class="patri-kpis" id="patriKpis"></div>
-        <div class="neto-summary" id="netoSummary"></div>
-        <div class="patri-layout">
-          <div class="patri-main">
-            <div class="row r2">
-              <div class="card">
-                <div class="card-title">Activos</div>
-                <div class="neto-list" id="activosList"></div>
-                <div class="neto-form patri-money">
-                  <input id="activoNombre" placeholder="Nombre (ej. Ahorros BCP)" maxlength="40">
-                  <input id="activoMonto" type="number" placeholder="S/ monto" min="0">
-                  <select id="activoMoneda" class="s-sel"><option value="PEN">Soles</option><option value="USD">Dolares</option></select>
-                  <button class="tb-btn gold" onclick="agregarActivo()" style="padding:8px 12px">+</button>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-title">Pasivos</div>
-                <div class="neto-list" id="pasivosList"></div>
-                <div class="neto-form patri-money">
-                  <input id="pasivoNombre" placeholder="Nombre (ej. Deuda tarjeta)" maxlength="40">
-                  <input id="pasivoMonto" type="number" placeholder="S/ monto" min="0">
-                  <select id="pasivoMoneda" class="s-sel"><option value="PEN">Soles</option><option value="USD">Dolares</option></select>
-                  <button class="tb-btn gold" onclick="agregarPasivo()" style="padding:8px 12px">+</button>
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-title">Evolucion del patrimonio</div>
-              <div class="chart-wrap" style="height:200px"><canvas id="cPatrimonio"></canvas></div>
-            </div>
+        <div id="patriInitView" class="patri-init">
+          <div class="patri-init-title">Configura tu patrimonio inicial</div>
+          <div class="patri-init-sub">Agrega tus primeras cuentas desde cero. Cada alta crea un movimiento de apertura en el historial.</div>
+          <div class="patri-init-form">
+            <select id="patriInitTipo"><option value="activo">Activo</option><option value="pasivo">Pasivo</option></select>
+            <input id="patriInitNombre" placeholder="Nombre del ítem" maxlength="40">
+            <input id="patriInitMonto" type="number" placeholder="Monto inicial" min="0" step="0.01">
+            <button onclick="inicializarPatrimonio()">Guardar apertura</button>
           </div>
-          <div class="patri-side">
-            <div class="card">
-              <div class="card-title">Historial de movimientos</div>
-              <div id="patrimonioMovimientos" class="patri-history"></div>
+          <div class="patri-init-hint">Ejemplos: Ahorro Agora, Efectivo, Tarjeta BFree</div>
+        </div>
+
+        <div id="patriMainView" class="patri-main-view">
+          <div class="patri-shell">
+            <div class="patri-top">
+              <div class="patri-top-title">Patrimonio</div>
+              <div class="patri-reset">
+                <button class="patri-reset-btn" id="patriResetBtn" onclick="showPatriResetConfirm()">Restablecer Patrimonio de Raíz</button>
+                <div class="patri-reset-confirm" id="patriResetConfirm">
+                  <span class="patri-reset-note">¿Estás seguro?</span>
+                  <button class="patri-reset-yes" onclick="confirmPatriReset()">Sí</button>
+                  <button class="patri-reset-no" onclick="hidePatriResetConfirm()">No</button>
+                </div>
+              </div>
+            </div>
+            <div class="patri-kpis" id="patriKpis"></div>
+            <div class="neto-summary" id="netoSummary"></div>
+            <div class="patri-layout">
+              <div class="patri-main">
+                <div class="row r2">
+                  <div class="card">
+                    <div class="card-title">Activos</div>
+                    <div class="neto-list" id="activosList"></div>
+                    <div class="neto-form patri-money">
+                      <input id="activoNombre" placeholder="Nombre (ej. Ahorros BCP)" maxlength="40">
+                      <input id="activoMonto" type="number" placeholder="S/ monto" min="0">
+                      <select id="activoMoneda" class="s-sel"><option value="PEN">Soles</option><option value="USD">Dolares</option></select>
+                      <button class="tb-btn gold" onclick="agregarActivo()" style="padding:8px 12px">+</button>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-title">Pasivos</div>
+                    <div class="neto-list" id="pasivosList"></div>
+                    <div class="neto-form patri-money">
+                      <input id="pasivoNombre" placeholder="Nombre (ej. Deuda tarjeta)" maxlength="40">
+                      <input id="pasivoMonto" type="number" placeholder="S/ monto" min="0">
+                      <select id="pasivoMoneda" class="s-sel"><option value="PEN">Soles</option><option value="USD">Dolares</option></select>
+                      <button class="tb-btn gold" onclick="agregarPasivo()" style="padding:8px 12px">+</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-title">Evolucion del patrimonio</div>
+                  <div class="chart-wrap" style="height:200px"><canvas id="cPatrimonio"></canvas></div>
+                </div>
+              </div>
+              <div class="patri-side">
+                <div class="card">
+                  <div class="card-title">Historial de movimientos</div>
+                  <div id="patrimonioMovimientos" class="patri-history"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1241,14 +1290,18 @@ window._loadMetas        = async ()    => { const d = await loadDoc(up('config/m
 window._saveMetas        = async (l)   => { console.log('[FB] _saveMetas called, count:', l.length); await saveDoc(up('config/metas'), {lista: l}); };
 window._loadRecurrentes  = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/recurrentes' : 'config/recurrentes'), {lista:[]}); return d.lista || []; };
 window._saveRecurrentes  = (l,k)       => saveDoc(up(k ? 'months/'+k+'/config/recurrentes' : 'config/recurrentes'), {lista: l});
-window._loadPatrimonio   = (k)         => loadDoc(up(k ? 'months/'+k+'/config/patrimonio' : 'config/patrimonio'), {activos:[], pasivos:[], history:[], movimientos:[]});
-window._savePatrimonio   = (d)         => saveDoc(up('config/patrimonio'), d);
 window._loadSobregiros   = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/sobregiros' : 'config/sobregiros'), {lista:[]}); return d.lista||[]; };
 window._saveSobregiros   = async (l,k) => { await saveDoc(up(k ? 'months/'+k+'/config/sobregiros' : 'config/sobregiros'), {lista:l}); };
 window._loadAlertasConfig= async (k)   => loadDoc(up(k ? 'months/'+k+'/config/alertas' : 'config/alertas'), {limites:{}});
 window._saveAlertasConfig= async (d,k) => saveDoc(up(k ? 'months/'+k+'/config/alertas' : 'config/alertas'), d);
 window._loadCreditos     = async (k)   => { const d = await loadDoc(up(k ? 'months/'+k+'/config/creditos' : 'config/creditos'), {lista:[]}); return d.lista||[]; };
 window._saveCreditos     = async (l,k) => saveDoc(up(k ? 'months/'+k+'/config/creditos' : 'config/creditos'), {lista:l});
+window._loadPatrimonio   = async ()   => {
+  const d = await loadDoc(up('config/patrimonio'), {initialized:false,activos:[],pasivos:[],patrimonio_historial:[]});
+  if(!Array.isArray(d.patrimonio_historial)) d.patrimonio_historial = Array.isArray(d.movimientos) ? d.movimientos : (Array.isArray(d.history) ? d.history : []);
+  return d;
+};
+window._savePatrimonio   = async (d) => saveDoc(up('config/patrimonio'), d);
 window._addRegistroFuturo = async (data) => {
   data.createdAt = serverTimestamp();
   return addDoc(collection(db,'users',currentUser.uid,'registros'), data);
@@ -1267,11 +1320,14 @@ onAuthStateChanged(auth, user => {
     else av.textContent = nm.charAt(0).toUpperCase();
     if (unsubPatrimonioListener) unsubPatrimonioListener();
     unsubPatrimonioListener = onSnapshot(doc(db,'users',user.uid,'config','patrimonio'), snap => {
-      const payload = snap.exists() ? snap.data() : {activos:[], pasivos:[], history:[], movimientos:[]};
-      _patrimonioState = payload || {activos:[], pasivos:[], history:[], movimientos:[]};
+      const payload = snap.exists() ? snap.data() : {initialized:false,activos:[], pasivos:[], patrimonio_historial:[]};
+      _patrimonioState = payload || {initialized:false,activos:[], pasivos:[], patrimonio_historial:[]};
       _activos = (_patrimonioState.activos || []).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
       _pasivos = (_patrimonioState.pasivos || []).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
-      _patrimonioMovimientos = Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : [];
+      _patrimonioMovimientos = Array.isArray(_patrimonioState.patrimonio_historial) ? _patrimonioState.patrimonio_historial : (Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : []);
+      if(_patrimonioState.initialized===undefined || _patrimonioState.initialized===null){
+        _patrimonioState.initialized = !!((_activos.length||_pasivos.length||_patrimonioMovimientos.length));
+      }
       _patrimonioHistory = rebuildPatrimonioHistory();
       if (vistaActiva === 'patrimonio') renderPatrimonio();
     }, e => console.error('[FB] patrimonio listener error', e));
@@ -1296,7 +1352,7 @@ onAuthStateChanged(auth, user => {
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={}, _alertLimits={}, _creditos=[];
 var _configLoaded=false;
-var _activos=[], _pasivos=[], _patrimonioHistory=[], _patrimonioMovimientos=[], _patrimonioState={activos:[], pasivos:[], history:[], movimientos:[]};
+var _activos=[], _pasivos=[], _patrimonioHistory=[], _patrimonioMovimientos=[], _patrimonioState={initialized:false,activos:[], pasivos:[], patrimonio_historial:[]};
 var _patriAdjustState={entity:null,id:null,mode:'decremento'};
 var _patriMovLimit=5;
 var _etiquetas=['trabajo','familia','viaje','salud','ocio','urgente'], _etiquetasActivas=[];
@@ -1362,7 +1418,7 @@ async function loadMonthScopedState(force){
   var results=await Promise.all([
     safe(function(){return window._loadPresupuestos(key);},{cats:{},subs:{}}),
     safe(function(){return window._loadRecurrentes(key);},[]),
-    safe(function(){return window._loadPatrimonio();},{activos:[],pasivos:[],history:[],movimientos:[]}),
+    safe(function(){return window._loadPatrimonio();},{initialized:false,activos:[],pasivos:[],patrimonio_historial:[]}),
     safe(function(){return window._loadSobregiros(key);},[]),
     safe(function(){return window._loadAlertasConfig(key);},{limites:{}}),
     safe(function(){return window._loadCreditos(key);},[])
@@ -1373,16 +1429,19 @@ async function loadMonthScopedState(force){
   }
   if(!results[1].length) results[1]=await safe(function(){return window._loadRecurrentes();},[]);
   if(!(results[2].activos||[]).length && !(results[2].pasivos||[]).length){
-    results[2]=await safe(function(){return window._loadPatrimonio(key);},{activos:[],pasivos:[],history:[],movimientos:[]});
+    results[2]=await safe(function(){return window._loadPatrimonio(key);},{initialized:false,activos:[],pasivos:[],patrimonio_historial:[]});
   }
   if(!results[3].length) results[3]=await safe(function(){return window._loadSobregiros();},[]);
   var oldAlerts=await safe(function(){return window._loadAlertasConfig();},{limites:{}});
   presupCat=results[0].cats||{}; presupSub=results[0].subs||{};
   _recurrentes=results[1]||[];
-  _patrimonioState=results[2]||{activos:[],pasivos:[],history:[],movimientos:[]};
+  _patrimonioState=results[2]||{initialized:false,activos:[],pasivos:[],patrimonio_historial:[]};
   _activos=(_patrimonioState.activos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
   _pasivos=(_patrimonioState.pasivos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
-  _patrimonioMovimientos=Array.isArray(_patrimonioState.movimientos)?_patrimonioState.movimientos:[];
+  _patrimonioMovimientos=Array.isArray(_patrimonioState.patrimonio_historial)?_patrimonioState.patrimonio_historial:(Array.isArray(_patrimonioState.movimientos)?_patrimonioState.movimientos:[]);
+  if(_patrimonioState.initialized===undefined || _patrimonioState.initialized===null){
+    _patrimonioState.initialized=!!((_activos.length||_pasivos.length||_patrimonioMovimientos.length));
+  }
   _patrimonioHistory=rebuildPatrimonioHistory();
   _sobregiros=dedupeSobregirosLista(results[3]||[]);
   _alertLimits=(results[4].limites && Object.keys(results[4].limites).length) ? results[4].limites : (oldAlerts.limites||_settings.limites||{});
@@ -3304,6 +3363,8 @@ function findPatrimonioItem(entidad, nombre){
 function syncPatrimonioState(){
   _patrimonioState.activos=_activos;
   _patrimonioState.pasivos=_pasivos;
+  _patrimonioState.initialized=!patrimonioPanelVacio();
+  _patrimonioState.patrimonio_historial=_patrimonioMovimientos;
   _patrimonioState.history=_patrimonioHistory;
   _patrimonioState.movimientos=_patrimonioMovimientos;
 }
@@ -3462,36 +3523,124 @@ function buildPatrimonioItemRow(entidad, item){
 
   return row;
 }
+function patrimonioPanelVacio(){
+  return !(_activos||[]).length && !(_pasivos||[]).length;
+}
+function isPatrimonioInitMode(){
+  return !(_patrimonioState&&_patrimonioState.initialized) || patrimonioPanelVacio();
+}
+function showPatriResetConfirm(){
+  var el=document.getElementById('patriResetConfirm'); if(el) el.classList.add('show');
+}
+function hidePatriResetConfirm(){
+  var el=document.getElementById('patriResetConfirm'); if(el) el.classList.remove('show');
+}
+async function confirmPatriReset(){
+  await resetPatrimonioRaiz();
+}
+async function resetPatrimonioRaiz(){
+  var prev=cloneData(_patrimonioState);
+  _activos=[];
+  _pasivos=[];
+  _patrimonioMovimientos=[];
+  _patrimonioHistory=[];
+  _patriAdjustState={entity:null,id:null,mode:'decremento'};
+  _patrimonioState={initialized:false,activos:[],pasivos:[],patrimonio_historial:[],resetAt:new Date().toISOString()};
+  try{
+    await window._savePatrimonio(_patrimonioState,currentScopedKey());
+    hidePatriResetConfirm();
+    renderPatrimonio();
+    toast('Patrimonio reiniciado','ok');
+  }catch(e){
+    _patrimonioState=prev;
+    toast('No se pudo reiniciar en la nube','err');
+    renderPatrimonio();
+  }
+}
+async function addPatrimonioOpeningItem(entidad, nombre, monto, moneda, motivo){
+  var cleanName=String(nombre||'').trim();
+  var value=parseFloat(monto)||0;
+  if(!cleanName||!value){ toast('Completa nombre y monto','err'); return; }
+  var entry={id:Date.now().toString()+Math.random().toString(16).slice(2,8),nombre:cleanName,saldoInicial:value,monto:value,moneda:moneda||'PEN',createdAt:new Date().toISOString()};
+  var mov={
+    id:'mov-'+entry.id,
+    fecha:getTodayPatrimonio(),
+    tipo:'apertura',
+    entidad:entidad,
+    itemId:entry.id,
+    nombre:cleanName,
+    monto:value,
+    impacto:entidad==='pasivo'?-value:value,
+    motivo:motivo||'Saldo inicial de apertura',
+    categoria:'PATRIMONIO',
+    subcategoria:cleanName,
+    monthKey:currentScopedKey(),
+    creadoEn:new Date().toISOString(),
+    fuente:'apertura'
+  };
+  if(entidad==='activo') _activos.push(entry); else _pasivos.push(entry);
+  _patrimonioMovimientos.unshift(mov);
+  _patrimonioHistory=rebuildPatrimonioHistory();
+  _patrimonioState.initialized=true;
+  syncPatrimonioState();
+  try{
+    await savePatrimonio();
+  }catch(e){
+    if(entidad==='activo') _activos=_activos.filter(function(x){return x.id!==entry.id;}); else _pasivos=_pasivos.filter(function(x){return x.id!==entry.id;});
+    _patrimonioMovimientos=_patrimonioMovimientos.filter(function(x){return x.id!==mov.id;});
+    _patrimonioHistory=rebuildPatrimonioHistory();
+    syncPatrimonioState();
+    throw e;
+  }
+}
 async function savePatrimonio(){
   _patrimonioHistory=rebuildPatrimonioHistory();
   syncPatrimonioState();
   await window._savePatrimonio({
+    initialized:!!_patrimonioState.initialized,
     activos:_activos,
     pasivos:_pasivos,
+    patrimonio_historial:_patrimonioMovimientos,
     history:_patrimonioHistory,
-    movimientos:_patrimonioMovimientos
+    movimientos:_patrimonioMovimientos,
+    resetAt:_patrimonioState.resetAt||''
   });
 }
 async function agregarActivo(){
-  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
   var n=document.getElementById('activoNombre').value.trim(),m=parseFloat(document.getElementById('activoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   var moneda=document.getElementById('activoMoneda')?document.getElementById('activoMoneda').value:'PEN';
-  _activos.push({id:Date.now().toString(),nombre:n,saldoInicial:m,monto:m,moneda:moneda});
-  try{ await savePatrimonio(); toast(n+' agregado','ok'); }
-  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState; toast('No se pudo guardar en la nube','err'); }
+  var prev=cloneData(_patrimonioState);
+  try{ await addPatrimonioOpeningItem('activo',n,m,moneda,'Saldo inicial de apertura'); toast(n+' agregado','ok'); }
+  catch(e){ _patrimonioState=prev; toast('No se pudo guardar en la nube','err'); }
   document.getElementById('activoNombre').value='';document.getElementById('activoMonto').value='';
   renderPatrimonio();
 }
 async function agregarPasivo(){
-  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
   var n=document.getElementById('pasivoNombre').value.trim(),m=parseFloat(document.getElementById('pasivoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   var moneda=document.getElementById('pasivoMoneda')?document.getElementById('pasivoMoneda').value:'PEN';
-  _pasivos.push({id:Date.now().toString(),nombre:n,saldoInicial:m,monto:m,moneda:moneda});
-  try{ await savePatrimonio(); toast(n+' agregado','ok'); }
-  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState; toast('No se pudo guardar en la nube','err'); }
+  var prev=cloneData(_patrimonioState);
+  try{ await addPatrimonioOpeningItem('pasivo',n,m,moneda,'Saldo inicial de apertura'); toast(n+' agregado','ok'); }
+  catch(e){ _patrimonioState=prev; toast('No se pudo guardar en la nube','err'); }
   document.getElementById('pasivoNombre').value='';document.getElementById('pasivoMonto').value='';
+  renderPatrimonio();
+}
+async function inicializarPatrimonio(){
+  var tipo=document.getElementById('patriInitTipo').value||'activo';
+  var nombre=document.getElementById('patriInitNombre').value.trim();
+  var monto=parseFloat(document.getElementById('patriInitMonto').value)||0;
+  if(!nombre||!monto){ toast('Completa nombre y monto','err'); return; }
+  var prev=cloneData(_patrimonioState);
+  try{
+    await addPatrimonioOpeningItem(tipo,nombre,monto,'PEN','Saldo inicial de apertura');
+    document.getElementById('patriInitNombre').value='';
+    document.getElementById('patriInitMonto').value='';
+    toast('Patrimonio inicial guardado','ok');
+  }catch(e){
+    _patrimonioState=prev;
+    toast('No se pudo guardar en la nube','err');
+  }
   renderPatrimonio();
 }
 function abrirAjustePatrimonio(tipo,id){
@@ -3562,6 +3711,19 @@ async function eliminarPasivo(id){
   renderPatrimonio();
 }
 function renderPatrimonio(){
+  var initMode=isPatrimonioInitMode();
+  var initView=document.getElementById('patriInitView');
+  var mainView=document.getElementById('patriMainView');
+  if(initView) initView.classList.toggle('show',initMode);
+  if(mainView) mainView.classList.toggle('hide',initMode);
+  if(initMode){
+    destroyChart('cPatrimonio');
+    var initMov=document.getElementById('patrimonioMovimientos');
+    if(initMov) initMov.innerHTML='';
+    var initKpi=document.getElementById('patriKpis'); if(initKpi) initKpi.innerHTML='';
+    var initSum=document.getElementById('netoSummary'); if(initSum) initSum.innerHTML='';
+    return;
+  }
   var tA=_activos.reduce(function(s,a){return s+toPen(patrimonioSaldoItem('activo',a),a.moneda);},0);
   var tP=_pasivos.reduce(function(s,p){return s+toPen(patrimonioSaldoItem('pasivo',p),p.moneda);},0);
   var neto=tA-tP;

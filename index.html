@@ -175,6 +175,49 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 .plant-chip:hover{border-color:var(--muted);color:var(--text);}
 
 @media(max-width:360px){.monto-inp{font-size:36px;}.row{flex-direction:column;gap:0;}}
+
+/* RESPONSIVE LAYOUT OVERRIDES */
+html,body{overflow-x:hidden;}
+body{min-width:320px;}
+.auth-screen,.page,.header,.user-row,.quick-bar,.tipo-row,.section,.modal-box{min-width:0;}
+.page{width:min(100%,760px);max-width:760px;margin:0 auto;padding:clamp(16px,2vw,32px) clamp(14px,2vw,24px) 88px;}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.dt-wrap{text-align:right;}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:start;}
+.row .section{min-width:0;}
+.monto-wrap{min-width:0;gap:10px;align-items:baseline;}
+.monto-inp{min-width:0;line-height:1.05;}
+.chips,.subchips,.mpago-row,.quick-bar,.plantilla-grid,.etiq-wrap{max-width:100%;}
+.quick-bar,.user-row,.tipo-row{width:100%;}
+.auth-card{width:min(100%,380px);}
+.modal-box{width:min(100%,440px);}
+
+@media(max-width:768px){
+  .page{max-width:100%;padding:16px 12px 84px;}
+  .header{gap:12px;align-items:flex-start;}
+  .dt-wrap{text-align:left;}
+  .row{grid-template-columns:1fr;gap:0;}
+  .monto-inp{font-size:clamp(2.6rem,14vw,3.8rem);}
+  .quick-bar{padding:10px;}
+  .monto-wrap{padding-bottom:12px;}
+  .modal-box{border-radius:12px 12px 0 0;padding:20px 16px 32px;}
+  .auth-card{padding:28px 20px;}
+  .tipo-row{margin-bottom:22px;}
+}
+
+@media(min-width:769px){
+  body{padding:0 24px;}
+  .page{max-width:860px;padding:32px 24px 96px;}
+  .header{align-items:center;}
+  .row{grid-template-columns:1fr 1fr;gap:18px;}
+  .row .wide{grid-column:span 2;}
+  .monto-inp{font-size:clamp(3.8rem,5vw,5rem);}
+  .quick-bar{padding:14px;}
+}
+
+@media(min-width:1280px){
+  .page{max-width:980px;}
+}
 </style>
 </head>
 <body>
@@ -223,8 +266,8 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
     <div class="monto-wrap">
       <span class="monto-sym">S/</span>
       <input class="monto-inp" id="monto" type="text" inputmode="decimal" placeholder="0.00"
-        oninput="rawMonto=this.value.replace(/[^0-9.]/g,'')"
-        onblur="if(rawMonto)this.value=parseFloat(rawMonto).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})"
+        oninput="rawMonto=this.value"
+        onblur="finalizeAmountField(this)"
         onfocus="this.value=rawMonto">
     </div>
     <div class="err-msg" id="eMonto"></div>
@@ -263,7 +306,7 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
     </div>
     <div class="section wide">
       <div class="sec-label">Descripción</div>
-      <input type="text" class="text-inp" id="desc" placeholder="Ej. Almuerzo" maxlength="80">
+      <input type="text" class="text-inp" id="desc" placeholder="Ej. Almuerzo" maxlength="80" oninput="handleConceptTyping(this.value)">
     </div>
   </div>
 
@@ -337,7 +380,7 @@ const SETTINGS_PATH = 'config/settings';
 const PATRIMONIO_PATH = 'config/patrimonio';
 const SOBREGIROS_PATH = 'config/sobregiros';
 
-let _cloudFormConfig = { plantillas: [], ultimoGasto: null };
+let _cloudFormConfig = { plantillas: [], ultimoGasto: null, conceptStats: {} };
 let _cloudSettings = {};
 let _patrimonioState = { activos: [], pasivos: [], history: [], movimientos: [] };
 let _sobregirosState = [];
@@ -379,7 +422,9 @@ async function loadFormConfig() {
     _cloudFormConfig = {
       plantillas: Array.isArray(cloud.plantillas) ? cloud.plantillas : [],
       ultimoGasto: cloud.ultimoGasto || null,
+      conceptStats: cloud.conceptStats && typeof cloud.conceptStats === 'object' ? cloud.conceptStats : {},
     };
+    _conceptStats = _cloudFormConfig.conceptStats;
     return _cloudFormConfig;
   }
 
@@ -388,7 +433,9 @@ async function loadFormConfig() {
   _cloudFormConfig = {
     plantillas: Array.isArray(legacyPlantillas) ? legacyPlantillas : [],
     ultimoGasto: legacyUltimo || null,
+    conceptStats: {},
   };
+  _conceptStats = _cloudFormConfig.conceptStats;
   if (_cloudFormConfig.plantillas.length || _cloudFormConfig.ultimoGasto) {
     await saveFormConfig();
     localStorage.removeItem('fin_plantillas');
@@ -398,6 +445,7 @@ async function loadFormConfig() {
 }
 
 async function saveFormConfig() {
+  _cloudFormConfig.conceptStats = _conceptStats;
   await saveUserDoc(FORM_CONFIG_PATH, _cloudFormConfig);
 }
 
@@ -515,6 +563,11 @@ let metodoPago='', etiquetasSel=[];
 let _etiquetasDisp=['trabajo','familia','viaje','salud','ocio','urgente','comida','transporte'];
 let _plantillas=[];
 let _ultimoGasto=null;
+let _conceptStats={};
+let _autoConceptKey='';
+let _autoConceptCat='';
+let _autoConceptSub='';
+let _autoConceptMp='';
 
 var defaultData={
   gasto:{
@@ -542,6 +595,143 @@ function showEstado(msg,type){
   if(!st) return;
   st.className='estado '+(type||'');
   st.textContent=msg;
+}
+
+function cleanAmountText(value){
+  return String(value===undefined||value===null?'':value).trim().replace(/\s+/g,'');
+}
+function parseAmountText(value){
+  var txt=cleanAmountText(value);
+  if(!txt) return null;
+  var normalized=txt.replace(/,/g,'');
+  if(/^[0-9+\-*/().]+$/.test(normalized) && !/\*\*|\/\//.test(normalized) && /[+\-*/()]/.test(normalized)){
+    try{
+      var result=Function('"use strict";return ('+normalized+')')();
+      if(typeof result==='number' && isFinite(result)) return result;
+    }catch(e){}
+  }
+  var numeric=parseFloat(normalized);
+  return isFinite(numeric)?numeric:null;
+}
+function formatAmountInput(n){
+  return Number(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function finalizeAmountField(el){
+  if(!el) return;
+  if(!String(el.value||'').trim()){
+    if(el.dataset) el.dataset.rawAmount='';
+    el.value='';
+    return;
+  }
+  var value=parseAmountText(el.value);
+  if(value===null && el.dataset && el.dataset.rawAmount!==undefined){
+    value=parseAmountText(el.dataset.rawAmount);
+  }
+  if(value===null) return;
+  if(el.dataset) el.dataset.rawAmount=String(value);
+  el.value=formatAmountInput(value);
+}
+
+function normalizeConceptText(value){
+  return String(value===undefined||value===null?'':value).toLowerCase().trim().replace(/[^a-z0-9\u00c0-\u024f]+/g,' ').replace(/\s+/g,' ');
+}
+function conceptKeyFromText(value){
+  var clean=normalizeConceptText(value);
+  if(!clean) return '';
+  var rules=[
+    {key:'taxi',tipo:'gasto',re:/\b(uber|cabify|taxi|didi|indrive|in\s*drive)\b/i},
+    {key:'movilidad',tipo:'gasto',re:/\b(bus|pasaje|movilidad|metro|tren)\b/i},
+    {key:'comida',tipo:'gasto',re:/\b(almuerzo|desayuno|cena|comida|menu|delivery|rappi|pedidos\s*ya|restaurant|restaurante)\b/i},
+    {key:'streaming',tipo:'gasto',re:/\b(netflix|spotify|prime|disney|hbo|max|streaming)\b/i},
+    {key:'servicios',tipo:'gasto',re:/\b(agua|luz|internet|telefono|servicio|servicios|gas)\b/i},
+    {key:'salud',tipo:'gasto',re:/\b(farmacia|medicina|consulta|clinica|salud|laboratorio)\b/i},
+    {key:'sueldo',tipo:'ingreso',re:/\b(sueldo|salario|planilla|nomina|n[oó]mina)\b/i},
+    {key:'freelance',tipo:'ingreso',re:/\b(freelance|consultoria|consultoría|proyecto|servicio|servicios)\b/i},
+    {key:'inversiones',tipo:'ingreso',re:/\b(dividendos?|intereses?|inversion|inversi[oó]n|venta\s*activo)\b/i}
+  ];
+  for(var i=0;i<rules.length;i++){
+    if(rules[i].re.test(clean)) return rules[i].key;
+  }
+  var parts=clean.split(' ');
+  return parts.slice(0,2).join(' ');
+}
+function pickTopCount(map, fallback){
+  if(map && typeof map==='object'){
+    var best='',score=-1;
+    Object.keys(map).forEach(function(key){
+      var val=map[key]||0;
+      if(val>score){best=key;score=val;}
+    });
+    if(best) return best;
+  }
+  return fallback||'';
+}
+function conceptRuleMatch(value,currentTipo){
+  var clean=normalizeConceptText(value);
+  if(!clean) return null;
+  var rules=[
+    {key:'taxi',tipo:'gasto',re:/\b(uber|cabify|taxi|didi|indrive|in\s*drive)\b/i,cat:'Transporte',sub:'Taxi',mp:'yape'},
+    {key:'movilidad',tipo:'gasto',re:/\b(bus|pasaje|movilidad|metro|tren)\b/i,cat:'Transporte',sub:'Bus',mp:'efectivo'},
+    {key:'comida',tipo:'gasto',re:/\b(almuerzo|desayuno|cena|comida|menu|delivery|rappi|pedidos\s*ya|restaurant|restaurante)\b/i,cat:'Alimentacion',sub:'Almuerzo',mp:'efectivo'},
+    {key:'streaming',tipo:'gasto',re:/\b(netflix|spotify|prime|disney|hbo|max|streaming)\b/i,cat:'Entretenimiento',sub:'Streaming',mp:'credito'},
+    {key:'servicios',tipo:'gasto',re:/\b(agua|luz|internet|telefono|servicio|servicios|gas)\b/i,cat:'Servicios',sub:'Internet',mp:'debito'},
+    {key:'salud',tipo:'gasto',re:/\b(farmacia|medicina|consulta|clinica|salud|laboratorio)\b/i,cat:'Salud',sub:'Farmacia',mp:'debito'},
+    {key:'sueldo',tipo:'ingreso',re:/\b(sueldo|salario|planilla|nomina|n[oó]mina)\b/i,cat:'Sueldo',sub:'Mensual',mp:'debito'},
+    {key:'freelance',tipo:'ingreso',re:/\b(freelance|consultoria|consultoría|proyecto|servicio|servicios)\b/i,cat:'Freelance',sub:'Proyecto',mp:'transferencia'},
+    {key:'inversiones',tipo:'ingreso',re:/\b(dividendos?|intereses?|inversion|inversi[oó]n|venta\s*activo)\b/i,cat:'Inversiones',sub:'Dividendos',mp:'transferencia'}
+  ];
+  for(var i=0;i<rules.length;i++){
+    var rule=rules[i];
+    if((!rule.tipo || rule.tipo===currentTipo) && rule.re.test(clean)) return rule;
+  }
+  return null;
+}
+function getConceptSuggestion(text){
+  var key=conceptKeyFromText(text);
+  var rule=conceptRuleMatch(text,tipo);
+  var stats=_conceptStats[key]||{};
+  var cat=pickTopCount(stats.catCounts, rule&&rule.cat);
+  var sub=pickTopCount(stats.subCounts, rule&&rule.sub);
+  var mp=pickTopCount(stats.mpCounts, rule&&rule.mp);
+  if(!cat && rule) cat=rule.cat;
+  if(!sub && rule) sub=rule.sub;
+  if(!mp && rule) mp=rule.mp;
+  return {key:key,cat:cat||'',sub:sub||'',mp:mp||''};
+}
+function updateConceptStats(record){
+  var key=conceptKeyFromText(record.descripcion||'');
+  if(!key) return;
+  var bucket=_conceptStats[key]||{catCounts:{},subCounts:{},mpCounts:{}};
+  if(record.categoria){ bucket.catCounts[record.categoria]=(bucket.catCounts[record.categoria]||0)+1; }
+  if(record.subcategoria){ bucket.subCounts[record.subcategoria]=(bucket.subCounts[record.subcategoria]||0)+1; }
+  var mpValue=record.mp||record.metodo_pago||'';
+  if(mpValue){ bucket.mpCounts[mpValue]=(bucket.mpCounts[mpValue]||0)+1; }
+  _conceptStats[key]=bucket;
+  _cloudFormConfig.conceptStats=_conceptStats;
+}
+function applyConceptSuggestion(text){
+  var sug=getConceptSuggestion(text);
+  var clean=normalizeConceptText(text);
+  if(!clean){
+    if(catSel && catSel===_autoConceptCat){ catSel=''; subSel=''; renderCats(); renderSubs(); }
+    if(metodoPago && metodoPago===_autoConceptMp){ metodoPago=''; selMetodoPago(''); }
+    _autoConceptKey=''; _autoConceptCat=''; _autoConceptSub=''; _autoConceptMp='';
+    return;
+  }
+  if(!catSel || catSel===_autoConceptCat){
+    if(sug.cat && catSel!==sug.cat){ catSel=sug.cat; subSel=sug.sub||''; renderCats(); renderSubs(); }
+    else if(sug.sub && (!subSel || subSel===_autoConceptSub)){ subSel=sug.sub; renderSubs(); }
+  }
+  if(!metodoPago || metodoPago===_autoConceptMp){
+    if(sug.mp && metodoPago!==sug.mp){ metodoPago=sug.mp; selMetodoPago(sug.mp); }
+  }
+  _autoConceptKey=sug.key;
+  _autoConceptCat=sug.cat;
+  _autoConceptSub=sug.sub;
+  _autoConceptMp=sug.mp;
+}
+function handleConceptTyping(text){
+  applyConceptSuggestion(text);
 }
 
 // DateTime
@@ -651,11 +841,13 @@ function setTipo(t){
   document.getElementById('estado').textContent='';
   cancelInline('cat');cancelInline('sub');
   renderCats();renderSubs();
+  handleConceptTyping(document.getElementById('desc').value);
 }
 
 function validate(){
   var ok=true;
-  if(!rawMonto||isNaN(parseFloat(rawMonto))||parseFloat(rawMonto)<=0){document.getElementById('eMonto').textContent='Monto';ok=false;}
+  var montoVal=parseAmountText(rawMonto);
+  if(montoVal===null||montoVal<=0){document.getElementById('eMonto').textContent='Monto';ok=false;}
   if(!catSel){document.getElementById('eCat').textContent='Categoría';ok=false;}
   return ok;
 }
@@ -704,12 +896,13 @@ function aplicarPlantilla(i){
   if(p.desc){document.getElementById('desc').value=p.desc;}
   if(p.mp){metodoPago=p.mp;selMetodoPago(p.mp);}
   renderCats();renderSubs();
+  handleConceptTyping(document.getElementById('desc').value);
   showEstado('Aplicada','ok');
 }
 function mostrarFormPlantilla(){
   var n=document.getElementById('desc').value.trim()||prompt('Plantilla','');
   if(!n) return;
-  var p={nombre:n,tipo:tipo,monto:parseFloat(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
+  var p={nombre:n,tipo:tipo,monto:parseAmountText(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
   _plantillas.push(p);
   _cloudFormConfig.plantillas=_plantillas;
   saveFormConfig().catch(function(error){ console.error(error); });
@@ -726,10 +919,12 @@ function repetirUltimo(){
   if(u.desc){document.getElementById('desc').value=u.desc;}
   if(u.mp){metodoPago=u.mp;selMetodoPago(u.mp);}
   renderCats();renderSubs();
+  handleConceptTyping(document.getElementById('desc').value);
   showEstado('Cargado','ok');
 }
 function resetForm(){
   rawMonto='';catSel='';subSel='';metodoPago='';etiquetasSel=[];
+  _autoConceptKey='';_autoConceptCat='';_autoConceptSub='';_autoConceptMp='';
   document.getElementById('monto').value='';
   document.getElementById('desc').value='';
   document.getElementById('fecha').value=today;
@@ -757,7 +952,7 @@ async function guardar() {
       hora_ingreso: now.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
       fechahora: now.toLocaleString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}),
       tipo: tipo,
-      monto: parseFloat(rawMonto),
+      monto: parseAmountText(rawMonto),
       categoria: catSel,
       subcategoria: subSel,
       descripcion: document.getElementById('desc').value.trim(),
@@ -767,12 +962,14 @@ async function guardar() {
       createdAt: window._serverTimestamp()
     };
     // Guardar último gasto para repetir
-    _ultimoGasto={tipo:tipo,monto:parseFloat(rawMonto),cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
+    _ultimoGasto={tipo:tipo,monto:parseAmountText(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
     _cloudFormConfig.ultimoGasto=_ultimoGasto;
     await saveFormConfig();
     document.getElementById('btnRepetir').style.display='block';
 
     await window._addRegistro(registro);
+    updateConceptStats(registro);
+    saveFormConfig().catch(function(error){ console.error(error); });
     await motorSobregiro(registro);
     resetForm();
     document.getElementById('estado').className='estado ok';

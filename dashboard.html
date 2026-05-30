@@ -338,7 +338,7 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .modal-close:hover{color:var(--text);}
 .m-field{margin-bottom:11px;}
 .m-field label{display:block;font-size:9px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.m-field input,.m-field select,.m-field textarea{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:3px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;resize:vertical;}
+.m-field input,.m-field select,.m-field textarea{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:3px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;resize:vertical;}
 .m-field input:focus,.m-field select:focus,.m-field textarea:focus{border-color:var(--gold-b);}
 .m-field select option{background:var(--s2);}
 .m-btns{display:flex;gap:7px;margin-top:6px;}
@@ -530,6 +530,43 @@ tbody td{padding:10px;color:var(--text2);font-weight:300;}
 .patri-kpi-val.neg{color:var(--red-tx);}
 .patri-money{display:grid;grid-template-columns:1fr minmax(90px,.5fr) minmax(82px,.35fr) auto;gap:6px;}
 .patri-money select{min-width:82px;}
+.patri-item{display:flex;flex-direction:column;gap:8px;}
+.patri-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.patri-item-meta{min-width:0;flex:1;}
+.patri-item-balance{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);white-space:nowrap;}
+.patri-item-balance.pos{color:var(--green-tx);}
+.patri-item-balance.neg{color:var(--red-tx);}
+.patri-item-sub{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.45;}
+.patri-item-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
+.patri-action-btn{padding:4px 9px;border:1px solid var(--border2);background:none;border-radius:2px;font-size:9px;color:var(--muted);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;transition:all .15s;}
+.patri-action-btn:hover{color:var(--text);border-color:var(--muted);}
+.patri-action-btn.active{color:var(--gold);border-color:var(--gold-b);background:var(--gold-d);}
+.patri-adjust-form{display:none;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:10px 12px;border:1px solid var(--border2);border-radius:3px;background:var(--s1);}
+.patri-adjust-form.show{display:grid;}
+.patri-adjust-form input{min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:8px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
+.patri-adjust-fields{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.patri-adjust-amt{width:110px;}
+.patri-adjust-mot{flex:1;min-width:140px;}
+.patri-sign-group{display:flex;gap:4px;flex-shrink:0;}
+.patri-sign-btn{width:30px;height:30px;border:1px solid var(--border2);border-radius:2px;background:var(--s2);color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1;}
+.patri-sign-btn.active{border-color:var(--gold-b);background:var(--gold-d);color:var(--gold);}
+.patri-adjust-save{padding:8px 10px;border:1px solid var(--gold-b);background:var(--gold-d);border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);cursor:pointer;white-space:nowrap;}
+.patri-adjust-save:hover{background:var(--gold);color:var(--bg);}
+.patri-adjust-cancel{padding:8px 10px;border:1px solid var(--border2);background:none;border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;}
+.patri-adjust-cancel:hover{color:var(--text);}
+.patri-ledger{display:flex;flex-direction:column;gap:2px;}
+.patri-ledger-head,.patri-ledger-row{display:grid;grid-template-columns:72px minmax(0,1.35fr) 56px 88px minmax(0,1.1fr);gap:8px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:9px;}
+.patri-ledger-head{color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:0 2px 5px;border-bottom:1px solid var(--border);}
+.patri-ledger-row{padding:8px 2px;border-bottom:1px solid var(--border);}
+.patri-ledger-row:last-child{border-bottom:none;}
+.patri-ledger-date,.patri-ledger-item,.patri-ledger-mot{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.patri-ledger-type.pos{color:var(--green-tx);}
+.patri-ledger-type.neg{color:var(--red-tx);}
+.patri-ledger-amt{justify-self:end;white-space:nowrap;}
+.patri-ledger-amt.pos{color:var(--green-tx);}
+.patri-ledger-amt.neg{color:var(--red-tx);}
+.patri-ledger-more{margin-top:8px;align-self:flex-end;padding:5px 10px;border:1px solid var(--border2);border-radius:2px;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;}
+.patri-ledger-more:hover{color:var(--text);}
 
 /* CREDITO */
 .credit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:12px;}
@@ -1137,6 +1174,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
 let unsubListener = null;
+let unsubPatrimonioListener = null;
 
 // Build a Firestore DocumentReference from a slash-separated path
 function makeRef(path) {
@@ -1182,7 +1220,7 @@ function up(path) {
 
 // Expose all operations
 window._loginGoogle      = async () => { try { await signInWithPopup(auth, provider); } catch(e) { window.toast('Error al iniciar sesion','err'); } };
-window._logout           = async () => { if (unsubListener) unsubListener(); await signOut(auth); };
+window._logout           = async () => { if (unsubListener) unsubListener(); if (unsubPatrimonioListener) unsubPatrimonioListener(); await signOut(auth); };
 window._updateDoc        = async (id, data) => { await updateDoc(doc(db,'users',currentUser.uid,'registros',id), data); };
 window._deleteDoc        = async (id)       => { await deleteDoc(doc(db,'users',currentUser.uid,'registros',id)); };
 
@@ -1227,9 +1265,21 @@ onAuthStateChanged(auth, user => {
     const av = document.getElementById('sbAvatar');
     if (user.photoURL) av.innerHTML = '<img src="' + user.photoURL + '" alt="">';
     else av.textContent = nm.charAt(0).toUpperCase();
+    if (unsubPatrimonioListener) unsubPatrimonioListener();
+    unsubPatrimonioListener = onSnapshot(doc(db,'users',user.uid,'config','patrimonio'), snap => {
+      const payload = snap.exists() ? snap.data() : {activos:[], pasivos:[], history:[], movimientos:[]};
+      _patrimonioState = payload || {activos:[], pasivos:[], history:[], movimientos:[]};
+      _activos = (_patrimonioState.activos || []).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
+      _pasivos = (_patrimonioState.pasivos || []).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
+      _patrimonioMovimientos = Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : [];
+      _patrimonioHistory = rebuildPatrimonioHistory();
+      if (vistaActiva === 'patrimonio') renderPatrimonio();
+    }, e => console.error('[FB] patrimonio listener error', e));
     window.onAppReady();
   } else {
     currentUser = null;
+    if (unsubListener) unsubListener();
+    if (unsubPatrimonioListener) unsubPatrimonioListener();
     document.getElementById('authScreen').classList.add('show');
     document.getElementById('app').classList.remove('ready');
   }
@@ -1246,7 +1296,9 @@ onAuthStateChanged(auth, user => {
 var allRows=[], periodoActivo=0, vistaActiva='dashboard', charts={};
 var presupCat={}, presupSub={}, _metas=[], _recurrentes=[], _settings={}, _alertLimits={}, _creditos=[];
 var _configLoaded=false;
-var _activos=[], _pasivos=[], _patrimonioHistory=[], _patrimonioMovimientos=[];
+var _activos=[], _pasivos=[], _patrimonioHistory=[], _patrimonioMovimientos=[], _patrimonioState={activos:[], pasivos:[], history:[], movimientos:[]};
+var _patriAdjustState={entity:null,id:null,mode:'decremento'};
+var _patriMovLimit=5;
 var _etiquetas=['trabajo','familia','viaje','salud','ocio','urgente'], _etiquetasActivas=[];
 var meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 var mesesFull=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1275,6 +1327,9 @@ function toast(msg,type,dur){
 }
 function removeToast(t){ if(!t||!t.parentElement) return; t.classList.add('out'); setTimeout(function(){ if(t.parentElement) t.parentElement.removeChild(t); },300); }
 function cloneData(obj){ return JSON.parse(JSON.stringify(obj)); }
+function normText(value){
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
+}
 function selectedMonth(){ return periodoActivo || (new Date().getMonth()+1); }
 function selectedYear(){ return periodoAnio || new Date().getFullYear(); }
 function monthKey(m){ return selectedYear()+'-'+String(m || selectedMonth()).padStart(2,'0'); }
@@ -1324,10 +1379,11 @@ async function loadMonthScopedState(force){
   var oldAlerts=await safe(function(){return window._loadAlertasConfig();},{limites:{}});
   presupCat=results[0].cats||{}; presupSub=results[0].subs||{};
   _recurrentes=results[1]||[];
-  _activos=(results[2].activos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; return x; });
-  _pasivos=(results[2].pasivos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; return x; });
-  _patrimonioHistory=results[2].history||[];
-  _patrimonioMovimientos=results[2].movimientos||[];
+  _patrimonioState=results[2]||{activos:[],pasivos:[],history:[],movimientos:[]};
+  _activos=(_patrimonioState.activos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
+  _pasivos=(_patrimonioState.pasivos||[]).map(function(x){ if(!x.moneda) x.moneda='PEN'; if(x.saldoInicial===undefined) x.saldoInicial=parseFloat(x.monto)||0; return x; });
+  _patrimonioMovimientos=Array.isArray(_patrimonioState.movimientos)?_patrimonioState.movimientos:[];
+  _patrimonioHistory=rebuildPatrimonioHistory();
   _sobregiros=dedupeSobregirosLista(results[3]||[]);
   _alertLimits=(results[4].limites && Object.keys(results[4].limites).length) ? results[4].limites : (oldAlerts.limites||_settings.limites||{});
   _creditos=results[5]||[];
@@ -3167,81 +3223,106 @@ function getTodayPatrimonio(){
 }
 function tcUsd(){ return parseFloat(_settings.tcUsd)||3.75; }
 function toPen(n,moneda){ return (parseFloat(n)||0) * ((moneda||'PEN')==='USD'?tcUsd():1); }
+function patrimonioItemBase(item){
+  return parseFloat(item && item.saldoInicial !== undefined ? item.saldoInicial : item && item.monto !== undefined ? item.monto : 0) || 0;
+}
+function patrimonioMovimientoImpacto(mov){
+  if(mov && mov.impacto !== undefined && mov.impacto !== null && mov.impacto !== '') return parseFloat(mov.impacto) || 0;
+  var monto=Math.abs(parseFloat(mov && mov.monto) || 0);
+  var tipo=(mov && mov.tipo) || '';
+  if(tipo==='incremento' || tipo==='alta' || tipo==='agrega') return (mov && mov.entidad)==='pasivo' ? -monto : monto;
+  if(tipo==='decremento' || tipo==='baja' || tipo==='elimina') return (mov && mov.entidad)==='pasivo' ? monto : -monto;
+  return parseFloat(mov && mov.monto) || 0;
+}
+function patrimonioItemMatchesMovimiento(mov, item){
+  if(!mov || !item) return false;
+  if(mov.itemId && item.id && mov.itemId===item.id) return true;
+  var moveName=normText(mov.nombre || mov.subcategoria || mov.descripcion || '');
+  var itemName=normText(item.nombre || '');
+  if(moveName && itemName && moveName===itemName) return true;
+  if(moveName && itemName && moveName.indexOf(itemName)>=0) return true;
+  if(moveName.indexOf('AGORA')>=0 && itemName.indexOf('AGORA')>=0) return true;
+  return false;
+}
+function patrimonioSaldoItem(entidad, item){
+  var base=patrimonioItemBase(item);
+  var delta=(_patrimonioMovimientos||[]).reduce(function(sum,mov){
+    return sum + ((mov && mov.entidad===entidad && patrimonioItemMatchesMovimiento(mov,item)) ? patrimonioMovimientoImpacto(mov) : 0);
+  },0);
+  return Math.round((base+delta)*100)/100;
+}
 function getPatrimonioNeto(){
-  var tA=_activos.reduce(function(s,a){return s+toPen(a.monto,a.moneda);},0);
-  var tP=_pasivos.reduce(function(s,p){return s+toPen(p.monto,p.moneda);},0);
+  var tA=_activos.reduce(function(s,a){return s+toPen(patrimonioSaldoItem('activo',a),a.moneda);},0);
+  var tP=_pasivos.reduce(function(s,p){return s+toPen(patrimonioSaldoItem('pasivo',p),p.moneda);},0);
   return {activos:tA,pasivos:tP,neto:tA-tP};
 }
 function fmtMoneda(n,moneda){
   var pre=moneda==='USD'?'$':(window._moneda||'S/');
   return pre+' '+Math.abs(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function patrimonioPorMoneda(lista){
+function patrimonioPorMoneda(lista, entidad){
   return (lista||[]).reduce(function(acc,item){
     var m=item.moneda||'PEN';
-    acc[m]=(acc[m]||0)+(parseFloat(item.monto)||0);
+    acc[m]=(acc[m]||0)+patrimonioSaldoItem(entidad||item.entidad||'activo',item);
     return acc;
   },{PEN:0,USD:0});
 }
 function registrarMovimientoPatrimonio(data){
-  var netoInfo=getPatrimonioNeto();
+  var impacto=data.impacto!==undefined && data.impacto!==null && data.impacto!=='' ? parseFloat(data.impacto) : patrimonioMovimientoImpacto(data);
   var mov={
     id:data.id||Date.now().toString()+Math.random().toString(16).slice(2,8),
     fecha:data.fecha||getTodayPatrimonio(),
     tipo:data.tipo||'ajuste',
     entidad:data.entidad||'activo',
+    itemId:data.itemId||null,
     nombre:data.nombre||'Patrimonio',
-    monto:Math.round((parseFloat(data.monto)||0)*100)/100,
-    motivo:data.motivo||'Movimiento manual',
+    monto:Math.round(Math.abs(parseFloat(data.monto)||0)*100)/100,
+    impacto:Math.round(impacto*100)/100,
+    motivo:data.motivo||'Ajuste manual',
     categoria:data.categoria||'PATRIMONIO',
     subcategoria:data.subcategoria||'',
     registroId:data.registroId||null,
-    saldoPosterior:data.saldoPosterior===undefined?netoInfo.neto:data.saldoPosterior
+    monthKey:data.monthKey||currentScopedKey(),
+    fuente:data.fuente||'manual',
+    creadoEn:new Date().toISOString()
   };
   _patrimonioMovimientos.unshift(mov);
   _patrimonioMovimientos=_patrimonioMovimientos.slice(0,120);
+  _patrimonioHistory.push({fecha:mov.fecha,valor:getPatrimonioNeto().neto,motivo:mov.motivo});
+  _patrimonioHistory=_patrimonioHistory.slice(-24);
+  syncPatrimonioState();
+  return mov;
 }
 function getImpactoMovimientoPatrimonio(mov){
-  var monto=Math.abs(parseFloat(mov.monto)||0);
-  if(mov.entidad==='pasivo'){
-    if(mov.tipo==='agrega') return -monto;
-    if(mov.tipo==='elimina') return monto;
-    return parseFloat(mov.monto)||0;
-  }
-  if(mov.tipo==='elimina') return -monto;
-  return parseFloat(mov.monto)||0;
+  return patrimonioMovimientoImpacto(mov);
 }
 function findPatrimonioItem(entidad, nombre){
   var lista=entidad==='pasivo'?_pasivos:_activos;
-  return lista.find(function(item){ return item.nombre===nombre; })||null;
+  var target=normText(nombre);
+  return lista.find(function(item){ return normText(item.nombre)===target || normText(item.nombre).indexOf(target)>=0 || target.indexOf(normText(item.nombre))>=0; })||null;
 }
-function upsertPatrimonioItem(entidad, nombre, monto){
-  var lista=entidad==='pasivo'?_pasivos:_activos;
-  var item=findPatrimonioItem(entidad, nombre);
-  if(item){
-    item.monto=Math.round(monto*100)/100;
-    if(item.monto<=0){
-      if(entidad==='pasivo') _pasivos=_pasivos.filter(function(p){return p.id!==item.id;});
-      else _activos=_activos.filter(function(a){return a.id!==item.id;});
-    }
-    return item;
-  }
-  if(monto>0){
-    item={id:Date.now().toString()+Math.random().toString(16).slice(2,6),nombre:nombre,monto:Math.round(monto*100)/100};
-    lista.push(item);
-    return item;
-  }
-  return null;
+function syncPatrimonioState(){
+  _patrimonioState.activos=_activos;
+  _patrimonioState.pasivos=_pasivos;
+  _patrimonioState.history=_patrimonioHistory;
+  _patrimonioState.movimientos=_patrimonioMovimientos;
+}
+function rebuildPatrimonioHistory(){
+  var neto=_activos.reduce(function(s,a){return s+patrimonioItemBase(a);},0)-_pasivos.reduce(function(s,p){return s+patrimonioItemBase(p);},0);
+  var items=(_patrimonioMovimientos||[]).slice().sort(function(a,b){
+    return new Date(a.creadoEn||a.createdAt||a.fecha||0)-new Date(b.creadoEn||b.createdAt||b.fecha||0);
+  });
+  var hist=[];
+  items.forEach(function(mov){
+    neto+=patrimonioMovimientoImpacto(mov);
+    hist.push({fecha:mov.fecha||getTodayPatrimonio(),valor:Math.round(neto*100)/100,motivo:mov.motivo||''});
+  });
+  return hist.slice(-24);
 }
 async function eliminarMovimientoPatrimonio(id){
   var prevActivos=cloneData(_activos), prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevSob=cloneData(_sobregiros);
   var mov=_patrimonioMovimientos.find(function(x){return x.id===id;});
   if(!mov) return;
-  var delta=Math.round((parseFloat(mov.monto)||0)*100)/100;
-  var item=findPatrimonioItem(mov.entidad, mov.nombre);
-  var montoActual=item?parseFloat(item.monto)||0:0;
-  var montoRevertido=Math.round((montoActual-delta)*100)/100;
-  upsertPatrimonioItem(mov.entidad, mov.nombre, montoRevertido);
   _patrimonioMovimientos=_patrimonioMovimientos.filter(function(x){return x.id!==id;});
   if(mov.categoria==='SOBREGIRO' && (mov.subcategoria||'').toUpperCase()==='AHORRO AGORA' && mov.registroId){
     var sob=_sobregiros.find(function(s){return s.registroId===mov.registroId && s.tipo==='AHORRO AGORA';});
@@ -3266,13 +3347,124 @@ async function eliminarMovimientoPatrimonio(id){
   renderPatrimonio();
   toast('Movimiento eliminado y patrimonio recalculado','ok');
 }
+
+function buildPatrimonioItemRow(entidad, item){
+  var balance=patrimonioSaldoItem(entidad, item);
+  var formOpen=_patriAdjustState.entity===entidad && _patriAdjustState.id===item.id;
+  var row=document.createElement('div');
+  row.className='neto-item patri-item';
+
+  var head=document.createElement('div');
+  head.className='patri-item-head';
+
+  var meta=document.createElement('div');
+  meta.className='patri-item-meta';
+  var name=document.createElement('div');
+  name.className='neto-item-name';
+  name.textContent=item.nombre;
+  var sub=document.createElement('div');
+  sub.className='patri-item-sub';
+  sub.textContent=(item.moneda||'PEN')+' · saldo base '+fmtMoneda(patrimonioItemBase(item),item.moneda||'PEN');
+  meta.appendChild(name);
+  meta.appendChild(sub);
+
+  var actions=document.createElement('div');
+  actions.className='patri-item-actions';
+  var bal=document.createElement('div');
+  bal.className='patri-item-balance '+(balance>=0?'pos':'neg');
+  bal.textContent=fmtMoneda(balance,item.moneda||'PEN');
+  var btnA=document.createElement('button');
+  btnA.className='patri-action-btn '+(formOpen?'active':'');
+  btnA.textContent=formOpen?'Cerrar':'Ajustar';
+  btnA.onclick=function(){
+    if(formOpen) cerrarAjustePatrimonio();
+    else abrirAjustePatrimonio(entidad, item.id);
+  };
+  var btnD=document.createElement('button');
+  btnD.className='patri-action-btn';
+  btnD.textContent='Eliminar';
+  btnD.onclick=function(){ if(entidad==='activo') eliminarActivo(item.id); else eliminarPasivo(item.id); };
+  actions.appendChild(bal);
+  actions.appendChild(btnA);
+  actions.appendChild(btnD);
+  head.appendChild(meta);
+  head.appendChild(actions);
+  row.appendChild(head);
+
+  if(formOpen){
+    var form=document.createElement('div');
+    form.className='patri-adjust-form show';
+    form.id='patriAdjustForm-'+entidad+'-'+item.id;
+
+    var inputsWrap=document.createElement('div');
+    inputsWrap.className='patri-adjust-fields';
+
+    var amt=document.createElement('input');
+    amt.type='number';
+    amt.min='0';
+    amt.step='0.01';
+    amt.placeholder='Monto a ajustar';
+    amt.className='patri-adjust-amt';
+    amt.id='patriAmt-'+entidad+'-'+item.id;
+
+    var mot=document.createElement('input');
+    mot.type='text';
+    mot.maxLength='70';
+    mot.placeholder='Motivo';
+    mot.value='Ajuste manual';
+    mot.className='patri-adjust-mot';
+    mot.id='patriMot-'+entidad+'-'+item.id;
+
+    var signGroup=document.createElement('div');
+    signGroup.className='patri-sign-group';
+    var plus=document.createElement('button');
+    plus.type='button';
+    plus.className='patri-sign-btn '+(_patriAdjustState.mode==='incremento'?'active':'');
+    plus.textContent='+';
+    plus.onclick=function(){
+      _patriAdjustState.mode='incremento';
+      plus.classList.add('active');
+      minus.classList.remove('active');
+    };
+    var minus=document.createElement('button');
+    minus.type='button';
+    minus.className='patri-sign-btn '+(_patriAdjustState.mode==='decremento'?'active':'');
+    minus.textContent='-';
+    minus.onclick=function(){
+      _patriAdjustState.mode='decremento';
+      minus.classList.add('active');
+      plus.classList.remove('active');
+    };
+    signGroup.appendChild(plus);
+    signGroup.appendChild(minus);
+
+    inputsWrap.appendChild(amt);
+    inputsWrap.appendChild(mot);
+    inputsWrap.appendChild(signGroup);
+
+    var save=document.createElement('button');
+    save.type='button';
+    save.className='patri-adjust-save';
+    save.textContent='Guardar';
+    save.onclick=function(){ confirmarPatriEdit(); };
+
+    var cancel=document.createElement('button');
+    cancel.type='button';
+    cancel.className='patri-adjust-cancel';
+    cancel.textContent='Cancelar';
+    cancel.onclick=function(){ cerrarAjustePatrimonio(); };
+
+    form.appendChild(inputsWrap);
+    form.appendChild(save);
+    form.appendChild(cancel);
+    row.appendChild(form);
+  }
+
+  return row;
+}
 async function savePatrimonio(){
-  var netoInfo=getPatrimonioNeto();
-  var today=getTodayPatrimonio();
-  var existing=_patrimonioHistory.findIndex(function(h){return h.fecha===today;});
-  if(existing>=0) _patrimonioHistory[existing].valor=netoInfo.neto;
-  else _patrimonioHistory.push({fecha:today,valor:netoInfo.neto});
-  _patrimonioHistory=_patrimonioHistory.slice(-24);
+  _patrimonioHistory=rebuildPatrimonioHistory();
+  syncPatrimonioState();
   await window._savePatrimonio({
     activos:_activos,
     pasivos:_pasivos,
@@ -3281,94 +3473,99 @@ async function savePatrimonio(){
   });
 }
 async function agregarActivo(){
-  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
+  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
   var n=document.getElementById('activoNombre').value.trim(),m=parseFloat(document.getElementById('activoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   var moneda=document.getElementById('activoMoneda')?document.getElementById('activoMoneda').value:'PEN';
-  _activos.push({id:Date.now().toString(),nombre:n,monto:m,moneda:moneda});
-  registrarMovimientoPatrimonio({tipo:'agrega',entidad:'activo',nombre:n,monto:m,motivo:'Activo agregado manualmente'});
+  _activos.push({id:Date.now().toString(),nombre:n,saldoInicial:m,monto:m,moneda:moneda});
   try{ await savePatrimonio(); toast(n+' agregado','ok'); }
-  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo guardar en la nube','err'); }
+  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState; toast('No se pudo guardar en la nube','err'); }
   document.getElementById('activoNombre').value='';document.getElementById('activoMonto').value='';
   renderPatrimonio();
 }
 async function agregarPasivo(){
-  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
+  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
   var n=document.getElementById('pasivoNombre').value.trim(),m=parseFloat(document.getElementById('pasivoMonto').value)||0;
   if(!n||!m){toast('Completa nombre y monto','err');return;}
   var moneda=document.getElementById('pasivoMoneda')?document.getElementById('pasivoMoneda').value:'PEN';
-  _pasivos.push({id:Date.now().toString(),nombre:n,monto:m,moneda:moneda});
-  registrarMovimientoPatrimonio({tipo:'agrega',entidad:'pasivo',nombre:n,monto:m,motivo:'Pasivo agregado manualmente'});
+  _pasivos.push({id:Date.now().toString(),nombre:n,saldoInicial:m,monto:m,moneda:moneda});
   try{ await savePatrimonio(); toast(n+' agregado','ok'); }
-  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo guardar en la nube','err'); }
+  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState; toast('No se pudo guardar en la nube','err'); }
   document.getElementById('pasivoNombre').value='';document.getElementById('pasivoMonto').value='';
   renderPatrimonio();
 }
-var _patriEditType=null, _patriEditId=null;
-function editarPatrimonio(tipo,id){
-  _patriEditType=tipo; _patriEditId=id;
-  var lista=tipo==='activo'?_activos:_pasivos;
-  var item=lista.find(function(x){return x.id===id;}); if(!item) return;
-  document.getElementById('patriEditTitle').textContent=tipo==='activo'?'Editar activo':'Editar pasivo';
-  document.getElementById('peNombre').value=item.nombre||'';
-  document.getElementById('peMonto').value=item.monto||'';
-  document.getElementById('patriEditOv').classList.add('show');
+function abrirAjustePatrimonio(tipo,id){
+  _patriAdjustState={entity:tipo,id:id,mode:'decremento'};
+  renderPatrimonio();
+  setTimeout(function(){
+    var inp=document.getElementById('patriAmt-'+tipo+'-'+id);
+    if(inp) inp.focus();
+  },0);
 }
-function hidePatriEditModal(){ document.getElementById('patriEditOv').classList.remove('show'); _patriEditType=null; _patriEditId=null; }
+function cerrarAjustePatrimonio(){
+  _patriAdjustState={entity:null,id:null,mode:'decremento'};
+  renderPatrimonio();
+}
+function editarPatrimonio(tipo,id){
+  abrirAjustePatrimonio(tipo,id);
+}
+function hidePatriEditModal(){ cerrarAjustePatrimonio(); }
 async function confirmarPatriEdit(){
-  if(!_patriEditType||!_patriEditId) return;
-  var prevActivos=cloneData(_activos), prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
-  var lista=_patriEditType==='activo'?_activos:_pasivos;
-  var item=lista.find(function(x){return x.id===_patriEditId;}); if(!item) return;
-  var nombreAnterior=item.nombre;
-  var montoAnterior=item.monto;
-  item.nombre=document.getElementById('peNombre').value.trim()||item.nombre;
-  item.monto=parseFloat(document.getElementById('peMonto').value)||item.monto;
+  if(!_patriAdjustState.entity||!_patriAdjustState.id) return;
+  var prevActivos=cloneData(_activos), prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
+  var lista=_patriAdjustState.entity==='activo'?_activos:_pasivos;
+  var item=lista.find(function(x){return x.id===_patriAdjustState.id;}); if(!item) return;
+  var amtInput=document.getElementById('patriAmt-'+_patriAdjustState.entity+'-'+_patriAdjustState.id);
+  var motInput=document.getElementById('patriMot-'+_patriAdjustState.entity+'-'+_patriAdjustState.id);
+  var amt=parseFloat(amtInput&&amtInput.value)||0;
+  var motivo=(motInput&&motInput.value.trim())||'Ajuste manual';
+  if(!amt){toast('Ingresa un monto','err');return;}
+  var impacto=_patriAdjustState.mode==='incremento'?amt:-amt;
   registrarMovimientoPatrimonio({
-    tipo:'edita',
-    entidad:_patriEditType,
+    tipo:_patriAdjustState.mode,
+    entidad:_patriAdjustState.entity,
+    itemId:item.id,
     nombre:item.nombre,
-    monto:item.monto-montoAnterior,
-    motivo:'Actualizacion manual de '+nombreAnterior,
+    monto:amt,
+    impacto:impacto,
+    motivo:motivo,
     categoria:'PATRIMONIO',
     subcategoria:item.nombre
   });
   try{
     await savePatrimonio();
-    toast(item.nombre+' actualizado','ok');
-    hidePatriEditModal();
+    toast('Ajuste registrado','ok');
+    cerrarAjustePatrimonio();
   }catch(e){
-    _activos=prevActivos; _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs;
+    _activos=prevActivos; _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState;
     toast('No se pudo guardar en la nube','err');
   }
   renderPatrimonio();
 }
 
 async function eliminarActivo(id){
-  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
+  var prevActivos=cloneData(_activos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
   var item=_activos.find(function(a){return a.id===id;});
   if(!item) return;
   _activos=_activos.filter(function(a){return a.id!==id;});
-  registrarMovimientoPatrimonio({tipo:'elimina',entidad:'activo',nombre:item.nombre,monto:-item.monto,motivo:'Activo eliminado manualmente'});
   try{ await savePatrimonio(); toast('Activo eliminado','info'); }
-  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo eliminar en la nube','err'); }
+  catch(e){ _activos=prevActivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState; toast('No se pudo eliminar en la nube','err'); }
   renderPatrimonio();
 }
 async function eliminarPasivo(id){
-  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos);
+  var prevPasivos=cloneData(_pasivos), prevHist=cloneData(_patrimonioHistory), prevMovs=cloneData(_patrimonioMovimientos), prevState=cloneData(_patrimonioState);
   var item=_pasivos.find(function(p){return p.id===id;});
   if(!item) return;
   _pasivos=_pasivos.filter(function(p){return p.id!==id;});
-  registrarMovimientoPatrimonio({tipo:'elimina',entidad:'pasivo',nombre:item.nombre,monto:-item.monto,motivo:'Pasivo eliminado manualmente'});
   try{ await savePatrimonio(); toast('Pasivo eliminado','info'); }
-  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; toast('No se pudo eliminar en la nube','err'); }
+  catch(e){ _pasivos=prevPasivos; _patrimonioHistory=prevHist; _patrimonioMovimientos=prevMovs; _patrimonioState=prevState; toast('No se pudo eliminar en la nube','err'); }
   renderPatrimonio();
 }
 function renderPatrimonio(){
-  var tA=_activos.reduce(function(s,a){return s+toPen(a.monto,a.moneda);},0);
-  var tP=_pasivos.reduce(function(s,p){return s+toPen(p.monto,p.moneda);},0);
+  var tA=_activos.reduce(function(s,a){return s+toPen(patrimonioSaldoItem('activo',a),a.moneda);},0);
+  var tP=_pasivos.reduce(function(s,p){return s+toPen(patrimonioSaldoItem('pasivo',p),p.moneda);},0);
   var neto=tA-tP;
-  var activosM=patrimonioPorMoneda(_activos), pasivosM=patrimonioPorMoneda(_pasivos);
+  var activosM=patrimonioPorMoneda(_activos,'activo'), pasivosM=patrimonioPorMoneda(_pasivos,'pasivo');
   var kpis=document.getElementById('patriKpis');
   if(kpis){
     kpis.innerHTML='<div class="patri-kpi"><div class="patri-kpi-lbl">Activos PEN</div><div class="patri-kpi-val pos">'+fmtMoneda(activosM.PEN,'PEN')+'</div></div>'+
@@ -3383,10 +3580,10 @@ function renderPatrimonio(){
     var prev2=_patrimonioHistory[_patrimonioHistory.length-2];
     varMensual=last.valor-prev2.valor;
   }
-  var activosPEN=_activos.filter(function(a){return (a.moneda||'PEN')==='PEN';}).reduce(function(s,a){return s+(parseFloat(a.monto)||0);},0);
-  var activosUSD=_activos.filter(function(a){return a.moneda==='USD';}).reduce(function(s,a){return s+(parseFloat(a.monto)||0);},0);
-  var pasivosPN=_pasivos.filter(function(p){return (p.moneda||'PEN')==='PEN';}).reduce(function(s,p){return s+(parseFloat(p.monto)||0);},0);
-  var pasivosUSD=_pasivos.filter(function(p){return p.moneda==='USD';}).reduce(function(s,p){return s+(parseFloat(p.monto)||0);},0);
+  var activosPEN=_activos.filter(function(a){return (a.moneda||'PEN')==='PEN';}).reduce(function(s,a){return s+patrimonioSaldoItem('activo',a);},0);
+  var activosUSD=_activos.filter(function(a){return a.moneda==='USD';}).reduce(function(s,a){return s+patrimonioSaldoItem('activo',a);},0);
+  var pasivosPN=_pasivos.filter(function(p){return (p.moneda||'PEN')==='PEN';}).reduce(function(s,p){return s+patrimonioSaldoItem('pasivo',p);},0);
+  var pasivosUSD=_pasivos.filter(function(p){return p.moneda==='USD';}).reduce(function(s,p){return s+patrimonioSaldoItem('pasivo',p);},0);
   var tc=tcUsd();
   var netoUSD=neto/tc;
   sum.innerHTML=
@@ -3401,47 +3598,23 @@ function renderPatrimonio(){
     '<div class="neto-card"><div class="neto-lbl">Var. mensual</div><div class="neto-val '+(varMensual>=0?'pos':'neg')+'">'+(varMensual>=0?'+':'')+fmt(varMensual)+'</div></div>';
   var aL=document.getElementById('activosList'),pL=document.getElementById('pasivosList');
   if(aL){
-  aL.innerHTML='';
-  if(!_activos.length){
-    var empty=document.createElement('div');
-    empty.className='neto-empty';
-    empty.textContent='Sin activos registrados';
-    aL.appendChild(empty);
-  } else _activos.forEach(function(a){
-    var row=document.createElement('div'); row.className='neto-item';
-    var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=a.nombre;
-    var right=document.createElement('div'); right.className='neto-actions';
-    var val=document.createElement('div'); val.className='neto-item-val pos'; val.textContent=fmtMoneda(a.monto,a.moneda||'PEN');
-    var btnE=document.createElement('button'); btnE.textContent='Editar';
-    btnE.className='neto-edit-btn';
-    btnE.onclick=(function(id){return function(){editarPatrimonio('activo',id);};})(a.id);
-    var btnD=document.createElement('button'); btnD.className='neto-item-del'; btnD.innerHTML='&#x2715;';
-    btnD.onclick=(function(id){return function(){eliminarActivo(id);};})(a.id);
-    right.appendChild(val); right.appendChild(btnE); right.appendChild(btnD);
-    row.appendChild(name); row.appendChild(right); aL.appendChild(row);
-  });
-}
+    aL.innerHTML='';
+    if(!_activos.length){
+      var empty=document.createElement('div');
+      empty.className='neto-empty';
+      empty.textContent='Sin activos registrados';
+      aL.appendChild(empty);
+    } else _activos.forEach(function(a){ aL.appendChild(buildPatrimonioItemRow('activo',a)); });
+  }
   if(pL){
-  pL.innerHTML='';
-  if(!_pasivos.length){
-    var empty2=document.createElement('div');
-    empty2.className='neto-empty';
-    empty2.textContent='Sin pasivos registrados';
-    pL.appendChild(empty2);
-  } else _pasivos.forEach(function(p){
-    var row=document.createElement('div'); row.className='neto-item';
-    var name=document.createElement('div'); name.className='neto-item-name'; name.textContent=p.nombre;
-    var right=document.createElement('div'); right.className='neto-actions';
-    var val=document.createElement('div'); val.className='neto-item-val neg'; val.textContent=fmtMoneda(p.monto,p.moneda||'PEN');
-    var btnE=document.createElement('button'); btnE.textContent='Editar';
-    btnE.className='neto-edit-btn';
-    btnE.onclick=(function(id){return function(){editarPatrimonio('pasivo',id);};})(p.id);
-    var btnD=document.createElement('button'); btnD.className='neto-item-del'; btnD.innerHTML='&#x2715;';
-    btnD.onclick=(function(id){return function(){eliminarPasivo(id);};})(p.id);
-    right.appendChild(val); right.appendChild(btnE); right.appendChild(btnD);
-    row.appendChild(name); row.appendChild(right); pL.appendChild(row);
-  });
-}
+    pL.innerHTML='';
+    if(!_pasivos.length){
+      var empty2=document.createElement('div');
+      empty2.className='neto-empty';
+      empty2.textContent='Sin pasivos registrados';
+      pL.appendChild(empty2);
+    } else _pasivos.forEach(function(p){ pL.appendChild(buildPatrimonioItemRow('pasivo',p)); });
+  }
   destroyChart('cPatrimonio');
   var canv=document.getElementById('cPatrimonio');
   if(canv&&_patrimonioHistory.length>1){
@@ -3451,34 +3624,33 @@ function renderPatrimonio(){
   if(movWrap){
     movWrap.innerHTML='';
     if(!_patrimonioMovimientos.length){
-      movWrap.innerHTML='<div class="patri-empty">Cada cambio manual o automatico del patrimonio aparecera aqui. Esto incluye movimientos por SOBREGIRO con subcategoria AHORRO AGORA.</div>';
-    } else {
-      _patrimonioMovimientos.forEach(function(mov){
-        var impacto=getImpactoMovimientoPatrimonio(mov);
-        var cls=impacto>=0?'pos':'neg';
-        var row=document.createElement('div'); row.className='patri-mov';
-        var dot=document.createElement('div'); dot.className='patri-mov-dot '+cls;
-        var body=document.createElement('div'); body.className='patri-mov-body';
-        var top=document.createElement('div'); top.className='patri-mov-top';
-        var title=document.createElement('div'); title.className='patri-mov-title';
-        title.textContent=(mov.nombre||'Patrimonio')+' - '+(mov.motivo||'Movimiento');
-        var actions=document.createElement('div'); actions.className='patri-mov-actions';
-        var amt=document.createElement('div'); amt.className='patri-mov-amt '+cls;
-        amt.textContent=(impacto>=0?'+ ':'- ')+fmt(Math.abs(impacto));
-        var btnDel=document.createElement('button'); btnDel.className='patri-mov-del';
-        btnDel.textContent='Eliminar';
-        btnDel.onclick=(function(id){return function(){eliminarMovimientoPatrimonio(id);};})(mov.id);
-        var sub=document.createElement('div'); sub.className='patri-mov-sub';
-        var detalles=[mov.fecha||'', mov.categoria||'PATRIMONIO'];
-        if(mov.subcategoria) detalles.push(mov.subcategoria);
-        if(mov.saldoPosterior!==undefined&&mov.saldoPosterior!==null) detalles.push('Patrimonio neto: '+fmt(mov.saldoPosterior));
-        sub.textContent=detalles.filter(Boolean).join(' - ');
-        actions.appendChild(amt); actions.appendChild(btnDel);
-        top.appendChild(title); top.appendChild(actions);
-        body.appendChild(top); body.appendChild(sub);
-        row.appendChild(dot); row.appendChild(body);
-        movWrap.appendChild(row);
-      });
+      movWrap.innerHTML='<div class="patri-empty">Cada ajuste, penalización o movimiento automático aparecerá aquí.</div>';
+      return;
+    }
+    var head=document.createElement('div'); head.className='patri-ledger-head';
+    head.innerHTML='<div>Fecha</div><div>Ítem</div><div>Tipo</div><div style="text-align:right">Monto</div><div>Motivo</div>';
+    movWrap.appendChild(head);
+    var rows=_patrimonioMovimientos.slice(0,_patriMovLimit);
+    rows.forEach(function(mov){
+      var impact=patrimonioMovimientoImpacto(mov);
+      var row=document.createElement('div'); row.className='patri-ledger-row';
+      var c1=document.createElement('div'); c1.className='patri-ledger-date'; c1.textContent=(mov.fecha||'').slice(0,10);
+      var c2=document.createElement('div'); c2.className='patri-ledger-item'; c2.textContent=mov.nombre||'Patrimonio';
+      var c3=document.createElement('div'); c3.className='patri-ledger-type '+(impact>=0?'pos':'neg'); c3.textContent=impact>=0?'+':'-';
+      var c4=document.createElement('div'); c4.className='patri-ledger-amt '+(impact>=0?'pos':'neg'); c4.textContent=fmt(Math.abs(impact));
+      var c5=document.createElement('div'); c5.className='patri-ledger-mot'; c5.textContent=mov.motivo||'';
+      row.appendChild(c1); row.appendChild(c2); row.appendChild(c3); row.appendChild(c4); row.appendChild(c5);
+      movWrap.appendChild(row);
+    });
+    if(_patrimonioMovimientos.length>_patriMovLimit){
+      var more=document.createElement('button');
+      more.className='patri-ledger-more';
+      more.textContent=_patriMovLimit>=10?'Ver menos':'Ver más';
+      more.onclick=function(){
+        _patriMovLimit=_patriMovLimit>=10?5:10;
+        renderPatrimonio();
+      };
+      movWrap.appendChild(more);
     }
   }
 }

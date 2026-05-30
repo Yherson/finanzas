@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
 <meta name="description" content="Registra tus transacciones personales con método de pago, notas y etiquetas.">
-<title>Finanzas — Registro</title>
+<title>Finanzas Registro</title>
 <link rel="icon" type="image/svg+xml" href="fav_formulario.svg">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Serif:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
@@ -65,7 +65,7 @@ body{display:flex;justify-content:center;padding:0;}
 /* MONTO */
 .monto-wrap{display:flex;align-items:baseline;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border2);}
 .monto-sym{font-family:'IBM Plex Serif',serif;font-size:22px;font-weight:300;color:var(--muted);}
-.monto-inp{flex:1;background:none;border:none;outline:none;font-family:'IBM Plex Serif',serif;font-size:44px;font-weight:400;color:var(--text);letter-spacing:-1px;width:100%;-webkit-appearance:none;}
+.monto-inp{flex:1;background:none;border:none;outline:none;font-family:'IBM Plex Serif',serif;font-size:44px;font-weight:400;color:var(--text);letter-spacing:-1px;width:100%;appearance:none;-webkit-appearance:none;}
 .monto-inp::placeholder{color:var(--border2);}
 .err-msg{font-size:10px;color:var(--red);margin-top:5px;}
 
@@ -98,7 +98,7 @@ body{display:flex;justify-content:center;padding:0;}
 /* INLINE FORM */
 .inline-form{display:none;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap;}
 .inline-form.on{display:flex;}
-.inline-inp{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);outline:none;-webkit-appearance:none;}
+.inline-inp{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
 .inline-inp::placeholder{color:var(--muted);}
 .inline-inp:focus{border-color:var(--gold-b);}
 .inline-ok{padding:9px 16px;border-radius:2px;border:1px solid var(--gold-b);background:var(--gold-d);font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);cursor:pointer;}
@@ -113,7 +113,7 @@ body{display:flex;justify-content:center;padding:0;}
 .modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .modal-title-txt{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
 .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
-.modal-inp{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:300;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;}
+.modal-inp{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:2px;padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:300;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
 .modal-inp:focus{border-color:var(--gold-b);}
 .modal-btns{display:flex;gap:8px;}
 .mbtn{flex:1;padding:12px;border-radius:2px;font-family:'IBM Plex Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;border:none;}
@@ -129,7 +129,7 @@ body{display:flex;justify-content:center;padding:0;}
 .row{display:flex;gap:16px;}
 .row .section{flex:1;}
 .row .section.wide{flex:1.8;}
-.text-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;}
+.text-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;}
 .text-inp::placeholder{color:var(--muted);}
 input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3);cursor:pointer;}
 
@@ -157,12 +157,13 @@ input[type="date"].text-inp::-webkit-calendar-picker-indicator{filter:invert(0.3
 .mp-btn.sel-i{background:var(--green-d);border-color:var(--green-b);color:var(--green);}
 
 /* NOTA + ETIQUETAS */
-.nota-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;-webkit-appearance:none;resize:none;}
+.nota-inp{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:9px 0;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:300;color:var(--text);outline:none;appearance:none;-webkit-appearance:none;resize:none;}
 .nota-inp::placeholder{color:var(--muted);}
 .etiq-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
 .etiq{padding:4px 10px;border-radius:12px;border:1px solid var(--border2);background:var(--s2);font-size:9px;letter-spacing:.5px;color:var(--muted2);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
 .etiq.sel{background:var(--gold-d);border-color:var(--gold-b);color:var(--gold);}
 .etiq.sel-i{background:var(--green-d);border-color:var(--green-b);color:var(--green);}
+.tag-input-inline{background:none;border:none;border-bottom:1px solid var(--border);outline:none;font-family:'IBM Plex Sans',sans-serif;font-size:10px;color:var(--text);width:70px;padding:2px 4px;}
 
 /* ACCESOS RAPIDOS */
 .quick-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding:12px;background:var(--s1);border:1px solid var(--border);border-radius:3px;}
@@ -331,11 +332,113 @@ const provider = new GoogleAuthProvider();
 
 window._serverTimestamp = serverTimestamp;
 
+const FORM_CONFIG_PATH = 'config/formulario';
+const SETTINGS_PATH = 'config/settings';
+const PATRIMONIO_PATH = 'config/patrimonio';
+const SOBREGIROS_PATH = 'config/sobregiros';
+
+let _cloudFormConfig = { plantillas: [], ultimoGasto: null };
+let _cloudSettings = {};
+let _patrimonioState = { activos: [], pasivos: [], history: [], movimientos: [] };
+let _sobregirosState = [];
+
+function userDoc(path) {
+  const current = window._currentUser || auth.currentUser;
+  if (!current) return null;
+  return doc(db, 'users', current.uid, ...String(path).split('/').filter(Boolean));
+}
+
+async function loadUserDoc(path, fallback) {
+  const ref = userDoc(path);
+  if (!ref) return fallback;
+  try {
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data() : fallback;
+  } catch (error) {
+    console.error('[FB] loadUserDoc error', path, error);
+    return fallback;
+  }
+}
+
+async function saveUserDoc(path, data) {
+  const ref = userDoc(path);
+  if (!ref) throw new Error('no-auth');
+  await setDoc(ref, data, { merge: true });
+}
+
+function monthKeyFromDate(value) {
+  const raw = String(value || '').slice(0, 7);
+  if (/^\d{4}-\d{2}$/.test(raw)) return raw;
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+async function loadFormConfig() {
+  const cloud = await loadUserDoc(FORM_CONFIG_PATH, null);
+  if (cloud && typeof cloud === 'object') {
+    _cloudFormConfig = {
+      plantillas: Array.isArray(cloud.plantillas) ? cloud.plantillas : [],
+      ultimoGasto: cloud.ultimoGasto || null,
+    };
+    return _cloudFormConfig;
+  }
+
+  const legacyPlantillas = JSON.parse(localStorage.getItem('fin_plantillas') || '[]');
+  const legacyUltimo = JSON.parse(localStorage.getItem('fin_ultimo') || 'null');
+  _cloudFormConfig = {
+    plantillas: Array.isArray(legacyPlantillas) ? legacyPlantillas : [],
+    ultimoGasto: legacyUltimo || null,
+  };
+  if (_cloudFormConfig.plantillas.length || _cloudFormConfig.ultimoGasto) {
+    await saveFormConfig();
+    localStorage.removeItem('fin_plantillas');
+    localStorage.removeItem('fin_ultimo');
+  }
+  return _cloudFormConfig;
+}
+
+async function saveFormConfig() {
+  await saveUserDoc(FORM_CONFIG_PATH, _cloudFormConfig);
+}
+
+async function loadSettingsDoc() {
+  _cloudSettings = await loadUserDoc(SETTINGS_PATH, {});
+  return _cloudSettings;
+}
+
+async function loadPatrimonioState() {
+  _patrimonioState = await loadUserDoc(PATRIMONIO_PATH, { activos: [], pasivos: [], history: [], movimientos: [] });
+  _patrimonioState.activos = Array.isArray(_patrimonioState.activos) ? _patrimonioState.activos : [];
+  _patrimonioState.pasivos = Array.isArray(_patrimonioState.pasivos) ? _patrimonioState.pasivos : [];
+  _patrimonioState.history = Array.isArray(_patrimonioState.history) ? _patrimonioState.history : [];
+  _patrimonioState.movimientos = Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : [];
+  return _patrimonioState;
+}
+
+async function savePatrimonioState() {
+  await saveUserDoc(PATRIMONIO_PATH, _patrimonioState);
+}
+
+async function loadSobregirosState(monthKey) {
+  const scope = monthKey ? `months/${monthKey}/` : '';
+  const payload = await loadUserDoc(`${scope}${SOBREGIROS_PATH}`, { lista: [] });
+  _sobregirosState = Array.isArray(payload.lista) ? payload.lista : [];
+  return _sobregirosState;
+}
+
+async function saveSobregirosState(monthKey) {
+  const scope = monthKey ? `months/${monthKey}/` : '';
+  await saveUserDoc(`${scope}${SOBREGIROS_PATH}`, { lista: _sobregirosState });
+}
+
 window._loginGoogle = async () => {
   try { await signInWithPopup(auth, provider); }
-  catch(e) {
+  catch (e) {
     const st = document.getElementById('estado');
-    if(st){ st.className='estado fail'; st.textContent='Error al iniciar sesion'; }
+    if (st) {
+      st.className = 'estado fail';
+      st.textContent = 'Error al iniciar sesion';
+    }
     console.error(e);
   }
 };
@@ -358,17 +461,32 @@ onAuthStateChanged(auth, user => {
   if(user){
     window._currentUser = user;
     window._addRegistro = async (data) => addDoc(collection(db,'users',user.uid,'registros'), data);
-    window._addPatrimonioSobregiro = async (data) => addDoc(collection(db,'users',user.uid,'patrimonio'), data);
     window._firebaseReady = true;
     document.getElementById('authScreen').classList.remove('show');
     document.getElementById('mainPage').classList.add('show');
     document.getElementById('userName').textContent = user.displayName || user.email || 'Usuario';
-    // Load categories from Firestore
-    window._loadCats(user.uid).then(function(cats){
-      if(cats && (cats.gasto || cats.ingreso)){
+    Promise.all([
+      window._loadCats(user.uid),
+      loadFormConfig(),
+      loadSettingsDoc()
+    ]).then(([cats, formState, settings]) => {
+      if(cats && (cats.gasto || cats.ingreso)) {
         if(window._setCategoryData) window._setCategoryData(cats);
       }
-      renderCats(); renderSubs();
+      if(formState) {
+        _cloudFormConfig = formState;
+        _plantillas = Array.isArray(formState.plantillas) ? formState.plantillas : [];
+        _ultimoGasto = formState.ultimoGasto || null;
+      }
+      if(settings && settings.dashName) {
+        const brand = document.getElementById('brandName');
+        if(brand) brand.textContent = settings.dashName;
+      }
+      renderCats(); renderSubs(); renderPlantillas();
+      if(_ultimoGasto) document.getElementById('btnRepetir').style.display='block';
+    }).catch(error => {
+      console.error('[FB] init load error', error);
+      renderCats(); renderSubs(); renderPlantillas();
     });
   } else {
     window._currentUser = null;
@@ -380,13 +498,13 @@ onAuthStateChanged(auth, user => {
 </script>
 
 <script>
-var tipo='gasto', rawMonto='', catSel='', subSel='';
-var modalMode='', modalTarget='', modalParent='';
-var today=new Date().toISOString().split('T')[0];
-var metodoPago='', etiquetasSel=[];
-var _etiquetasDisp=['trabajo','familia','viaje','salud','ocio','urgente','comida','transporte'];
-var _plantillas=JSON.parse(localStorage.getItem('fin_plantillas')||'[]');
-var _ultimoGasto=JSON.parse(localStorage.getItem('fin_ultimo')||'null');
+let tipo='gasto', rawMonto='', catSel='', subSel='';
+let modalMode='', modalTarget='', modalParent='';
+const today=new Date().toISOString().split('T')[0];
+let metodoPago='', etiquetasSel=[];
+let _etiquetasDisp=['trabajo','familia','viaje','salud','ocio','urgente','comida','transporte'];
+let _plantillas=[];
+let _ultimoGasto=null;
 
 var defaultData={
   gasto:{
@@ -407,7 +525,7 @@ async function saveData(d){
   }
   await window._saveCats(window._currentUser.uid, d);
 }
-var data=loadData();
+let data=loadData();
 window._setCategoryData=function(cats){ data=cats; };
 function showEstado(msg,type){
   var st=document.getElementById('estado');
@@ -552,7 +670,7 @@ function renderEtiquetas(){
   });
   var inp=document.createElement('input');
   inp.placeholder='+etiqueta'; inp.maxLength=20;
-  inp.style.cssText='background:none;border:none;border-bottom:1px solid var(--border);outline:none;font-family:IBM Plex Sans,sans-serif;font-size:10px;color:var(--text);width:70px;padding:2px 4px;';
+  inp.className='tag-input-inline';
   inp.onkeydown=function(e){if(e.key==='Enter'&&this.value.trim()){var v=this.value.trim().toLowerCase().replace(/\s+/g,'_');if(_etiquetasDisp.indexOf(v)<0)_etiquetasDisp.push(v);etiquetasSel.push(v);this.value='';renderEtiquetas();}};
   wrap.appendChild(inp);
 }
@@ -583,7 +701,8 @@ function mostrarFormPlantilla(){
   if(!n) return;
   var p={nombre:n,tipo:tipo,monto:parseFloat(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
   _plantillas.push(p);
-  localStorage.setItem('fin_plantillas',JSON.stringify(_plantillas));
+  _cloudFormConfig.plantillas=_plantillas;
+  saveFormConfig().catch(function(error){ console.error(error); });
   renderPlantillas();
   showEstado('Plantilla guardada','ok');
 }
@@ -639,7 +758,8 @@ async function guardar() {
     };
     // Guardar último gasto para repetir
     _ultimoGasto={tipo:tipo,monto:parseFloat(rawMonto),cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
-    localStorage.setItem('fin_ultimo',JSON.stringify(_ultimoGasto));
+    _cloudFormConfig.ultimoGasto=_ultimoGasto;
+    await saveFormConfig();
     document.getElementById('btnRepetir').style.display='block';
 
     await window._addRegistro(registro);
@@ -698,6 +818,26 @@ async function motorSobregiro(data) {
           });
         }
 
+        const sobKey = monthKeyFromDate(data.fecha || today);
+        await loadSobregirosState(sobKey);
+        const alertEndDate = new Date(data.fecha || today);
+        alertEndDate.setDate(alertEndDate.getDate() + 30);
+        _sobregirosState.push({
+          id: `${Date.now()}`,
+          registroId: data.id || `${Date.now()}`,
+          fecha: data.fecha || today,
+          monthKey: sobKey,
+          monto: data.monto,
+          tipo: 'AHORRO AGORA',
+          creditoDeuda: Math.round((parseFloat(data.monto) || 0) * 0.1 * 100) / 100,
+          fechaAlerta: data.fecha || today,
+          fechaVence: alertEndDate.toISOString().split('T')[0],
+          descripcion: data.descripcion || '',
+          pagado: false,
+          mostrarAlerta: true
+        });
+        await saveSobregirosState(sobKey);
+
       } else {
         // Caso 1: crear gasto automatico el primer dia del mes siguiente
         await crearSobregiroFuturo(data);
@@ -730,6 +870,26 @@ async function crearSobregiroFuturo(data) {
       });
     }
 
+    const sobKey = monthKeyFromDate(data.fecha || today);
+    await loadSobregirosState(sobKey);
+    const alertEndDate = new Date(fechaFutura);
+    alertEndDate.setDate(alertEndDate.getDate() + 30);
+    _sobregirosState.push({
+      id: `${Date.now()}`,
+      registroId: data.id || `${Date.now()}`,
+      fecha: data.fecha || today,
+      monthKey: sobKey,
+      monto: data.monto,
+      tipo: 'SUELDO BBVA',
+      creditoDeuda: Math.round((parseFloat(data.monto) || 0) * 0.1 * 100) / 100,
+      fechaAlerta: fechaFutura,
+      fechaVence: alertEndDate.toISOString().split('T')[0],
+      descripcion: data.descripcion || '',
+      pagado: false,
+      mostrarAlerta: true
+    });
+    await saveSobregirosState(sobKey);
+
   } catch (e) {
     console.error("crearSobregiroFuturo error:", e);
   }
@@ -743,19 +903,26 @@ async function procesarPatrimonioSobregiro(data) {
 
   console.log("Impactando patrimonio");
 
-  const user = window._currentUser;
-  if (!user) return;
-
   try {
-    if(window._addPatrimonioSobregiro){
-      await window._addPatrimonioSobregiro({
-        tipo: "deuda_sobregiro",
-        origen: data.subcategoria,
-        monto: data.monto,
-        fecha: data.fecha,
-        estado: "pendiente",
-        createdAt: window._serverTimestamp()
+    await loadPatrimonioState();
+    const activo = _patrimonioState.activos.find((item) => String(item.nombre || '').toUpperCase().includes('AGORA'));
+    const monto = parseFloat(data.monto) || 0;
+    if (activo) {
+      const antes = parseFloat(activo.monto) || 0;
+      activo.monto = Math.max(0, Math.round((antes - monto) * 100) / 100);
+      _patrimonioState.movimientos.push({
+        id: `sob-${Date.now()}`,
+        fecha: data.fecha || today,
+        tipo: 'sobregiro',
+        entidad: 'activo',
+        nombre: activo.nombre,
+        monto: -monto,
+        motivo: 'Salida por sobregiro desde ahorro',
+        categoria: 'SOBREGIRO',
+        subcategoria: 'AHORRO AGORA',
+        registroId: data.id || `${Date.now()}`
       });
+      await savePatrimonioState();
     }
   } catch (e) {
     console.error("Error patrimonio:", e);
@@ -803,8 +970,6 @@ function agruparGastosPorDia(registros) {
 
 renderCats(); renderSubs(); renderEtiquetas(); renderPlantillas();
 if(_ultimoGasto) document.getElementById('btnRepetir').style.display='block';
-// Load dashboard name if available
-window._loadSettings && window._loadSettings && (function(){if(window._currentUser&&window._loadSettings){window._loadSettings().then(function(s){if(s&&s.dashName)document.getElementById('brandName').textContent=s.dashName;}).catch(function(){});}})();
 </script>
 </body>
 </html>

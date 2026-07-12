@@ -380,10 +380,14 @@ const SETTINGS_PATH = 'config/settings';
 const PATRIMONIO_PATH = 'config/patrimonio';
 const SOBREGIROS_PATH = 'config/sobregiros';
 
-let _cloudFormConfig = { plantillas: [], ultimoGasto: null, conceptStats: {} };
-let _cloudSettings = {};
-let _patrimonioState = { activos: [], pasivos: [], history: [], movimientos: [] };
-let _sobregirosState = [];
+// NOTA: estas variables deben vivir en `window` porque este bloque es un
+// <script type="module">, que tiene su propio scope aislado. El segundo
+// <script> (clásico) necesita leerlas/escribirlas, así que se exponen aquí
+// en vez de usar `let` local (que no sería visible fuera del módulo).
+window._cloudFormConfig = { plantillas: [], ultimoGasto: null, conceptStats: {} };
+window._cloudSettings = {};
+window._patrimonioState = { activos: [], pasivos: [], history: [], movimientos: [] };
+window._sobregirosState = [];
 
 function userDoc(path) {
   const current = window._currentUser || auth.currentUser;
@@ -419,75 +423,86 @@ function monthKeyFromDate(value) {
 async function loadFormConfig() {
   const cloud = await loadUserDoc(FORM_CONFIG_PATH, null);
   if (cloud && typeof cloud === 'object') {
-    _cloudFormConfig = {
+    window._cloudFormConfig = {
       plantillas: Array.isArray(cloud.plantillas) ? cloud.plantillas : [],
       ultimoGasto: cloud.ultimoGasto || null,
       conceptStats: cloud.conceptStats && typeof cloud.conceptStats === 'object' ? cloud.conceptStats : {},
     };
-    _conceptStats = _cloudFormConfig.conceptStats;
-    return _cloudFormConfig;
+    _conceptStats = window._cloudFormConfig.conceptStats;
+    return window._cloudFormConfig;
   }
 
   const legacyPlantillas = JSON.parse(localStorage.getItem('fin_plantillas') || '[]');
   const legacyUltimo = JSON.parse(localStorage.getItem('fin_ultimo') || 'null');
-  _cloudFormConfig = {
+  window._cloudFormConfig = {
     plantillas: Array.isArray(legacyPlantillas) ? legacyPlantillas : [],
     ultimoGasto: legacyUltimo || null,
     conceptStats: {},
   };
-  _conceptStats = _cloudFormConfig.conceptStats;
-  if (_cloudFormConfig.plantillas.length || _cloudFormConfig.ultimoGasto) {
+  _conceptStats = window._cloudFormConfig.conceptStats;
+  if (window._cloudFormConfig.plantillas.length || window._cloudFormConfig.ultimoGasto) {
     await saveFormConfig();
     localStorage.removeItem('fin_plantillas');
     localStorage.removeItem('fin_ultimo');
   }
-  return _cloudFormConfig;
+  return window._cloudFormConfig;
 }
 
 async function saveFormConfig() {
-  _cloudFormConfig.conceptStats = _conceptStats;
-  await saveUserDoc(FORM_CONFIG_PATH, _cloudFormConfig);
+  window._cloudFormConfig.conceptStats = _conceptStats;
+  await saveUserDoc(FORM_CONFIG_PATH, window._cloudFormConfig);
 }
 
 async function loadSettingsDoc() {
-  _cloudSettings = await loadUserDoc(SETTINGS_PATH, {});
-  return _cloudSettings;
+  window._cloudSettings = await loadUserDoc(SETTINGS_PATH, {});
+  return window._cloudSettings;
 }
 
 async function loadPatrimonioState() {
-  _patrimonioState = await loadUserDoc(PATRIMONIO_PATH, { initialized:false, activos: [], pasivos: [], patrimonio_historial: [] });
-  _patrimonioState.activos = Array.isArray(_patrimonioState.activos) ? _patrimonioState.activos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
-  _patrimonioState.pasivos = Array.isArray(_patrimonioState.pasivos) ? _patrimonioState.pasivos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
-  _patrimonioState.patrimonio_historial = Array.isArray(_patrimonioState.patrimonio_historial) ? _patrimonioState.patrimonio_historial : (Array.isArray(_patrimonioState.movimientos) ? _patrimonioState.movimientos : (Array.isArray(_patrimonioState.history) ? _patrimonioState.history : []));
-  if (_patrimonioState.initialized === undefined || _patrimonioState.initialized === null) {
-    _patrimonioState.initialized = !!(_patrimonioState.activos.length || _patrimonioState.pasivos.length || _patrimonioState.patrimonio_historial.length);
+  window._patrimonioState = await loadUserDoc(PATRIMONIO_PATH, { initialized:false, activos: [], pasivos: [], patrimonio_historial: [] });
+  window._patrimonioState.activos = Array.isArray(window._patrimonioState.activos) ? window._patrimonioState.activos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
+  window._patrimonioState.pasivos = Array.isArray(window._patrimonioState.pasivos) ? window._patrimonioState.pasivos.map((item) => ({ ...item, moneda: item.moneda || 'PEN', saldoInicial: item.saldoInicial !== undefined ? item.saldoInicial : (parseFloat(item.monto) || 0) })) : [];
+  window._patrimonioState.patrimonio_historial = Array.isArray(window._patrimonioState.patrimonio_historial) ? window._patrimonioState.patrimonio_historial : (Array.isArray(window._patrimonioState.movimientos) ? window._patrimonioState.movimientos : (Array.isArray(window._patrimonioState.history) ? window._patrimonioState.history : []));
+  if (window._patrimonioState.initialized === undefined || window._patrimonioState.initialized === null) {
+    window._patrimonioState.initialized = !!(window._patrimonioState.activos.length || window._patrimonioState.pasivos.length || window._patrimonioState.patrimonio_historial.length);
   }
-  return _patrimonioState;
+  return window._patrimonioState;
 }
 
 async function savePatrimonioState() {
   await saveUserDoc(PATRIMONIO_PATH, {
-    initialized: !!_patrimonioState.initialized,
-    activos: _patrimonioState.activos || [],
-    pasivos: _patrimonioState.pasivos || [],
-    patrimonio_historial: _patrimonioState.patrimonio_historial || [],
-    history: _patrimonioState.patrimonio_historial || [],
-    movimientos: _patrimonioState.patrimonio_historial || [],
-    resetAt: _patrimonioState.resetAt || ''
+    initialized: !!window._patrimonioState.initialized,
+    activos: window._patrimonioState.activos || [],
+    pasivos: window._patrimonioState.pasivos || [],
+    patrimonio_historial: window._patrimonioState.patrimonio_historial || [],
+    history: window._patrimonioState.patrimonio_historial || [],
+    movimientos: window._patrimonioState.patrimonio_historial || [],
+    resetAt: window._patrimonioState.resetAt || ''
   });
 }
 
 async function loadSobregirosState(monthKey) {
   const scope = monthKey ? `months/${monthKey}/` : '';
   const payload = await loadUserDoc(`${scope}${SOBREGIROS_PATH}`, { lista: [] });
-  _sobregirosState = Array.isArray(payload.lista) ? payload.lista : [];
-  return _sobregirosState;
+  window._sobregirosState = Array.isArray(payload.lista) ? payload.lista : [];
+  return window._sobregirosState;
 }
 
 async function saveSobregirosState(monthKey) {
   const scope = monthKey ? `months/${monthKey}/` : '';
-  await saveUserDoc(`${scope}${SOBREGIROS_PATH}`, { lista: _sobregirosState });
+  await saveUserDoc(`${scope}${SOBREGIROS_PATH}`, { lista: window._sobregirosState });
 }
+
+// Exponer las funciones compartidas en window para que el segundo <script>
+// (clásico) pueda invocarlas — un módulo no las expone globalmente por sí solo.
+window.saveFormConfig = saveFormConfig;
+window.loadFormConfig = loadFormConfig;
+window.loadSettingsDoc = loadSettingsDoc;
+window.loadPatrimonioState = loadPatrimonioState;
+window.savePatrimonioState = savePatrimonioState;
+window.loadSobregirosState = loadSobregirosState;
+window.saveSobregirosState = saveSobregirosState;
+window.monthKeyFromDate = monthKeyFromDate;
 
 window._loginGoogle = async () => {
   try { await signInWithPopup(auth, provider); }
@@ -532,7 +547,7 @@ onAuthStateChanged(auth, user => {
         if(window._setCategoryData) window._setCategoryData(cats);
       }
       if(formState) {
-        _cloudFormConfig = formState;
+        window._cloudFormConfig = formState;
         _plantillas = Array.isArray(formState.plantillas) ? formState.plantillas : [];
         _ultimoGasto = formState.ultimoGasto || null;
       }
@@ -707,7 +722,7 @@ function updateConceptStats(record){
   var mpValue=record.mp||record.metodo_pago||'';
   if(mpValue){ bucket.mpCounts[mpValue]=(bucket.mpCounts[mpValue]||0)+1; }
   _conceptStats[key]=bucket;
-  _cloudFormConfig.conceptStats=_conceptStats;
+  window._cloudFormConfig.conceptStats=_conceptStats;
 }
 function applyConceptSuggestion(text){
   var sug=getConceptSuggestion(text);
@@ -904,8 +919,8 @@ function mostrarFormPlantilla(){
   if(!n) return;
   var p={nombre:n,tipo:tipo,monto:parseAmountText(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
   _plantillas.push(p);
-  _cloudFormConfig.plantillas=_plantillas;
-  saveFormConfig().catch(function(error){ console.error(error); });
+  window._cloudFormConfig.plantillas=_plantillas;
+  window.saveFormConfig().catch(function(error){ console.error(error); });
   renderPlantillas();
   showEstado('Plantilla','ok');
 }
@@ -963,13 +978,13 @@ async function guardar() {
     };
     // Guardar último gasto para repetir
     _ultimoGasto={tipo:tipo,monto:parseAmountText(rawMonto)||0,cat:catSel,sub:subSel,desc:document.getElementById('desc').value.trim(),mp:metodoPago};
-    _cloudFormConfig.ultimoGasto=_ultimoGasto;
-    await saveFormConfig();
+    window._cloudFormConfig.ultimoGasto=_ultimoGasto;
+    await window.saveFormConfig();
     document.getElementById('btnRepetir').style.display='block';
 
     await window._addRegistro(registro);
     updateConceptStats(registro);
-    saveFormConfig().catch(function(error){ console.error(error); });
+    window.saveFormConfig().catch(function(error){ console.error(error); });
     await motorSobregiro(registro);
     resetForm();
     document.getElementById('estado').className='estado ok';
@@ -1025,11 +1040,11 @@ async function motorSobregiro(data) {
           });
         }
 
-        const sobKey = monthKeyFromDate(data.fecha || today);
-        await loadSobregirosState(sobKey);
+        const sobKey = window.monthKeyFromDate(data.fecha || today);
+        await window.loadSobregirosState(sobKey);
         const alertEndDate = new Date(data.fecha || today);
         alertEndDate.setDate(alertEndDate.getDate() + 30);
-        _sobregirosState.push({
+        window._sobregirosState.push({
           id: `${Date.now()}`,
           registroId: data.id || `${Date.now()}`,
           fecha: data.fecha || today,
@@ -1043,7 +1058,7 @@ async function motorSobregiro(data) {
           pagado: false,
           mostrarAlerta: true
         });
-        await saveSobregirosState(sobKey);
+        await window.saveSobregirosState(sobKey);
 
       } else {
         // Caso 1: crear gasto automatico el primer dia del mes siguiente
@@ -1077,11 +1092,11 @@ async function crearSobregiroFuturo(data) {
       });
     }
 
-    const sobKey = monthKeyFromDate(data.fecha || today);
-    await loadSobregirosState(sobKey);
+    const sobKey = window.monthKeyFromDate(data.fecha || today);
+    await window.loadSobregirosState(sobKey);
     const alertEndDate = new Date(fechaFutura);
     alertEndDate.setDate(alertEndDate.getDate() + 30);
-    _sobregirosState.push({
+    window._sobregirosState.push({
       id: `${Date.now()}`,
       registroId: data.id || `${Date.now()}`,
       fecha: data.fecha || today,
@@ -1095,7 +1110,7 @@ async function crearSobregiroFuturo(data) {
       pagado: false,
       mostrarAlerta: true
     });
-    await saveSobregirosState(sobKey);
+    await window.saveSobregirosState(sobKey);
 
   } catch (e) {
     console.error("crearSobregiroFuturo error:", e);
@@ -1111,10 +1126,10 @@ async function procesarPatrimonioSobregiro(data) {
   console.log("Impactando patrimonio");
 
   try {
-    await loadPatrimonioState();
+    await window.loadPatrimonioState();
     const monto = parseFloat(data.monto) || 0;
-    const activo = _patrimonioState.activos.find((item) => String(item.nombre || '').toUpperCase().includes('AGORA'));
-    _patrimonioState.patrimonio_historial.push({
+    const activo = window._patrimonioState.activos.find((item) => String(item.nombre || '').toUpperCase().includes('AGORA'));
+    window._patrimonioState.patrimonio_historial.push({
       id: `sob-${Date.now()}`,
       fecha: data.fecha || today,
       tipo: 'decremento',
@@ -1127,9 +1142,9 @@ async function procesarPatrimonioSobregiro(data) {
       categoria: 'SOBREGIRO',
       subcategoria: 'AHORRO AGORA',
       registroId: data.id || `${Date.now()}`,
-      monthKey: monthKeyFromDate(data.fecha || today)
+      monthKey: window.monthKeyFromDate(data.fecha || today)
     });
-    await savePatrimonioState();
+    await window.savePatrimonioState();
   } catch (e) {
     console.error("Error patrimonio:", e);
   }
